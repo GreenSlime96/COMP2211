@@ -21,6 +21,7 @@ public class Controls extends JComponent implements Observer {
 	
 	public Controls(Model model) {
 		this.model = model;
+
 		model.addObserver(this);
 	}
 	
@@ -28,8 +29,9 @@ public class Controls extends JComponent implements Observer {
 
 	@Override
 	public void update(Observable o, Object arg) {
-		// TODO Auto-generated method stub
-		
+		if (o == model) {
+			// TODO What happens when Model updates the controls?
+		}
 	}
 
 }
