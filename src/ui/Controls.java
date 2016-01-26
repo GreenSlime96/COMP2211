@@ -20,8 +20,8 @@ public class Controls extends JComponent implements Observer {
 	// ==== Constructor ====
 	
 	public Controls(Model model) {
-		
 		this.model = model;
+		model.addObserver(this);
 	}
 	
 	// ==== Observer Implementation ====
