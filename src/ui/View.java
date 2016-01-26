@@ -20,16 +20,20 @@ public class View extends JComponent implements Observer {
 	// ==== Constructor ====
 	
 	public View(Model model) {
+		super();
+
 		this.model = model;
+
 		model.addObserver(this);
 	}
 	
 	// ==== Observer Implementation ====
 
 	@Override
-	public void update(Observable arg0, Object arg1) {
-		// TODO Auto-generated method stub
-		
+	public void update(Observable o, Object arg) {
+		if (o == model) {
+			// TODO Update view on Model refresh
+		}
 	}
 
 }
