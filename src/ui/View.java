@@ -2,6 +2,8 @@ package ui;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.image.BufferedImage;
@@ -9,10 +11,11 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JComponent;
+import javax.swing.Timer;
 
 import core.Model;
 
-public class View extends JComponent implements Observer {
+public class View extends JComponent implements Observer, ActionListener {
 
 	// ==== Constants ====
 	
@@ -20,6 +23,7 @@ public class View extends JComponent implements Observer {
 	
 	// ==== Properties ====
 	
+	private final Timer timer = new Timer(250, this);
 	private final Model model;
 	
 	// ==== Constructor ====
@@ -31,21 +35,34 @@ public class View extends JComponent implements Observer {
 		setPreferredSize(new Dimension(800, 600));
 		setVisible(false);
 
+		// Register View with Model as an Observer
 		this.model = model;
 		model.addObserver(this);
 		
+		// Set the Timer to nonrepeating
+		timer.setRepeats(false);
+		
 		// Handle Resizing
 		addComponentListener(new ComponentAdapter() {
+			
 			@Override
 			public void componentResized(ComponentEvent e) {
-				// TODO Update Model with getSize()
-				model.setSize(getSize());
+				// Restart the Timer to handle resizing
+				// This way we do not overload the Model with rendering
+				timer.restart();
 			}
 			
 			@Override
 			public void componentShown(ComponentEvent e) {
-				// TODO Update Model with getSize()
-				model.setSize(getSize());
+				final Timer timer = new Timer(1000, new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						model.setSize(getSize());
+					}
+				});
+				
+				timer.setRepeats(false);
+				timer.start();
 			}
 		});
 	}
@@ -58,6 +75,17 @@ public class View extends JComponent implements Observer {
 		
 		BufferedImage image = model.getImage();
 		g.drawImage(image, 0, 0, null);
+	}
+	
+	// ==== ActionListener Implementation ====
+	
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		
+		// Trigger the Resize when Timer fires
+		if (e.getSource() == timer) {
+			model.setSize(getSize());
+		}
 	}
 	
 	// ==== Observer Implementation ====
