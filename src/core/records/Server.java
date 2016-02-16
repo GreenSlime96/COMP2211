@@ -1,4 +1,4 @@
-package core;
+package core.records;
 
 import java.util.Date;
 

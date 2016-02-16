@@ -1,4 +1,4 @@
-package core;
+package core.records;
 
 import java.util.Date;
 
@@ -13,12 +13,12 @@ public class Impression {
 	public final String ageGroup;
 	public final String income;
 	public final String context;
-	public final double cost;
+	public final int cost;
 	
 	
 	// ==== Constructor ====
 	
-	public Impression(Date date, long userID, String gender, String ageGroup, String income, String context, double cost) {
+	public Impression(Date date, long userID, String gender, String ageGroup, String income, String context, int cost) {
 		this.date = date;
 		this.userID = userID;
 		this.gender = gender;
