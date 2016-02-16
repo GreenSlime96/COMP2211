@@ -1,5 +1,5 @@
 package core.fields;
 
 public enum Context {
-	NEWS, SHOPPING, SOCIAL_MEDIA, BLOG, HOBBIES, TRAVEL
+	News, Shopping, SocialMedia, Blog, Hobbies, Travel;
 }
