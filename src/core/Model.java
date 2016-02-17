@@ -2,6 +2,7 @@ package core;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -24,13 +25,14 @@ public class Model extends Observable implements ActionListener {
 	private final List<Campaign> campaigns = new ArrayList<Campaign>();
 	
 	// The list of Charts stored in this model
-	private final List<Chart> charts = new ArrayList<Chart>();
+//	private final List<Chart> charts = new ArrayList<Chart>();
 
 	// ==== Constructor ====
 
 	public Model() {
 		super();
 		
+		new Campaign(new File("/Users/khengboonpek/Downloads/2_month_campaign"));
 	}
 	
 	// ==== Accessors ====

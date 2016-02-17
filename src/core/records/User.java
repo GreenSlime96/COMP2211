@@ -1,7 +1,5 @@
 package core.records;
 
-import core.fields.Age;
-import core.fields.Context;
 import core.fields.Gender;
 import core.fields.Income;
 
@@ -11,19 +9,19 @@ public class User {
 	
 	public final long id;
 	public final Gender gender;
-	public final Age age;
+	public final String age;
 	public final Income income;
-	public final Context context;
+	public final String context;
 	
 	
 	// ==== Constructor ====
 	
-	public User(long id, Gender gender, Age age, Income income, Context context) {
+	public User(long id, Gender gender, String age, Income income, String context) {
 		this.id = id;
 		this.gender = gender;
-		this.age = age;
+		this.age = age.intern();
 		this.income = income;
-		this.context = context;
+		this.context = context.intern();
 	}
 	
 	
