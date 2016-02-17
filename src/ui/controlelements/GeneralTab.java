@@ -11,7 +11,7 @@ import java.awt.event.ActionListener;
  */
 public class GeneralTab extends ControlPanelTab {
 
-    JLabel empty = new JLabel("");
+//    JLabel empty = new JLabel("");
     JLabel noImpressionsLabel = new JLabel("######");
     JLabel startDateLabel = new JLabel("######");
     JLabel endDateLabel = new JLabel("######");
@@ -19,13 +19,11 @@ public class GeneralTab extends ControlPanelTab {
     JLabel campaignDirectorLabel = new JLabel("######");
 
     public GeneralTab(){
-//        JLabel filler = new JLabel("General");
-//        filler.setHorizontalAlignment(JLabel.CENTER);
-//
+
         addSetting(new JTable(3,1),"Campaigns","Click to show stats below");
 
         //campaign metrics
-        addSetting(empty, "", "" );
+//        addSetting(empty, "", "" );
         addSetting(noImpressionsLabel, "Impressions", "" );
         addSetting(startDateLabel, "Start Date", "" );
         addSetting(endDateLabel, "End Date", "" );

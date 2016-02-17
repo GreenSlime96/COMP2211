@@ -1,6 +1,8 @@
 package ui.controlelements;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+
 import java.awt.*;
 
 /**
@@ -10,12 +12,13 @@ public class ControlPanelTab extends Box {
 
     public ControlPanelTab(){
         super(BoxLayout.Y_AXIS);
+
     }
 
     protected void addSetting(JComponent control, String title, String text) {
         JLabel label = new JLabel(title);
         label.setFont(label.getFont().deriveFont(Font.BOLD));
-        label.setBorder(BorderFactory.createEmptyBorder(0,0,10,0));
+        label.setBorder(BorderFactory.createEmptyBorder(0,0,5,0));
 
         // setting maximum size to comply with BoxLayout
         control.setAlignmentX(JComponent.LEFT_ALIGNMENT);

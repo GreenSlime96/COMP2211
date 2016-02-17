@@ -13,7 +13,7 @@ public class ImpressionReader {
 	
 	public ImpressionReader() {
 		// TODO placeholder
-		impressionsLog = null;
+		//impressionsLog = null;
 	}
 
 }

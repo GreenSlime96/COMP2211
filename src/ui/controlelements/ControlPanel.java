@@ -13,7 +13,7 @@ import javax.swing.event.ChangeListener;
 
 import core.Model;
 
-public class ControlPanel extends Box implements Observer, ActionListener, ChangeListener, ItemListener {
+public class ControlPanel extends JPanel implements Observer, ActionListener, ChangeListener, ItemListener {
 
 	// ==== Constants ====
 	
@@ -32,17 +32,15 @@ public class ControlPanel extends Box implements Observer, ActionListener, Chang
 	// ==== Constructor ====
 	
 	public ControlPanel(Model model) {
-		super(BoxLayout.Y_AXIS);
 		
 		// Register as an Observer of Model
 		this.model = model;
 		model.addObserver(this);
 		
 		// Add Borders for visual appeal!!!
+		setLayout(new BorderLayout());
 		setPreferredSize(new Dimension(280, 600));
-//		setBorder(BorderFactory.createCompoundBorder(
-//				new MatteBorder(0, 1, 0, 0, new Color(150, 150, 150)),
-//				new EmptyBorder(0, 20, 20, 20)));
+		setBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, Color.DARK_GRAY));
 
 		// Add Listener Hooks here
 		/* x.addChangeListener(this);
@@ -66,18 +64,11 @@ public class ControlPanel extends Box implements Observer, ActionListener, Chang
 				"Does twice as much nothing");
 		tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
 
-		addSetting(tabbedPane,"","");
+		add(tabbedPane, BorderLayout.CENTER);
 		// Vertical spacing
-		add(new JPanel(new GridBagLayout()));
 
-		//Where member variables are declared:
-		JProgressBar progressBar;
-		progressBar = new JProgressBar(0, 100);
-		progressBar.setValue(50);
-		progressBar.setStringPainted(true);
-
-		addSetting(progressBar,"Progress","currently rendering...");
-
+		add(new ProgressBox(),BorderLayout.SOUTH);
+		
 	}
 	
 	// ==== Private Helper Methods ====

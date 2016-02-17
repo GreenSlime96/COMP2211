@@ -33,8 +33,8 @@ public class Model extends Observable implements ActionListener {
 	public Model() {
 		super();
 		
-		new Campaign(new File("/Users/khengboonpek/Downloads/2_week_campaign_2"));
-		new Campaign(new File("/Users/khengboonpek/Downloads/2_month_campaign"));
+		//new Campaign(new File("/Users/khengboonpek/Downloads/2_week_campaign_2"));
+		//new Campaign(new File("/Users/khengboonpek/Downloads/2_month_campaign"));
 	}
 	
 	// ==== Accessors ====
