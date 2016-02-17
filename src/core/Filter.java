@@ -3,22 +3,24 @@ package core;
 import core.fields.Gender;
 import core.fields.Income;
 
+import java.util.HashSet;
+
 public class Filter {
 	
 	// ==== Properties ====
 	
-	final Gender gender;
-	final String age;
-	final Income income;
-	final String context;
+	final HashSet<Gender> genders;
+	final HashSet<String> ages;
+	final HashSet<Income> incomes;
+	final HashSet<String> contexts;
 	
 	
 	// ==== Constructor ====
 	
-	public Filter(Gender gender, String age, Income income, String context) {
-		this.gender = gender;
-		this.age = age;
-		this.income = income;
-		this.context = context;
+	public Filter(HashSet<Gender> genders, HashSet<String> ages, HashSet<Income> incomes, HashSet<String> contexts) {
+		this.genders = genders;
+		this.ages = ages;
+		this.incomes = incomes;
+		this.contexts = contexts;
 	}
 }
