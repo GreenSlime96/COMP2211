@@ -16,6 +16,8 @@ import java.util.Observable;
 public class GeneralTab extends ControlPanelBox {
 
 //    JLabel empty = new JLabel("");
+    String[] arr = {"Campaign 1", "Campaign 2"};
+    JList<String> campaignList= new JList<>(arr);
     JLabel noImpressionsLabel = new JLabel("######");
     JLabel startDateLabel = new JLabel("######");
     JLabel endDateLabel = new JLabel("######");
@@ -24,11 +26,10 @@ public class GeneralTab extends ControlPanelBox {
 
     public GeneralTab(Model model){
     	super(model);
-    	
-        addSetting(new JTable(3,1),"Campaigns","Click to show stats below");
+
+        addSetting(campaignList,"Campaigns","Click to show stats below");
 
         //campaign metrics
-//        addSetting(empty, "", "" );
         addSetting(noImpressionsLabel, "Impressions", "" );
         addSetting(startDateLabel, "Start Date", "" );
         addSetting(endDateLabel, "End Date", "" );
@@ -41,5 +42,6 @@ public class GeneralTab extends ControlPanelBox {
 		// TODO Auto-generated method stub
 		
 	}
+
 
 }

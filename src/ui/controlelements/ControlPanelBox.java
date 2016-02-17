@@ -28,6 +28,7 @@ abstract class ControlPanelBox extends Box implements Observer{
     protected void addSetting(JComponent control, String title, String text) {
         JLabel label = new JLabel(title);
         label.setFont(label.getFont().deriveFont(Font.BOLD));
+        //fixes [g|y] not rendering correctly.
         label.setBorder(BorderFactory.createEmptyBorder(0,0,5,0));
 
         // setting maximum size to comply with BoxLayout
@@ -38,6 +39,7 @@ abstract class ControlPanelBox extends Box implements Observer{
         // use cheap "<html>" to enable line-wrapping
         JLabel help = new JLabel("<html>" + text + "</html>");
         help.setFont(label.getFont().deriveFont(Font.ITALIC, 10));
+        help.setBorder(BorderFactory.createEmptyBorder(0,0,3,0));
 
         add(label);
         add(Box.createRigidArea(new Dimension(0, 3)));
