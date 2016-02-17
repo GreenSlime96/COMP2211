@@ -10,6 +10,7 @@ import core.Controller;
 public class FilterTab extends ControlPanelTab {
 
     public FilterTab(Controller controller) {
+    	super(controller);
 //        JLabel filler = new JLabel("Filter");
 //        filler.setHorizontalAlignment(JLabel.CENTER);
 //
