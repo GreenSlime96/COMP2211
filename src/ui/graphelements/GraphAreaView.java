@@ -6,16 +6,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-import java.awt.image.BufferedImage;
-import java.util.Date;
-import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.JComponent;
 import javax.swing.Timer;
 
-import core.Model;
+import core.Controller;
 import javafx.embed.swing.JFXPanel;
 
 public class GraphAreaView extends JComponent implements Observer, ActionListener {
@@ -29,11 +26,11 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 	private final JFXPanel chartFxPanel = new JFXPanel();
 
 	private final Timer timer = new Timer(250, this);
-	private final Model model;
+	private final Controller controller;
 
 	// ==== Constructor ====
 
-	public GraphAreaView(Model model) {
+	public GraphAreaView(Controller controller) {
 		super();
 
 		// Simple Default Settings...
@@ -41,8 +38,8 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		setVisible(false);
 
 		// Register View with Model as an Observer
-		this.model = model;
-		model.addObserver(this);
+		this.controller = controller;
+		controller.getModel().addObserver(this);
 
 		// Set the Timer to nonrepeating
 		timer.setRepeats(false);
@@ -103,7 +100,7 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 
 	@Override
 	public void update(Observable o, Object arg) {
-		if (o == model) {
+		if (o == controller.getModel()) {
 			// TODO Update view on Model refresh
 			repaint();
 		}

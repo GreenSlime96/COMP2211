@@ -1,17 +1,27 @@
 package ui.controlelements;
 
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.MatteBorder;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import core.Model;
+import core.Controller;
 
 public class ControlPanel extends Box implements Observer, ActionListener, ChangeListener, ItemListener {
 
@@ -21,7 +31,7 @@ public class ControlPanel extends Box implements Observer, ActionListener, Chang
 	
 	// ==== Properties ====	
 	
-	private final Model model;
+	private final Controller controller;
 	
 	// Add controls here
 	/* private final JSpinner ...
@@ -31,12 +41,12 @@ public class ControlPanel extends Box implements Observer, ActionListener, Chang
 	
 	// ==== Constructor ====
 	
-	public ControlPanel(Model model) {
+	public ControlPanel(Controller controller) {
 		super(BoxLayout.Y_AXIS);
 		
 		// Register as an Observer of Model
-		this.model = model;
-		model.addObserver(this);
+		this.controller = controller;
+		controller.getModel().addObserver(this);
 		
 		// Add Borders for visual appeal!!!
 		setPreferredSize(new Dimension(280, 600));
@@ -106,7 +116,7 @@ public class ControlPanel extends Box implements Observer, ActionListener, Chang
 
 	@Override
 	public void update(Observable o, Object arg) {
-		if (o == model) {
+		if (o == controller.getModel()) {
 			// TODO What happens when Model updates the controls?
 			
 			// We would like to update the existing values in the ControlPanel to reflect

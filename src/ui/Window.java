@@ -5,6 +5,7 @@ import java.awt.*;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import core.Controller;
 import core.Model;
 import ui.controlelements.ControlPanel;
 import ui.graphelements.GraphAreaView;
@@ -15,22 +16,22 @@ public class Window extends JFrame {
 	
 	private static final long serialVersionUID = 1092418710020581973L;
 	
+	private Controller controller;
 	
 	// ==== Constructor ====
 	
-	public Window() {
+	public Window(Controller controller) {
 		super();
+		
+		this.controller = controller;
 
 		// Default Operations on JFrame
 		setTitle("COMP2211 Group 6");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		
-		// Initialising the Model
-		final Model model = new Model();
-		
+				
 		// Initialising Controller and View
-		final ControlPanel controlPanel = new ControlPanel(model);
-		final GraphAreaView graphAreaView = new GraphAreaView(model);
+		final ControlPanel controlPanel = new ControlPanel(controller);
+		final GraphAreaView graphAreaView = new GraphAreaView(controller);
 		
 		// Layout of our UI
 		final JPanel panel = new JPanel(new BorderLayout());

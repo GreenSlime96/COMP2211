@@ -1,5 +1,8 @@
 package ui.controlelements;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -37,6 +40,16 @@ public class GeneralTab extends ControlPanelTab {
         addSubtractCampaignsPanel.add(addCampaignBTN);
         add(addSubtractCampaignsPanel);
         
+        addCampaignBTN.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				CampaignFileChooser chooser = new CampaignFileChooser();
+				if(chooser.selectionMade())
+					
+			}
+        	
+        });
         
         //campaign metrics
         addSetting(empty, "", "" );
@@ -45,6 +58,8 @@ public class GeneralTab extends ControlPanelTab {
         addSetting(endDateLabel, "End Date", "" );
         addSetting(totalClicksLabel, "Total Clicks", "" );
         addSetting(campaignDirectorLabel, "Campaign Directory", "" );
+        
+        
     }
 
 }
