@@ -1,4 +1,4 @@
-package core;
+package core.data;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -7,7 +7,7 @@ import core.campaigns.Campaign;
 
 // TODO should we rename this to DataProcessor instead?
 // Chart sounds like something the view should be handling
-public class Chart {
+public class DataProcessor {
 	
 	// ==== Properties ====
 	
@@ -21,14 +21,14 @@ public class Chart {
 	// the time granularity of this dataprocessor
 	
 	// the list of filters to work with
-	private List<Filter> filters;
+	private List<DataFilter> filters;
 	
 	
 	
 	
 	// ==== Constructor ====
 	
-	public Chart(Campaign campaign) {
+	public DataProcessor(Campaign campaign) {
 		this.campaign = campaign;
 	}
 	

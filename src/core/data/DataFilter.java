@@ -1,9 +1,9 @@
-package core;
+package core.data;
 
 import core.fields.Gender;
 import core.fields.Income;
 
-public class Filter {
+public class DataFilter {
 	
 	// ==== Properties ====
 	
@@ -15,7 +15,7 @@ public class Filter {
 	
 	// ==== Constructor ====
 	
-	public Filter(Gender gender, String age, Income income, String context) {
+	public DataFilter(Gender gender, String age, Income income, String context) {
 		this.gender = gender;
 		this.age = age;
 		this.income = income;
