@@ -28,6 +28,11 @@ public class ControlPanel extends JPanel implements Observer, ActionListener, Ch
 	 * private final JTextField ...
 	 * private ...
 	 */
+	JTabbedPane controlTabbedPane;
+	GeneralTab generalTab;
+	FilterTab filterTab;
+	
+	ProgressBox modelProgress;
 	
 	// ==== Constructor ====
 	
@@ -40,35 +45,36 @@ public class ControlPanel extends JPanel implements Observer, ActionListener, Ch
 		// Add Borders for visual appeal!!!
 		setLayout(new BorderLayout());
 		setPreferredSize(new Dimension(280, 600));
-		setBorder(BorderFactory.createMatteBorder(0, 1, 0, 0, Color.DARK_GRAY));
-
+		setBorder(BorderFactory.createCompoundBorder(
+		new MatteBorder(0, 1, 0, 0, Color.DARK_GRAY),
+		new EmptyBorder(0, 10, 10, 10)));
+		
 		// Add Listener Hooks here
 		/* x.addChangeListener(this);
 		 * y.addActionListener(this);
 		 * z.addItemListener(this);
 		 */
 		
+		// Initialise UI Eleements Here
+		
+		controlTabbedPane = new JTabbedPane();
+		
+		generalTab = new GeneralTab(model);
+		filterTab = new FilterTab(model);
+		
+		controlTabbedPane.addTab("General", null, generalTab, "Inspect Campaigns");
+		controlTabbedPane.addTab("Filter", null, filterTab, "Modify Chart Filters/Metrics");
+
+		modelProgress = new ProgressBox(model);
+		
 		// Add Settings here
 		/* addSetting(component, title, help text)
 		 * 
 		 */
-		JTabbedPane tabbedPane = new JTabbedPane();
-
-		GeneralTab generalTab = new GeneralTab();
-		tabbedPane.addTab("General", null, generalTab,
-				"Does nothing");
-		tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
-
-		FilterTab filterTab = new FilterTab();
-		tabbedPane.addTab("Filter", null, filterTab,
-				"Does twice as much nothing");
-		tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
-
-		add(tabbedPane, BorderLayout.CENTER);
-		// Vertical spacing
-
-		add(new ProgressBox(),BorderLayout.SOUTH);
 		
+		// Add UI Elements Here
+		add(controlTabbedPane, BorderLayout.CENTER);
+		add(modelProgress,BorderLayout.SOUTH);
 	}
 	
 	// ==== Private Helper Methods ====

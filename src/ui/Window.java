@@ -41,7 +41,7 @@ public class Window extends JFrame {
 		// Set as Default Content Pane
 		setContentPane(panel);
 		// James is a special snowflake
-		getContentPane().setPreferredSize(new Dimension(1920,1080));
+		//getContentPane().setPreferredSize(new Dimension(1920,1080));
 
 		// Resize Window to UI Components
 		pack();

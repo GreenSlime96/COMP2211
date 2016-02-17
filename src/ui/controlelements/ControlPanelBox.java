@@ -3,16 +3,26 @@ package ui.controlelements;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-import java.awt.*;
+import core.Model;
+
+import java.awt.Dimension;
+import java.awt.Font;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * Created by james on 17/02/16.
  */
-public class ControlPanelTab extends Box {
+abstract class ControlPanelBox extends Box implements Observer{
 
-    public ControlPanelTab(){
+	protected Model model;
+	
+	private static final long serialVersionUID = -3828765871783229793L;
+
+	public ControlPanelBox(Model model){
         super(BoxLayout.Y_AXIS);
-
+        this.model = model;
+        model.addObserver(this);
     }
 
     protected void addSetting(JComponent control, String title, String text) {
@@ -36,6 +46,5 @@ public class ControlPanelTab extends Box {
         add(help);
         add(Box.createRigidArea(new Dimension(0, 15)));
     }
-
 
 }
