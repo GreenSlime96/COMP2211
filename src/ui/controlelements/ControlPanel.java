@@ -1,8 +1,6 @@
 package ui.controlelements;
 
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -11,13 +9,9 @@ import java.awt.event.KeyEvent;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JTabbedPane;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -25,7 +19,7 @@ import core.Controller;
 import core.Model;
 import core.campaigns.Campaign;
 
-public class ControlPanel extends Box implements Observer, ActionListener, ChangeListener, ItemListener {
+public class ControlPanel extends JPanel implements Observer, ActionListener, ChangeListener, ItemListener {
 
 	// ==== Constants ====
 	
@@ -35,64 +29,58 @@ public class ControlPanel extends Box implements Observer, ActionListener, Chang
 	
 	private final Model model;
 	
-	private GeneralTab generalTab;
-	private FilterTab filterTab;
-	
 	// Add controls here
 	/* private final JSpinner ...
 	 * private final JTextField ...
 	 * private ...
 	 */
+	JTabbedPane controlTabbedPane;
+	private GeneralTab generalTab;
+	private FilterTab filterTab;
+	
+	ProgressBox modelProgress;
 	
 	// ==== Constructor ====
 	
 	public ControlPanel(Model model) {
-		super(BoxLayout.Y_AXIS);
 		
 		// Register as an Observer of Model
 		this.model = model;
 		model.addObserver(this);
 		
 		// Add Borders for visual appeal!!!
+		setLayout(new BorderLayout());
 		setPreferredSize(new Dimension(280, 600));
-//		setBorder(BorderFactory.createCompoundBorder(
-//				new MatteBorder(0, 1, 0, 0, new Color(150, 150, 150)),
-//				new EmptyBorder(0, 20, 20, 20)));
-
+		setBorder(BorderFactory.createCompoundBorder(
+		new MatteBorder(0, 1, 0, 0, Color.DARK_GRAY),
+		new EmptyBorder(0, 10, 10, 10)));
+		
 		// Add Listener Hooks here
 		/* x.addChangeListener(this);
 		 * y.addActionListener(this);
 		 * z.addItemListener(this);
 		 */
 		
+		// Initialise UI Eleements Here
+		
+		controlTabbedPane = new JTabbedPane();
+		
+		generalTab = new GeneralTab(model);
+		filterTab = new FilterTab(model);
+		
+		controlTabbedPane.addTab("General", null, generalTab, "Inspect Campaigns");
+		controlTabbedPane.addTab("Filter", null, filterTab, "Modify Chart Filters/Metrics");
+
+		modelProgress = new ProgressBox(model);
+		
 		// Add Settings here
 		/* addSetting(component, title, help text)
 		 * 
 		 */
-		JTabbedPane tabbedPane = new JTabbedPane();
-
-		generalTab = new GeneralTab(model);
-		tabbedPane.addTab("General", null, generalTab,
-				"Does nothing");
-		tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
-
-		filterTab = new FilterTab(model);
-		tabbedPane.addTab("Filter", null, filterTab,
-				"Does twice as much nothing");
-		tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
-
-		addSetting(tabbedPane,"","");
-		// Vertical spacing
-		add(new JPanel(new GridBagLayout()));
-
-		//Where member variables are declared:
-		JProgressBar progressBar;
-		progressBar = new JProgressBar(0, 100);
-		progressBar.setValue(50);
-		progressBar.setStringPainted(true);
-
-		addSetting(progressBar,"Progress","currently rendering...");
-
+		
+		// Add UI Elements Here
+		add(controlTabbedPane, BorderLayout.CENTER);
+		add(modelProgress,BorderLayout.SOUTH);
 	}
 	
 	// ==== Private Helper Methods ====
@@ -127,7 +115,7 @@ public class ControlPanel extends Box implements Observer, ActionListener, Chang
 			// We would like to update the existing values in the ControlPanel to reflect
 			// the new state of the Model
 			Campaign[] listData = new Campaign[model.getCampaigns().size()];
-			generalTab.setCampaignListData(model.getCampaigns().toArray(listData));
+//			generalTab.setCampaignListData(model.getCampaigns().toArray(listData));
 		}
 	}
 	

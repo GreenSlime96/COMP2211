@@ -6,8 +6,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
-
-import javax.swing.JFileChooser;
 import javax.swing.Timer;
 
 import core.campaigns.Campaign;
@@ -18,13 +16,11 @@ public class Model extends Observable implements ActionListener {
 
 	// ==== Constants ====
 
-	private static final boolean CHOOSE_FILE_ON_STARTUP = false;
 
 	// ==== Properties ====
 	
 	// We may use this Timer to fire events as they occur
 	// Use this Timer to update the Controller/View about the current query status
-	// FIXME Using this method selects the current selected value of a JList every cycle
 	private final Timer timer = new Timer(1000, this);
 	
 	// The list of Campaigns registered with this model
@@ -38,8 +34,9 @@ public class Model extends Observable implements ActionListener {
 	public Model() {
 		super();
 		
-		// TODO temporary file picker		
-		if (CHOOSE_FILE_ON_STARTUP) {
+		// TODO temporary file picker
+		if(true){
+//		if (CHOOSE_FILE_ON_STARTUP) {
 			CampaignFileChooser chooser = new CampaignFileChooser();
 			if (chooser.selectionMade())
 				addCampaign(new Campaign(chooser.getSelectedFile()));
@@ -64,11 +61,10 @@ public class Model extends Observable implements ActionListener {
 	}
 	
 	// ==== Accessors ====
-	
-	public List<Campaign> getCampaigns() {
-		return campaigns;
-	}
-	
+
+    public List<Campaign> getCampaigns(){
+        return campaigns;
+    }
 	
 	// ==== Private Helper Methods ====
 	
