@@ -1,5 +1,6 @@
 package ui.controlelements;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
@@ -10,13 +11,13 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import core.Controller;
 import core.Model;
 import core.campaigns.Campaign;
 
@@ -45,8 +46,7 @@ public class GeneralTab extends ControlPanelTab {
 //        JLabel filler = new JLabel("General");
 //        filler.setHorizontalAlignment(JLabel.CENTER);
 //
-    	//Campaign management
-    	//campaignList.setListData(new String[]{"test", "test2"});
+
     	campaignList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
     	campaignList.setVisibleRowCount(4);
     	
@@ -56,8 +56,15 @@ public class GeneralTab extends ControlPanelTab {
         JPanel addSubtractCampaignsPanel = new JPanel();
         addSubtractCampaignsPanel.setLayout(new BoxLayout(addSubtractCampaignsPanel, BoxLayout.X_AXIS));
         addSubtractCampaignsPanel.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+        
+        Dimension buttonSize = new Dimension(20, 20);
+        
+        removeCampaignBTN.setPreferredSize(buttonSize);
         addSubtractCampaignsPanel.add(removeCampaignBTN);
+        
+        addCampaignBTN.setPreferredSize(buttonSize);
         addSubtractCampaignsPanel.add(addCampaignBTN);
+        
         add(addSubtractCampaignsPanel);
         
         campaignList.addListSelectionListener(new ListSelectionListener() {
@@ -75,10 +82,10 @@ public class GeneralTab extends ControlPanelTab {
 			public void actionPerformed(ActionEvent e) {
 				CampaignFileChooser chooser = new CampaignFileChooser();
 				if(chooser.selectionMade()) {
-//					if(!model.addCampaign(new Campaign(chooser.getSelectedFile())))
-//						controller.showMessageDialog("Campaign has already been added");
+					if(!model.addCampaign(new Campaign(chooser.getSelectedFile())))
+						JOptionPane.showMessageDialog(null, "Campaign has already been added");
 				}else {
-//					controller.showMessageDialog("No campaign selected.");
+					JOptionPane.showMessageDialog(null, "No campaign selected.");
 				}
 			}
         });
