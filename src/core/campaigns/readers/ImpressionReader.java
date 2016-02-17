@@ -24,7 +24,7 @@ public class ImpressionReader implements Closeable, Iterable<Impression>, Iterat
 	public ImpressionReader(File impressionsLog) throws IOException {		
 		br = new BufferedReader(new FileReader(impressionsLog));
 		
-		if (br.readLine().equals("Date,ID,Gender,Age,Income,Context,Impression Cost")) {	
+		if (!br.readLine().equals("Date,ID,Gender,Age,Income,Context,Impression Cost")) {	
 			br.close();
 			throw new IllegalArgumentException(impressionsLog + " invalid impressions log");
 		}			

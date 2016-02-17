@@ -11,6 +11,7 @@ import javax.swing.JFileChooser;
 import javax.swing.Timer;
 
 import core.campaigns.Campaign;
+import core.data.DataProcessor;
 import javafx.scene.chart.Chart;
 import ui.controlelements.CampaignFileChooser;
 
@@ -18,7 +19,7 @@ public class Model extends Observable implements ActionListener {
 
 	// ==== Constants ====
 
-	private static final boolean CHOOSE_FILE_ON_STARTUP = false;
+	private static final boolean CHOOSE_FILE_ON_STARTUP = true;
 
 	// ==== Properties ====
 	
@@ -38,14 +39,20 @@ public class Model extends Observable implements ActionListener {
 	public Model() {
 		super();
 		
+		Campaign test = null;
+		
 		// TODO temporary file picker		
 		if (CHOOSE_FILE_ON_STARTUP) {
 			CampaignFileChooser chooser = new CampaignFileChooser();
-			if (chooser.selectionMade())
-				addCampaign(new Campaign(chooser.getSelectedFile()));
-			else
+			if (chooser.selectionMade()) {
+				test = new Campaign(chooser.getSelectedFile());
+				addCampaign(test);
+			} else
 				System.out.println("No Selection");
 		}
+		
+		DataProcessor dp = new DataProcessor(test);
+		dp.numberOfImpressions();
 	}
 	
 	public boolean addCampaign(Campaign campaign) {

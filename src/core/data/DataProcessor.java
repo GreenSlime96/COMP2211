@@ -151,10 +151,18 @@ public class DataProcessor {
 	
 	public final Map<LocalDateTime, Integer> numberOfImpressions() {
 		final Map<LocalDateTime, Integer> impressionsMap = new HashMap<LocalDateTime, Integer>();
+		
 		int count = 0;
+		long time = System.currentTimeMillis();
+		
+		LocalDateTime currentDate = campaign.getStartDate();
+		LocalDateTime nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
+		
 		for (Impression impression : campaign.getImpressions()) {
 			count++;
 		}
+		
+		System.out.println(System.currentTimeMillis() - time);
 		// TODO read logic here
 		System.out.println(count);
 		
