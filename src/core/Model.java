@@ -35,7 +35,7 @@ public class Model extends Observable implements ActionListener {
 	
 	// ==== Constructor ====
 
-	public Model(Controller controller) {
+	public Model() {
 		super();
 		
 		// TODO temporary file picker		

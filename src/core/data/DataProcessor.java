@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import core.campaigns.Campaign;
+import core.records.Impression;
 
 // TODO should we rename this to DataProcessor instead?
 // Chart sounds like something the view should be handling
@@ -150,8 +151,12 @@ public class DataProcessor {
 	
 	public final Map<LocalDateTime, Integer> numberOfImpressions() {
 		final Map<LocalDateTime, Integer> impressionsMap = new HashMap<LocalDateTime, Integer>();
-		
+		int count = 0;
+		for (Impression impression : campaign.getImpressions()) {
+			count++;
+		}
 		// TODO read logic here
+		System.out.println(count);
 		
 		return impressionsMap;
 	}

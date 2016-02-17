@@ -22,6 +22,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import core.Controller;
+import core.Model;
 import core.campaigns.Campaign;
 
 public class ControlPanel extends Box implements Observer, ActionListener, ChangeListener, ItemListener {
@@ -32,7 +33,7 @@ public class ControlPanel extends Box implements Observer, ActionListener, Chang
 	
 	// ==== Properties ====	
 	
-	private final Controller controller;
+	private final Model model;
 	
 	private GeneralTab generalTab;
 	private FilterTab filterTab;
@@ -45,12 +46,12 @@ public class ControlPanel extends Box implements Observer, ActionListener, Chang
 	
 	// ==== Constructor ====
 	
-	public ControlPanel(Controller controller) {
+	public ControlPanel(Model model) {
 		super(BoxLayout.Y_AXIS);
 		
 		// Register as an Observer of Model
-		this.controller = controller;
-		controller.getModel().addObserver(this);
+		this.model = model;
+		model.addObserver(this);
 		
 		// Add Borders for visual appeal!!!
 		setPreferredSize(new Dimension(280, 600));
@@ -70,12 +71,12 @@ public class ControlPanel extends Box implements Observer, ActionListener, Chang
 		 */
 		JTabbedPane tabbedPane = new JTabbedPane();
 
-		generalTab = new GeneralTab(controller);
+		generalTab = new GeneralTab(model);
 		tabbedPane.addTab("General", null, generalTab,
 				"Does nothing");
 		tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
 
-		filterTab = new FilterTab(controller);
+		filterTab = new FilterTab(model);
 		tabbedPane.addTab("Filter", null, filterTab,
 				"Does twice as much nothing");
 		tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
@@ -120,13 +121,13 @@ public class ControlPanel extends Box implements Observer, ActionListener, Chang
 
 	@Override
 	public void update(Observable o, Object arg) {
-		if (o == controller.getModel()) {
+		if (o == model) {
 			// TODO What happens when Model updates the controls?
 			
 			// We would like to update the existing values in the ControlPanel to reflect
 			// the new state of the Model
-			Campaign[] listData = new Campaign[controller.getModel().getCampaigns().size()];
-			generalTab.setCampaignListData(controller.getModel().getCampaigns().toArray(listData));
+			Campaign[] listData = new Campaign[model.getCampaigns().size()];
+			generalTab.setCampaignListData(model.getCampaigns().toArray(listData));
 		}
 	}
 	

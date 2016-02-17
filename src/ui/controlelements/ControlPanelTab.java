@@ -10,17 +10,18 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 
 import core.Controller;
+import core.Model;
 
 /**
  * Created by james on 17/02/16.
  */
 public class ControlPanelTab extends Box {
 
-	protected Controller controller;
+	protected Model model;
 	
-    public ControlPanelTab(Controller controller){
+    public ControlPanelTab(Model model){
         super(BoxLayout.Y_AXIS);
-        this.controller = controller;
+        this.model = model;
     }
 
     protected void addSetting(JComponent control, String title, String text) {

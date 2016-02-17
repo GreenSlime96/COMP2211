@@ -33,8 +33,8 @@ public class Window extends JFrame {
 		final Controller controller = new Controller();
 				
 		// Initialising Controller and View
-		final ControlPanel controlPanel = new ControlPanel(controller);
-		final GraphAreaView graphAreaView = new GraphAreaView(controller);
+		final ControlPanel controlPanel = new ControlPanel(model);
+		final GraphAreaView graphAreaView = new GraphAreaView(model);
 		
 		// Layout of our UI
 		final JPanel panel = new JPanel(new BorderLayout());

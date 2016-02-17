@@ -17,6 +17,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import core.Controller;
+import core.Model;
 import core.campaigns.Campaign;
 
 /**
@@ -39,8 +40,8 @@ public class GeneralTab extends ControlPanelTab {
     
     private DateTimeFormatter dateTimeFormatter;
 
-    public GeneralTab(Controller controller) {
-    	super(controller);
+    public GeneralTab(Model model) {
+    	super(model);
 //        JLabel filler = new JLabel("General");
 //        filler.setHorizontalAlignment(JLabel.CENTER);
 //
@@ -74,10 +75,10 @@ public class GeneralTab extends ControlPanelTab {
 			public void actionPerformed(ActionEvent e) {
 				CampaignFileChooser chooser = new CampaignFileChooser();
 				if(chooser.selectionMade()) {
-					if(!controller.getModel().addCampaign(new Campaign(chooser.getSelectedFile())))
-						controller.showMessageDialog("Campaign has already been added");
+//					if(!model.addCampaign(new Campaign(chooser.getSelectedFile())))
+//						controller.showMessageDialog("Campaign has already been added");
 				}else {
-					controller.showMessageDialog("No campaign selected.");
+//					controller.showMessageDialog("No campaign selected.");
 				}
 			}
         });
@@ -86,7 +87,7 @@ public class GeneralTab extends ControlPanelTab {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				controller.getModel().removeCampaign((Campaign) campaignList.getSelectedValue());
+				model.removeCampaign((Campaign) campaignList.getSelectedValue());
 			}
         	
         });
@@ -114,7 +115,7 @@ public class GeneralTab extends ControlPanelTab {
     	startDateLabel.setText(campaign.getStartDate().format(dateTimeFormatter));
     	endDateLabel.setText(campaign.getEndDate().format(dateTimeFormatter));
     	totalClicksLabel.setText(""+campaign.getNumberOfClicks());
-    	totalCostLabel.setText(("£"+new DecimalFormat("#.##").format(campaign.getTotalCostOfCampaign())));
+    	totalCostLabel.setText(("ï¿½"+new DecimalFormat("#.##").format(campaign.getTotalCostOfCampaign())));
     	campaignDirectoryLabel.setText(campaign.getDirectoryPath());
     }
     

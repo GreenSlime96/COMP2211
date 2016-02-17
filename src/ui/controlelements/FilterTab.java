@@ -3,14 +3,15 @@ package ui.controlelements;
 import javax.swing.JComboBox;
 
 import core.Controller;
+import core.Model;
 
 /**
  * Created by james on 17/02/16.
  */
 public class FilterTab extends ControlPanelTab {
 
-    public FilterTab(Controller controller) {
-    	super(controller);
+    public FilterTab(Model model) {
+    	super(model);
 //        JLabel filler = new JLabel("Filter");
 //        filler.setHorizontalAlignment(JLabel.CENTER);
 //

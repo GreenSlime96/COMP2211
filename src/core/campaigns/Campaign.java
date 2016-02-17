@@ -106,8 +106,12 @@ public class Campaign {
 	
 	// ==== Accessors ====
 	
-	public final ImpressionReader getImpressions() throws IOException {
-		return new ImpressionReader(impressionLog);
+	public final ImpressionReader getImpressions() {
+		try {
+			return new ImpressionReader(impressionLog);
+		} catch (IOException e) {
+			return null;
+		}
 	}
 	
 	public final User getUserFromID(long id) {
