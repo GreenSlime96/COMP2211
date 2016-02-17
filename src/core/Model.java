@@ -6,6 +6,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
+
+import javax.swing.JFileChooser;
 import javax.swing.Timer;
 
 import core.campaigns.Campaign;
@@ -33,8 +35,18 @@ public class Model extends Observable implements ActionListener {
 	public Model() {
 		super();
 		
-		new Campaign(new File("/Users/khengboonpek/Downloads/2_week_campaign_2"));
-		new Campaign(new File("/Users/khengboonpek/Downloads/2_month_campaign"));
+		// TODO temporary file picker
+		JFileChooser chooser = new JFileChooser();
+		chooser.setCurrentDirectory(new java.io.File("."));
+		chooser.setDialogTitle("Campaign Directory");
+		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		chooser.setAcceptAllFileFilterUsed(false);
+
+		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+			new Campaign(chooser.getSelectedFile());
+		} else {
+			System.out.println("No Selection ");
+		}
 	}
 	
 	// ==== Accessors ====
