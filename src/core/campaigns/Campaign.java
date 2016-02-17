@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+
 import core.fields.Gender;
 import core.fields.Income;
 import core.records.User;
@@ -104,11 +105,16 @@ public class Campaign {
 	
 	// ==== Accessors ====
 	
-	public final LocalDateTime getCampaignStartDate() {
+	public final User getUserFromID(long id) {
+		return usersMap.get(id);
+	}
+	
+	
+	public final LocalDateTime getStartDate() {
 		return campaignStartDate;
 	}
 	
-	public final LocalDateTime getCampaignEndDate() {
+	public final LocalDateTime getEndDate() {
 		return campaignEndDate;
 	}
 	
@@ -185,6 +191,12 @@ public class Campaign {
 				// TODO check if dates are valid (not before campaign start)
 				// TODO check if start date and end date are valid (doesn't end before start)
 				// TODO are these checks even needed!?
+				if (firstEntryDate == null) {
+					firstEntryDate = LocalDateTime.parse(data[0], formatter);
+					
+					if (firstEntryDate.isBefore(campaignStartDate))
+						throw new IllegalArgumentException(clickLog + " start date of campaign is after first entry");
+				}
 				
 				// check for user key mismatch
 				final Long id = Long.valueOf(data[1]);

@@ -12,7 +12,8 @@ public class ImpressionReader {
 	// ==== Constructor ====
 	
 	public ImpressionReader() {
-		
+		// TODO placeholder
+		impressionsLog = null;
 	}
 
 }
