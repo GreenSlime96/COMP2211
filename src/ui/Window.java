@@ -16,18 +16,17 @@ public class Window extends JFrame {
 	
 	private static final long serialVersionUID = 1092418710020581973L;
 	
-	private Controller controller;
 	
 	// ==== Constructor ====
 	
-	public Window(Controller controller) {
+	public Window() {
 		super();
-		
-		this.controller = controller;
 
 		// Default Operations on JFrame
 		setTitle("COMP2211 Group 6");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
+		final Controller controller = new Controller();
 				
 		// Initialising Controller and View
 		final ControlPanel controlPanel = new ControlPanel(controller);

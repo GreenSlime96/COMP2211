@@ -18,6 +18,7 @@ public class Model extends Observable implements ActionListener {
 
 	// ==== Constants ====
 
+	private static final boolean CHOOSE_FILE_ON_STARTUP = false;
 
 	// ==== Properties ====
 
@@ -33,8 +34,6 @@ public class Model extends Observable implements ActionListener {
 	
 	// The list of Charts stored in this model
 //	private final List<Chart> charts = new ArrayList<Chart>();
-
-	private final boolean CHOOSE_FILE_ON_STARTUP = false;
 	
 	// ==== Constructor ====
 
@@ -44,9 +43,9 @@ public class Model extends Observable implements ActionListener {
 		this.controller = controller;
 		
 		// TODO temporary file picker		
-		if(CHOOSE_FILE_ON_STARTUP) {
+		if (CHOOSE_FILE_ON_STARTUP) {
 			CampaignFileChooser chooser = new CampaignFileChooser();
-			if(chooser.selectionMade())
+			if (chooser.selectionMade())
 				addCampaign(new Campaign(chooser.getSelectedFile()));
 			else
 				System.out.println("No Selection");
