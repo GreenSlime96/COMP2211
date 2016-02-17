@@ -2,8 +2,8 @@ package ui.controlelements;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -33,7 +33,8 @@ public class GeneralTab extends ControlPanelTab {
     private JLabel noImpressionsLabel = new JLabel("######");
     private JLabel startDateLabel = new JLabel("######");
     private JLabel endDateLabel = new JLabel("######");
-    private JLabel totalClicksLabel =  new JLabel("######");
+    private JLabel totalClicksLabel = new JLabel("######");
+    private JLabel totalCostLabel = new JLabel("######"); 
     private JLabel campaignDirectoryLabel = new JLabel("######");
     
     private DateTimeFormatter dateTimeFormatter;
@@ -96,6 +97,7 @@ public class GeneralTab extends ControlPanelTab {
         addSetting(startDateLabel, "Start Date", "" );
         addSetting(endDateLabel, "End Date", "" );
         addSetting(totalClicksLabel, "Total Clicks", "" );
+        addSetting(totalCostLabel, "Total Cost", "");
         addSetting(campaignDirectoryLabel, "Campaign Directory", "" );        
         
         dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -112,6 +114,7 @@ public class GeneralTab extends ControlPanelTab {
     	startDateLabel.setText(campaign.getStartDate().format(dateTimeFormatter));
     	endDateLabel.setText(campaign.getEndDate().format(dateTimeFormatter));
     	totalClicksLabel.setText(""+campaign.getNumberOfClicks());
+    	totalCostLabel.setText(("£"+new DecimalFormat("#.##").format(campaign.getTotalCostOfCampaign())));
     	campaignDirectoryLabel.setText(campaign.getDirectoryPath());
     }
     
