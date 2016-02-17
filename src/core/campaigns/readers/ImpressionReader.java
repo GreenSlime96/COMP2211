@@ -6,7 +6,7 @@ public class ImpressionReader {
 	
 	// ==== Properties ====
 	
-	private final File impressionsLog;
+	private final File impressionsLog = null;
 	
 	
 	// ==== Constructor ====

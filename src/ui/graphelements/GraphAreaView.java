@@ -1,4 +1,4 @@
-package ui;
+package ui.graphelements;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -18,7 +18,7 @@ import javax.swing.Timer;
 import core.Model;
 import javafx.embed.swing.JFXPanel;
 
-public class View extends JComponent implements Observer, ActionListener {
+public class GraphAreaView extends JComponent implements Observer, ActionListener {
 
 	// ==== Constants ====
 
@@ -33,7 +33,7 @@ public class View extends JComponent implements Observer, ActionListener {
 
 	// ==== Constructor ====
 
-	public View(Model model) {
+	public GraphAreaView(Model model) {
 		super();
 
 		// Simple Default Settings...

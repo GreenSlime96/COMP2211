@@ -9,6 +9,7 @@ import java.util.Observable;
 import javax.swing.Timer;
 
 import core.campaigns.Campaign;
+import javafx.scene.chart.Chart;
 
 public class Model extends Observable implements ActionListener {
 
