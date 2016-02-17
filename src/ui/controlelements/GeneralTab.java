@@ -7,32 +7,43 @@ import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JTable;
+import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
+
+import core.Controller;
+import core.campaigns.Campaign;
 
 /**
  * Created by james on 17/02/16.
  */
 public class GeneralTab extends ControlPanelTab {
-
-	private JTable campaignTable = new JTable(3, 1);
+	
+	private JList<Campaign> campaignList = new JList<Campaign>();
 	
 	private JButton removeCampaignBTN = new JButton("-");
 	private JButton addCampaignBTN = new JButton("+");
 	
-    JLabel empty = new JLabel("");
-    JLabel noImpressionsLabel = new JLabel("######");
-    JLabel startDateLabel = new JLabel("######");
-    JLabel endDateLabel = new JLabel("######");
-    JLabel totalClicksLabel =  new JLabel("######");
-    JLabel campaignDirectorLabel = new JLabel("######");
+    private JLabel empty = new JLabel("");
+    private JLabel noImpressionsLabel = new JLabel("######");
+    private JLabel startDateLabel = new JLabel("######");
+    private JLabel endDateLabel = new JLabel("######");
+    private JLabel totalClicksLabel =  new JLabel("######");
+    private JLabel campaignDirectorLabel = new JLabel("######");
 
-    public GeneralTab(){
+    public GeneralTab(Controller controller){
 //        JLabel filler = new JLabel("General");
 //        filler.setHorizontalAlignment(JLabel.CENTER);
 //
     	//Campaign management
-        addSetting(campaignTable, "Campaigns","Click to show stats below");
+    	//campaignList.setListData(new String[]{"test", "test2"});
+    	campaignList.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+    	campaignList.setVisibleRowCount(4);
+    	
+    	JScrollPane campaignListScroller = new JScrollPane(campaignList);
+        addSetting(campaignListScroller, "Campaigns","Click to show stats below");
+        
         JPanel addSubtractCampaignsPanel = new JPanel();
         addSubtractCampaignsPanel.setLayout(new BoxLayout(addSubtractCampaignsPanel, BoxLayout.X_AXIS));
         addSubtractCampaignsPanel.setAlignmentX(JComponent.LEFT_ALIGNMENT);
@@ -45,8 +56,20 @@ public class GeneralTab extends ControlPanelTab {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				CampaignFileChooser chooser = new CampaignFileChooser();
-				if(chooser.selectionMade())
-					
+				if(chooser.selectionMade()) {
+					if(!controller.getModel().addCampaign(new Campaign(chooser.getSelectedFile())))
+						controller.showMessageDialog("Campaign has already been added");
+				}else {
+					controller.showMessageDialog("No campaign selected.");
+				}
+			}
+        });
+        
+        removeCampaignBTN.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				controller.getModel().removeCampaign((Campaign) campaignList.getSelectedValue());
 			}
         	
         });
@@ -57,9 +80,11 @@ public class GeneralTab extends ControlPanelTab {
         addSetting(startDateLabel, "Start Date", "" );
         addSetting(endDateLabel, "End Date", "" );
         addSetting(totalClicksLabel, "Total Clicks", "" );
-        addSetting(campaignDirectorLabel, "Campaign Directory", "" );
-        
-        
+        addSetting(campaignDirectorLabel, "Campaign Directory", "" );        
+    }
+    
+    public void setCampaignListData(Campaign[] listData) {
+    	campaignList.setListData(listData);
     }
 
 }

@@ -1,6 +1,7 @@
 package core;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -31,6 +32,10 @@ public class Controller {
 				window.setExtendedState(window.getExtendedState() | JFrame.MAXIMIZED_BOTH);
 			}
 		});
+	}
+	
+	public void showMessageDialog(String message) {
+		JOptionPane.showMessageDialog(window, message);
 	}
 	
 	public Model getModel() {

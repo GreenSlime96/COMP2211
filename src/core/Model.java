@@ -25,6 +25,7 @@ public class Model extends Observable implements ActionListener {
 	
 	// We may use this Timer to fire events as they occur
 	// Use this Timer to update the Controller/View about the current query status
+	// FIXME Using this method selects the current selected value of a JList every cycle
 	private final Timer timer = new Timer(1000, this);
 	
 	// The list of Campaigns registered with this model
@@ -52,22 +53,33 @@ public class Model extends Observable implements ActionListener {
 		}
 	}
 	
-	public boolean addCampaign(Campaign campaign)
-	{
+	public boolean addCampaign(Campaign campaign) {
 		for(Campaign c : campaigns)
 			if(c.equals(campaign))
 				return false;
-		return campaigns.add(campaign);
+		campaigns.add(campaign);
+		update();
+		return true;		
+	}
+	
+	public boolean removeCampaign(Campaign campaign) {
+		boolean result = campaigns.remove(campaign);
+		update();
+		return result;
 	}
 	
 	// ==== Accessors ====
-	
+	public List<Campaign> getCampaigns() {
+		return campaigns;
+	}
 	
 	// ==== Private Helper Methods ====
-
+	private void update() {
+		setChanged();
+		notifyObservers();
+	}
 	
 	// ==== ActionListener Implementation ====
-
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == timer) {

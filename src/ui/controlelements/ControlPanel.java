@@ -22,6 +22,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import core.Controller;
+import core.campaigns.Campaign;
 
 public class ControlPanel extends Box implements Observer, ActionListener, ChangeListener, ItemListener {
 
@@ -32,6 +33,9 @@ public class ControlPanel extends Box implements Observer, ActionListener, Chang
 	// ==== Properties ====	
 	
 	private final Controller controller;
+	
+	private GeneralTab generalTab;
+	private FilterTab filterTab;
 	
 	// Add controls here
 	/* private final JSpinner ...
@@ -66,12 +70,12 @@ public class ControlPanel extends Box implements Observer, ActionListener, Chang
 		 */
 		JTabbedPane tabbedPane = new JTabbedPane();
 
-		GeneralTab generalTab = new GeneralTab();
+		generalTab = new GeneralTab(controller);
 		tabbedPane.addTab("General", null, generalTab,
 				"Does nothing");
 		tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
 
-		FilterTab filterTab = new FilterTab();
+		filterTab = new FilterTab(controller);
 		tabbedPane.addTab("Filter", null, filterTab,
 				"Does twice as much nothing");
 		tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
@@ -121,6 +125,8 @@ public class ControlPanel extends Box implements Observer, ActionListener, Chang
 			
 			// We would like to update the existing values in the ControlPanel to reflect
 			// the new state of the Model
+			Campaign[] listData = new Campaign[controller.getModel().getCampaigns().size()];
+			generalTab.setCampaignListData(controller.getModel().getCampaigns().toArray(listData));
 		}
 	}
 	
