@@ -152,7 +152,9 @@ public class Campaign {
 		return costOfClicks;
 	}
 	
-	
+	public final String getDirectoryPath() {
+		return campaignDirectory.getName();
+	}
 	
 	
 	

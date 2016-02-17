@@ -1,15 +1,26 @@
 package ui.controlelements;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Font;
+
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+
+import core.Controller;
 
 /**
  * Created by james on 17/02/16.
  */
 public class ControlPanelTab extends Box {
 
-    public ControlPanelTab(){
+	protected Controller controller;
+	
+    public ControlPanelTab(Controller controller){
         super(BoxLayout.Y_AXIS);
+        this.controller = controller;
     }
 
     protected void addSetting(JComponent control, String title, String text) {
