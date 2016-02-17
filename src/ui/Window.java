@@ -26,6 +26,10 @@ public class Window extends JFrame {
 		setTitle("COMP2211 Group 6");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
+		// Initialising the Model
+		final Model model = new Model();
+		
+		// TODO you might want to register the model with the controller here?
 		final Controller controller = new Controller();
 				
 		// Initialising Controller and View

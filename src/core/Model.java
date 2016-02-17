@@ -21,8 +21,6 @@ public class Model extends Observable implements ActionListener {
 	private static final boolean CHOOSE_FILE_ON_STARTUP = false;
 
 	// ==== Properties ====
-
-	private final Controller controller;
 	
 	// We may use this Timer to fire events as they occur
 	// Use this Timer to update the Controller/View about the current query status
@@ -39,8 +37,6 @@ public class Model extends Observable implements ActionListener {
 
 	public Model(Controller controller) {
 		super();
-		
-		this.controller = controller;
 		
 		// TODO temporary file picker		
 		if (CHOOSE_FILE_ON_STARTUP) {
