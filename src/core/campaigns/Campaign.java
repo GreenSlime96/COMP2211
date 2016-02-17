@@ -70,15 +70,24 @@ public class Campaign {
 		 * - Users map, how much memory?
 		 */
 		
+		System.gc();
+		
+		long startMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 		long time = System.currentTimeMillis();
 		
 		processImpressions();
 		processClicks();
 		processServers();
 		
+		long end = System.currentTimeMillis();
+		
+		System.gc();
+		long endMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+		
 		System.out.println("--------------------------------------");
 		System.out.println("Campaign:\t" + campaignDirectory.getName());
-		System.out.println("Load Time:\t" + (System.currentTimeMillis() - time) + "ms");
+		System.out.println("Load Time:\t" + (end - time) + "ms");
+		System.out.println("Memory Used:\t" + (endMem - startMem) / (1024 * 1024) + "MB");
 		System.out.println("Processed:\t" + getNumberOfRecords() + " records");
 		System.out.println("Start Date:\t" + campaignStartDate);
 		System.out.println("End Date:\t" + campaignEndDate);
