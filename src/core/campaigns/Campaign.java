@@ -435,4 +435,10 @@ public class Campaign {
 		return true;
 	}
 
+
+	@Override
+	public String toString() {
+		return "Campaign [campaignDirectory=" + campaignDirectory + "]";
+	}
+
 }
