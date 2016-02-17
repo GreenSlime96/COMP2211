@@ -51,6 +51,13 @@ public class Model extends Observable implements ActionListener {
 		dp.numberOfImpressions();
 	}
 	
+	
+	// ==== Accessors ====
+
+    public List<Campaign> getCampaigns(){
+        return campaigns;
+    }
+    
 	public boolean addCampaign(Campaign campaign) {
 		for(Campaign c : campaigns)
 			if(c.equals(campaign))
@@ -65,12 +72,6 @@ public class Model extends Observable implements ActionListener {
 		update();
 		return result;
 	}
-	
-	// ==== Accessors ====
-
-    public List<Campaign> getCampaigns(){
-        return campaigns;
-    }
 	
 	// ==== Private Helper Methods ====
 	
