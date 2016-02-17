@@ -10,17 +10,13 @@ import javax.swing.Timer;
 
 import core.campaigns.Campaign;
 import core.data.DataProcessor;
-import javafx.scene.chart.Chart;
 import ui.controlelements.CampaignFileChooser;
 
 public class Model extends Observable implements ActionListener {
 
 	// ==== Constants ====
 
-<<<<<<< HEAD
 	private static final boolean CHOOSE_FILE_ON_STARTUP = true;
-=======
->>>>>>> e9f120c2e17bc6c64b06f13bffa7f6761587f26e
 
 	// ==== Properties ====
 	
