@@ -1,32 +1,17 @@
-package ui;
+package ui.controlelements;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.*;
+import java.awt.event.*;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.SpinnerDateModel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.MatteBorder;
+import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 import core.Model;
 
-public class Controls extends Box implements Observer, ActionListener, ChangeListener, ItemListener {
+public class ControlPanel extends Box implements Observer, ActionListener, ChangeListener, ItemListener {
 
 	// ==== Constants ====
 	
@@ -44,7 +29,7 @@ public class Controls extends Box implements Observer, ActionListener, ChangeLis
 	
 	// ==== Constructor ====
 	
-	public Controls(Model model) {
+	public ControlPanel(Model model) {
 		super(BoxLayout.Y_AXIS);
 		
 		// Register as an Observer of Model
@@ -53,10 +38,10 @@ public class Controls extends Box implements Observer, ActionListener, ChangeLis
 		
 		// Add Borders for visual appeal!!!
 		setPreferredSize(new Dimension(280, 600));
-		setBorder(BorderFactory.createCompoundBorder( 
-				new MatteBorder(0, 1, 0, 0, new Color(150, 150, 150)), 
-				new EmptyBorder(20, 20, 20, 20))); 
-		
+//		setBorder(BorderFactory.createCompoundBorder(
+//				new MatteBorder(0, 1, 0, 0, new Color(150, 150, 150)),
+//				new EmptyBorder(20, 20, 20, 20)));
+//
 		// Add Listener Hooks here
 		/* x.addChangeListener(this);
 		 * y.addActionListener(this);
@@ -67,7 +52,20 @@ public class Controls extends Box implements Observer, ActionListener, ChangeLis
 		/* addSetting(component, title, help text)
 		 * 
 		 */
-		
+		JTabbedPane tabbedPane = new JTabbedPane();
+
+		GeneralTab generalTab = new GeneralTab();
+		tabbedPane.addTab("General", null, generalTab,
+				"Does nothing");
+		tabbedPane.setMnemonicAt(0, KeyEvent.VK_1);
+
+		FilterTab filterTab = new FilterTab();
+		tabbedPane.addTab("Filter", null, filterTab,
+				"Does twice as much nothing");
+		tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
+
+		add(tabbedPane);
+
 		// Vertical spacing
 		add(new JPanel(new GridBagLayout()));
 
@@ -103,7 +101,7 @@ public class Controls extends Box implements Observer, ActionListener, ChangeLis
 		if (o == model) {
 			// TODO What happens when Model updates the controls?
 			
-			// We would like to update the existing values in the Controls to reflect
+			// We would like to update the existing values in the ControlPanel to reflect
 			// the new state of the Model
 		}
 	}
@@ -139,5 +137,7 @@ public class Controls extends Box implements Observer, ActionListener, ChangeLis
 		// TODO Auto-generated method stub
 		
 	}
+
+
 
 }

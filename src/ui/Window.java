@@ -6,6 +6,7 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import core.Model;
+import ui.controlelements.ControlPanel;
 
 public class Window extends JFrame {
 
@@ -27,13 +28,13 @@ public class Window extends JFrame {
 		final Model model = new Model();
 		
 		// Initialising Controller and View
-		final Controls controls = new Controls(model);
-		final View view = new View(model);
+		final ControlPanel controlPanel = new ControlPanel(model);
+		final GraphAreaView graphAreaView = new GraphAreaView(model);
 		
 		// Layout of our UI
 		final JPanel panel = new JPanel(new BorderLayout());
-		panel.add(controls, BorderLayout.EAST);
-		panel.add(view, BorderLayout.CENTER);
+		panel.add(controlPanel, BorderLayout.EAST);
+		panel.add(graphAreaView, BorderLayout.CENTER);
 		
 		// Set as Default Content Pane
 		setContentPane(panel);
@@ -42,7 +43,7 @@ public class Window extends JFrame {
 		pack();
 		
 		// Set the View to Visible
-		view.setVisible(true);
+		graphAreaView.setVisible(true);
 	}
 
 }
