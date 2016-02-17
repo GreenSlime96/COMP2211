@@ -1,6 +1,7 @@
 package ui;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -44,7 +45,7 @@ public class Window extends JFrame {
 		// Set as Default Content Pane
 		setContentPane(panel);
 		// James is a special snowflake
-		getContentPane().setPreferredSize(new Dimension(1920,1080));
+		//getContentPane().setPreferredSize(new Dimension(1920,1080));
 
 		// Resize Window to UI Components
 		pack();
