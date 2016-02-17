@@ -1,16 +1,22 @@
 package ui.controlelements;
 
-import ui.controlelements.ControlPanelTab;
-
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTable;
 
 /**
  * Created by james on 17/02/16.
  */
 public class GeneralTab extends ControlPanelTab {
 
+	private JTable campaignTable = new JTable(3, 1);
+	
+	private JButton removeCampaignBTN = new JButton("-");
+	private JButton addCampaignBTN = new JButton("+");
+	
     JLabel empty = new JLabel("");
     JLabel noImpressionsLabel = new JLabel("######");
     JLabel startDateLabel = new JLabel("######");
@@ -22,8 +28,16 @@ public class GeneralTab extends ControlPanelTab {
 //        JLabel filler = new JLabel("General");
 //        filler.setHorizontalAlignment(JLabel.CENTER);
 //
-        addSetting(new JTable(3,1),"Campaigns","Click to show stats below");
-
+    	//Campaign management
+        addSetting(campaignTable, "Campaigns","Click to show stats below");
+        JPanel addSubtractCampaignsPanel = new JPanel();
+        addSubtractCampaignsPanel.setLayout(new BoxLayout(addSubtractCampaignsPanel, BoxLayout.X_AXIS));
+        addSubtractCampaignsPanel.setAlignmentX(JComponent.LEFT_ALIGNMENT);
+        addSubtractCampaignsPanel.add(removeCampaignBTN);
+        addSubtractCampaignsPanel.add(addCampaignBTN);
+        add(addSubtractCampaignsPanel);
+        
+        
         //campaign metrics
         addSetting(empty, "", "" );
         addSetting(noImpressionsLabel, "Impressions", "" );

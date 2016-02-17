@@ -30,22 +30,26 @@ public class Model extends Observable implements ActionListener {
 	// The list of Charts stored in this model
 //	private final List<Chart> charts = new ArrayList<Chart>();
 
+	private final boolean CHOOSE_FILE_ON_STARTUP = false;
+	
 	// ==== Constructor ====
 
 	public Model() {
 		super();
 		
 		// TODO temporary file picker
-		JFileChooser chooser = new JFileChooser();
-		chooser.setCurrentDirectory(new java.io.File("."));
-		chooser.setDialogTitle("Campaign Directory");
-		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		chooser.setAcceptAllFileFilterUsed(false);
-
-		if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-			new Campaign(chooser.getSelectedFile());
-		} else {
-			System.out.println("No Selection ");
+		if(CHOOSE_FILE_ON_STARTUP) {
+			JFileChooser chooser = new JFileChooser();
+			chooser.setCurrentDirectory(new java.io.File("."));
+			chooser.setDialogTitle("Campaign Directory");
+			chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			chooser.setAcceptAllFileFilterUsed(false);
+	
+			if (chooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+				new Campaign(chooser.getSelectedFile());
+			} else {
+				System.out.println("No Selection ");
+			}
 		}
 	}
 	
