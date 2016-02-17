@@ -15,10 +15,12 @@ public class ControlPanelTab extends Box {
     protected void addSetting(JComponent control, String title, String text) {
         JLabel label = new JLabel(title);
         label.setFont(label.getFont().deriveFont(Font.BOLD));
+        label.setBorder(BorderFactory.createEmptyBorder(0,0,10,0));
 
         // setting maximum size to comply with BoxLayout
         control.setAlignmentX(JComponent.LEFT_ALIGNMENT);
         control.setMaximumSize(new Dimension(300, control.getPreferredSize().height));
+
 
         // use cheap "<html>" to enable line-wrapping
         JLabel help = new JLabel("<html>" + text + "</html>");

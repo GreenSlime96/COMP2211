@@ -1,12 +1,13 @@
 package ui;
 
-import java.awt.BorderLayout;
+import java.awt.*;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import core.Model;
 import ui.controlelements.ControlPanel;
+import ui.graphelements.GraphAreaView;
 
 public class Window extends JFrame {
 
@@ -19,7 +20,7 @@ public class Window extends JFrame {
 	
 	public Window() {
 		super();
-		
+
 		// Default Operations on JFrame
 		setTitle("COMP2211 Group 6");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -38,7 +39,9 @@ public class Window extends JFrame {
 		
 		// Set as Default Content Pane
 		setContentPane(panel);
-		
+		// James is a special snowflake
+		getContentPane().setPreferredSize(new Dimension(1920,1080));
+
 		// Resize Window to UI Components
 		pack();
 		

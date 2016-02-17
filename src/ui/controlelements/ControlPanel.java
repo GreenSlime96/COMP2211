@@ -6,6 +6,8 @@ import java.util.Observable;
 import java.util.Observer;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -40,8 +42,8 @@ public class ControlPanel extends Box implements Observer, ActionListener, Chang
 		setPreferredSize(new Dimension(280, 600));
 //		setBorder(BorderFactory.createCompoundBorder(
 //				new MatteBorder(0, 1, 0, 0, new Color(150, 150, 150)),
-//				new EmptyBorder(20, 20, 20, 20)));
-//
+//				new EmptyBorder(0, 20, 20, 20)));
+
 		// Add Listener Hooks here
 		/* x.addChangeListener(this);
 		 * y.addActionListener(this);
@@ -64,11 +66,17 @@ public class ControlPanel extends Box implements Observer, ActionListener, Chang
 				"Does twice as much nothing");
 		tabbedPane.setMnemonicAt(1, KeyEvent.VK_2);
 
-		add(tabbedPane);
-
+		addSetting(tabbedPane,"","");
 		// Vertical spacing
 		add(new JPanel(new GridBagLayout()));
 
+		//Where member variables are declared:
+		JProgressBar progressBar;
+		progressBar = new JProgressBar(0, 100);
+		progressBar.setValue(50);
+		progressBar.setStringPainted(true);
+
+		addSetting(progressBar,"Progress","currently rendering...");
 
 	}
 	
