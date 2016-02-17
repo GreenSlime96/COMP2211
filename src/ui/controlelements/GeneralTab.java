@@ -2,6 +2,8 @@ package ui.controlelements;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.DecimalFormat;
+import java.time.format.DateTimeFormatter;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -11,6 +13,8 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import core.Controller;
 import core.campaigns.Campaign;
@@ -29,10 +33,14 @@ public class GeneralTab extends ControlPanelTab {
     private JLabel noImpressionsLabel = new JLabel("######");
     private JLabel startDateLabel = new JLabel("######");
     private JLabel endDateLabel = new JLabel("######");
-    private JLabel totalClicksLabel =  new JLabel("######");
-    private JLabel campaignDirectorLabel = new JLabel("######");
+    private JLabel totalClicksLabel = new JLabel("######");
+    private JLabel totalCostLabel = new JLabel("######"); 
+    private JLabel campaignDirectoryLabel = new JLabel("######");
+    
+    private DateTimeFormatter dateTimeFormatter;
 
-    public GeneralTab(Controller controller){
+    public GeneralTab(Controller controller) {
+    	super(controller);
 //        JLabel filler = new JLabel("General");
 //        filler.setHorizontalAlignment(JLabel.CENTER);
 //
@@ -50,6 +58,15 @@ public class GeneralTab extends ControlPanelTab {
         addSubtractCampaignsPanel.add(removeCampaignBTN);
         addSubtractCampaignsPanel.add(addCampaignBTN);
         add(addSubtractCampaignsPanel);
+        
+        campaignList.addListSelectionListener(new ListSelectionListener() {
+
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+				populateCampaignData();		
+			}
+        	
+        });
         
         addCampaignBTN.addActionListener(new ActionListener() {
 
@@ -80,11 +97,30 @@ public class GeneralTab extends ControlPanelTab {
         addSetting(startDateLabel, "Start Date", "" );
         addSetting(endDateLabel, "End Date", "" );
         addSetting(totalClicksLabel, "Total Clicks", "" );
-        addSetting(campaignDirectorLabel, "Campaign Directory", "" );        
+        addSetting(totalCostLabel, "Total Cost", "");
+        addSetting(campaignDirectoryLabel, "Campaign Directory", "" );        
+        
+        dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    }
+    
+    private void populateCampaignData()
+    {
+    	if(campaignList.getSelectedValue() == null)
+    		return;
+    	
+    	Campaign campaign = campaignList.getSelectedValue();
+    	
+    	noImpressionsLabel.setText(""+campaign.getNumberOfImpressions());
+    	startDateLabel.setText(campaign.getStartDate().format(dateTimeFormatter));
+    	endDateLabel.setText(campaign.getEndDate().format(dateTimeFormatter));
+    	totalClicksLabel.setText(""+campaign.getNumberOfClicks());
+    	totalCostLabel.setText(("£"+new DecimalFormat("#.##").format(campaign.getTotalCostOfCampaign())));
+    	campaignDirectoryLabel.setText(campaign.getDirectoryPath());
     }
     
     public void setCampaignListData(Campaign[] listData) {
     	campaignList.setListData(listData);
+    	campaignList.setSelectedIndex(campaignList.getModel().getSize()-1);
     }
-
+    
 }
