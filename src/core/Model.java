@@ -69,17 +69,22 @@ public class Model extends Observable implements ActionListener {
 	}
 	
 	// ==== Accessors ====
+	
 	public List<Campaign> getCampaigns() {
 		return campaigns;
 	}
 	
+	
 	// ==== Private Helper Methods ====
+	
 	private void update() {
 		setChanged();
 		notifyObservers();
 	}
 	
+	
 	// ==== ActionListener Implementation ====
+	
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == timer) {

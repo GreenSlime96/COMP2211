@@ -10,6 +10,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
+import core.campaigns.readers.ImpressionReader;
 import core.fields.Gender;
 import core.fields.Income;
 import core.records.User;
@@ -19,7 +20,7 @@ public class Campaign {
 	// ==== Constants ====
 	
 	// date format
-	private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	public static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	
 	// file name references
 	private static final String IMPRESSIONS_FILE = "impression_log.csv";
@@ -104,6 +105,10 @@ public class Campaign {
 	
 	
 	// ==== Accessors ====
+	
+	public final ImpressionReader getImpressions() throws IOException {
+		return new ImpressionReader(impressionLog);
+	}
 	
 	public final User getUserFromID(long id) {
 		return usersMap.get(id);

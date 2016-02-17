@@ -1,30 +1,21 @@
 package core.records;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public class Impression {
 	
 	// ==== Properties ====
 	
-	// TODO Use Enums instead of String
-	public final Date date;
+	public final LocalDateTime date;
 	public final long userID;
-	public final String gender;
-	public final String ageGroup;
-	public final String income;
-	public final String context;
-	public final int cost;
+	public final double cost;
 	
 	
 	// ==== Constructor ====
 	
-	public Impression(Date date, long userID, String gender, String ageGroup, String income, String context, int cost) {
+	public Impression(LocalDateTime date, long userID, double cost) {
 		this.date = date;
 		this.userID = userID;
-		this.gender = gender;
-		this.ageGroup = ageGroup;
-		this.income = income;
-		this.context = context;
 		this.cost = cost;
 	}
 }
