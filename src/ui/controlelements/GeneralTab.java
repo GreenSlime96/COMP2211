@@ -1,8 +1,7 @@
 package ui.controlelements;
 
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
 
@@ -14,6 +13,8 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -30,6 +31,7 @@ import core.Model;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Observable;
+import java.util.Observer;
 
 
 /**
@@ -116,4 +118,26 @@ public class GeneralTab extends ControlPanelBox {
 		
 	}
 
+    class GeneralTabController implements ActionListener,
+            ChangeListener, ItemListener {
+
+        public GeneralTabController(Model model){
+
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+        }
+
+        @Override
+        public void stateChanged(ChangeEvent e) {
+
+        }
+
+        @Override
+        public void itemStateChanged(ItemEvent e) {
+
+        }
+    }
 }
