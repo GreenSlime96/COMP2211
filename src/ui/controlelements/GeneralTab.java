@@ -32,6 +32,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.logging.Filter;
 
 
 /**
@@ -40,6 +41,10 @@ import java.util.Observer;
 
 
 public class GeneralTab extends ControlPanelBox {
+
+    public enum FilterType {
+        GENDER, AGE, INCOME, CONTEXT
+    }
 
     private JButton removeCampaignBTN = new JButton("-");
     private JButton addCampaignBTN = new JButton("+");
@@ -90,21 +95,6 @@ public class GeneralTab extends ControlPanelBox {
         addSetting(campaignDirectoryLabel, "Campaign Directory", "" );        
 
     }
-
-    private void populateCampaignData()
-    {
-    	if(campaignList.getSelectedValue() == null)
-    		return;
-
-    	Campaign campaign = campaignList.getSelectedValue();
-
-    	noImpressionsLabel.setText(""+campaign.getNumberOfImpressions());
-    	startDateLabel.setText(campaign.getStartDate().format(dateTimeFormatter));
-    	endDateLabel.setText(campaign.getEndDate().format(dateTimeFormatter));
-    	totalClicksLabel.setText(""+campaign.getNumberOfClicks());
-    	totalCostLabel.setText(("�"+new DecimalFormat("#.##").format(campaign.getTotalCostOfCampaign())));
-    	campaignDirectoryLabel.setText(campaign.getDirectoryPath());
-    }
     
     public void setCampaignListData(Campaign[] listData) {
     	campaignList.setListData(listData);
@@ -114,8 +104,19 @@ public class GeneralTab extends ControlPanelBox {
 
 	@Override
 	public void update(Observable o, Object arg) {
-		// TODO Auto-generated method stub
-		
+
+        if(campaignList.getSelectedValue() == null)
+            return;
+
+        Campaign campaign = campaignList.getSelectedValue();
+
+        noImpressionsLabel.setText(""+campaign.getNumberOfImpressions());
+        startDateLabel.setText(campaign.getStartDate().format(dateTimeFormatter));
+        endDateLabel.setText(campaign.getEndDate().format(dateTimeFormatter));
+        totalClicksLabel.setText(""+campaign.getNumberOfClicks());
+        totalCostLabel.setText(("£"+new DecimalFormat("#.##").format(campaign.getTotalCostOfCampaign())));
+        campaignDirectoryLabel.setText(campaign.getDirectoryPath());
+
 	}
 
     class GeneralTabController implements ActionListener,
@@ -140,4 +141,6 @@ public class GeneralTab extends ControlPanelBox {
 
         }
     }
+
+
 }
