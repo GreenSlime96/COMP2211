@@ -12,6 +12,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Observable;
 
 /**
@@ -51,7 +52,7 @@ public class FilterTab extends ControlPanelBox {
         addSetting(incomeBox,"Income","Filter by Income");
         addSetting(contextBox,"Context","Filter by Context");
 
-        FilterTabController filterTabController = new FilterTabController(model);
+        filterTabController = new FilterTabController(model);
 
         registerFilterBoxes(genderBoxes);
         registerFilterBoxes(ageBoxes);
@@ -61,7 +62,7 @@ public class FilterTab extends ControlPanelBox {
 
     public void registerFilterBoxes(ArrayList<JCheckBox> checkBoxes){
         for(JCheckBox checkBox : checkBoxes){
-            checkBox.addChangeListener(filterTabController);
+            checkBox.addActionListener(filterTabController);
         }
     }
     public void createRadioButtonGroup(ArrayList<String> nameList, Box buttonBox){
@@ -79,7 +80,7 @@ public class FilterTab extends ControlPanelBox {
         ArrayList<JCheckBox> checkBoxes = new ArrayList<>();
         for(String title : nameList){
             JCheckBox checkBox = new JCheckBox(title);
-            //checkBox.setSelected(true);
+            checkBox.setSelected(true);
             buttonBox.add(checkBox);
             checkBoxes.add(checkBox);
         }
@@ -98,13 +99,20 @@ public class FilterTab extends ControlPanelBox {
 
         private Model model = null;
 
+        boolean[] genderArray = new boolean[2];
+        boolean[] ageArray = new boolean[5];
+        boolean[] incomeArray = new boolean[3];
+        boolean[] contextArray = new boolean[6];
+
         public FilterTabController(Model model){
             model = model;
 
-            boolean[] genderArray = new boolean[2];
-            boolean[] ageArray = new boolean[5];
-            boolean[] incomeArray = new boolean[3];
-            boolean[] contextArray = new boolean[6];
+            Arrays.fill(genderArray,true);
+            Arrays.fill(ageArray,true);
+            Arrays.fill(incomeArray,true);
+            Arrays.fill(contextArray,true);
+
+
             verifyCheckBoxGroup(genderBoxes,genderArray);
             verifyCheckBoxGroup(ageBoxes,ageArray);
             verifyCheckBoxGroup(incomeBoxes,incomeArray);
@@ -113,25 +121,16 @@ public class FilterTab extends ControlPanelBox {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-
-        }
-
-        @Override
-        public void stateChanged(ChangeEvent e) {
             System.out.println("STATE CHANGED!");
-            boolean[] genderArray = new boolean[2];
-            boolean[] ageArray = new boolean[5];
-            boolean[] incomeArray = new boolean[3];
-            boolean[] contextArray = new boolean[6];
 
             if(e.getSource() instanceof JCheckBox){
-
+                System.out.println("Checkbox was Ticked");
                 JCheckBox checkBox = (JCheckBox) e.getSource();
                 switch (checkBox.getText()) {
                     case "Male":
                         genderArray[0] = checkBox.isSelected();
                         break;
-                    case "Female:":
+                    case "Female":
                         genderArray[1] = checkBox.isSelected();
                         break;
                     case "<25":
@@ -162,22 +161,33 @@ public class FilterTab extends ControlPanelBox {
                         contextArray[0] = checkBox.isSelected();
                         break;
                     case "Shopping":
-                        contextArray[0] = checkBox.isSelected();
+                        contextArray[1] = checkBox.isSelected();
                         break;
                     case "Social Media":
-                        contextArray[0] = checkBox.isSelected();
+                        contextArray[2] = checkBox.isSelected();
                         break;
-                    case "Blogs":
-                        contextArray[0] = checkBox.isSelected();
+                    case "Blog":
+                        contextArray[3] = checkBox.isSelected();
                         break;
                     case "Hobbies":
-                        contextArray[0] = checkBox.isSelected();
+                        contextArray[4] = checkBox.isSelected();
                         break;
                     case "Travel":
-                        contextArray[0] = checkBox.isSelected();
+                        contextArray[5] = checkBox.isSelected();
                         break;
                 }
+
+                verifyCheckBoxGroup(genderBoxes,genderArray);
+                verifyCheckBoxGroup(ageBoxes,ageArray);
+                verifyCheckBoxGroup(incomeBoxes,incomeArray);
+                verifyCheckBoxGroup(contextBoxes,contextArray);
+
             }
+        }
+
+        @Override
+        public void stateChanged(ChangeEvent e) {
+
         }
 
         @Override
@@ -191,18 +201,23 @@ public class FilterTab extends ControlPanelBox {
         }
 
         public void verifyCheckBoxGroup(ArrayList<JCheckBox> checkBoxes,boolean[] filterArr){
-            boolean allfalse = false;
-            for(boolean b : filterArr){
-                if (b){
-                    allfalse = true;
-                }else{
+            boolean allfalse = true;
+            for (int i = 0; i < filterArr.length; i++) {
+                System.out.println(filterArr[i]);
+                if (filterArr[i]){
                     allfalse = false;
-                    for(JCheckBox checkBox : checkBoxes ) {
-                        checkBox.setSelected(true);
-                    }
                     break;
+                }else {
+                    allfalse = true;
                 }
+            }
 
+            if(allfalse) {
+                System.out.println("EVERYTHING IS FALSE");
+                Arrays.fill(filterArr,true);
+                for(JCheckBox checkBox : checkBoxes ) {
+                    checkBox.setSelected(true);
+                }
             }
         }
     }
