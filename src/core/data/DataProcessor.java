@@ -2,12 +2,18 @@ package core.data;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import core.campaigns.Campaign;
+import core.records.Click;
 import core.records.Impression;
+import core.records.Server;
+import core.records.User;
 
 // TODO should we rename this to DataProcessor instead?
 // Chart sounds like something the view should be handling
@@ -36,9 +42,7 @@ public class DataProcessor {
 	private int bounceMinimumSecondsOnPage;
 	
 	// the list of filters to work with
-	private List<DataFilter> filters;
-	
-	
+	private DataFilter dataFilter;
 	
 	
 	// ==== Constructor ====
@@ -165,84 +169,310 @@ public class DataProcessor {
 	}
 	
 	
-	public final Map<LocalDateTime, Integer> numberOfImpressions() {
-		final Map<LocalDateTime, Integer> impressionsMap = new HashMap<LocalDateTime, Integer>();
+	public final List<Integer> numberOfImpressions() {
+		final List<Integer> impressionsList = new ArrayList<Integer>();
 		
 		int numberOfImpressions = 0;
-		long time = System.currentTimeMillis();
 		
-		LocalDateTime currentDate = this.dataStartDate;
+		// initialise current date as startDate
+		LocalDateTime currentDate = dataStartDate;
 		LocalDateTime nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
 		
-		for (Impression impression : campaign.getImpressions()) {		
+		for (Impression impression : campaign.getImpressions()) {
+			// we ignore the impression if the date is before the current date
+			if (impression.date.isBefore(currentDate))
+				continue;
 			
 			// add new mapping if after time granularity separator
-			if (impression.date.isAfter(nextDate)) {	
+			if (impression.date.isAfter(nextDate)) {
 				
-				// add to map before reset
-				impressionsMap.put(currentDate, numberOfImpressions);
+				// add to list
+				impressionsList.add(numberOfImpressions);
+				
+				// stop processing, we have reached the end date
+				if (nextDate.equals(dataEndDate))
+					break;
 				
 				// reset and increment
 				numberOfImpressions = 0;
 				currentDate = nextDate;
 				nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
+				
+				// normalise the date if exceeded
+				if (nextDate.isAfter(dataEndDate))
+					nextDate = dataEndDate;
 			}
 			
-			if (filters.isEmpty())
+			if (dataFilter.apply(campaign.getUserFromID(impression.userID)))
 				numberOfImpressions++;
-			else {
-				for (DataFilter filter : filters) {
-					if (filter.apply(campaign.getUserFromID(impression.userID))) {
-						numberOfImpressions++;
-						break;
-					}
-				}
+		}
+		
+		return impressionsList;
+	}
+	
+	public final List<Integer> numberOfClicks() {
+		final List<Integer> clicksList = new ArrayList<Integer>();
+		
+		int numberOfClicks = 0;
+		
+		// initialise current date as startDate
+		LocalDateTime currentDate = dataStartDate;
+		LocalDateTime nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
+		
+		for (Click click : campaign.getClicks()) {
+			// ignore if before current date -- in reality we need to throw errors
+			if (click.date.isBefore(currentDate))
+				continue;
+			
+			// add new entry if bounds exceeded
+			if (click.date.isAfter(nextDate)) {
+				clicksList.add(numberOfClicks);
+				
+				// break off if at the end
+				if (nextDate.equals(dataEndDate))
+					break;
+				
+				// reset
+				numberOfClicks = 0;
+				currentDate = nextDate;
+				nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
+				
+				// normalise
+				if (nextDate.isAfter(dataEndDate))
+					nextDate = dataEndDate;
+			}
+			
+			// apply filter
+			if (dataFilter.apply(campaign.getUserFromID(click.userID)))
+				numberOfClicks++;
+		}
+		
+		return clicksList;
+	}
+	
+	// The number of unique users that click on an ad during the course of a campaign.
+	public final List<Integer> numberOfUniques() {
+		final List<Integer> uniquesList = new ArrayList<Integer>();
+		
+		// initialise current date as startDate
+		LocalDateTime currentDate = dataStartDate;
+		LocalDateTime nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
+		
+		// store unique users here
+		// TODO: decide hash user or hash Long,
+		// kbp2g14 - I think User is better as we don't need to instantiate a new Long object
+		Set<User> userSet = new HashSet<User>();
+		
+		for (Click click : campaign.getClicks()) {
+			// ignore if before current date -- in reality we need to throw errors
+			if (click.date.isBefore(currentDate))
+				continue;
+			
+			// add new entry if bounds exceeded
+			if (click.date.isAfter(nextDate)) {
+				uniquesList.add(userSet.size());
+				
+				// break off if at the end
+				if (nextDate.equals(dataEndDate))
+					break;
+				
+				// resets variables
+				currentDate = nextDate;
+				nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
+				
+				userSet.clear();
+				
+				// normalise
+				if (nextDate.isAfter(dataEndDate))
+					nextDate = dataEndDate;
+			}
+			
+			final User user = campaign.getUserFromID(click.userID);
+			
+			// apply filter
+			if (dataFilter.apply(user))
+				userSet.add(user);
+		}
+		
+		return uniquesList;
+	}
+	
+	/*
+	 * A user clicks on an ad, but then fails to interact with the website
+	 * (typically detected when a user navigates away from the website after a
+	 * short time, or when only a single page has been viewed).
+	 */
+	public final List<Integer> numberOfBounces() {
+		final List<Integer> bouncesList = new ArrayList<Integer>();
+		
+		// initialise current date as startDate
+		LocalDateTime currentDate = dataStartDate;
+		LocalDateTime nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
+		
+		int numberOfBounces = 0;
+		
+		for (Server server : campaign.getServer()) {
+			
+			// ignore if before current date
+			if (server.entryDate.isBefore(currentDate))
+				continue;
+			
+			// partition if new segment
+			if (server.entryDate.isAfter(nextDate)) {
+				
+				// add to arraylist
+				bouncesList.add(numberOfBounces);
+				
+				// break if at the end
+				if (nextDate.equals(dataEndDate))
+					break;
+				
+				// reset
+				numberOfBounces = 0;
+				
+				// normalise
+				if (nextDate.isAfter(dataEndDate))
+					nextDate = dataEndDate;
+			}
+			
+			if (dataFilter.apply(campaign.getUserFromID(server.userID))) {
+				// register bounce if pages Viewed is less than or equal to threshold
+				if (server.pagesViewed > bounceMinimumPagesViewed)
+					continue;
+				
+				// if exitDate is null, we cannot compare so we continue
+				if (server.exitDate == null)
+					continue;
+				
+				// if time between entry and exit is greater than threshold
+				if (ChronoUnit.SECONDS.between(server.entryDate, server.exitDate) > bounceMinimumSecondsOnPage)
+					continue;
+				
+				numberOfBounces++;
 			}
 		}
 		
-		System.out.println(System.currentTimeMillis() - time);
-		
-		return impressionsMap;
+		return bouncesList;
 	}
 	
-	public final Map<LocalDateTime, Integer> numberOfClicks() {
-		final Map<LocalDateTime, Integer> clicksMap = new HashMap<LocalDateTime, Integer>();
+	public final List<Integer> numberOfConversions() {
+		final List<Integer> conversionsList = new ArrayList<Integer>();
 		
-		// TODO read logic here
+		// initialise current date as startDate
+		LocalDateTime currentDate = dataStartDate;
+		LocalDateTime nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
 		
-		return clicksMap;
+		int numberOfConversions = 0;
+		
+		for (Server server : campaign.getServer()) {
+			
+			// ignore if before current date
+			if (server.entryDate.isBefore(currentDate))
+				continue;
+			
+			// partition if new segment
+			if (server.entryDate.isAfter(nextDate)) {
+				
+				// add to arraylist
+				conversionsList.add(numberOfConversions);
+				
+				// break if at the end
+				if (nextDate.equals(dataEndDate))
+					break;
+				
+				// reset
+				numberOfConversions = 0;
+				
+				// normalise
+				if (nextDate.isAfter(dataEndDate))
+					nextDate = dataEndDate;
+			}
+			
+			// TODO: conversion check, THEN apply?
+			if (dataFilter.apply(campaign.getUserFromID(server.userID))) {
+				if (server.conversion)
+					numberOfConversions++;
+			}
+			
+		}
+		
+		return conversionsList;
 	}
 	
-	public final Map<LocalDateTime, Integer> numberOfUniques() {
-		final Map<LocalDateTime, Integer> uniquesMap = new HashMap<LocalDateTime, Integer>();
+	// I'm assuming this is cost of impression and click
+	public final List<Double> totalCost() {
+		final List<Double> impressionsCost = new ArrayList<Double>();
+		final List<Double> clicksCost = new ArrayList<Double>();
+		final List<Double> costList = new ArrayList<Double>();
 		
-		// TODO read logic here
+		// initialise current date as startDate
+		LocalDateTime currentDate = dataStartDate;
+		LocalDateTime nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
 		
-		return uniquesMap;
-	}
-
-	public final Map<LocalDateTime, Integer> numberOfBounces() {
-		final Map<LocalDateTime, Integer> bouncesMap = new HashMap<LocalDateTime, Integer>();
+		// store costs in temporary variable
+		double cost = 0;
 		
-		// TODO read logic here
+		// compute impressions cost
+		for (Impression impression : campaign.getImpressions()) {
+			if (impression.date.isBefore(currentDate))
+				continue;
+			
+			if (impression.date.isAfter(nextDate)) {
+				impressionsCost.add(cost);
+				
+				if (nextDate.equals(dataEndDate))
+					break;
+				
+				cost = 0;
+				currentDate = nextDate;
+				nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
+				
+				if (nextDate.isAfter(dataEndDate))
+					nextDate = dataEndDate;
+			}
+			
+			if (dataFilter.apply(campaign.getUserFromID(impression.userID)))
+				cost += impression.cost;
+		}
 		
-		return bouncesMap;
-	}
-	
-	public final Map<LocalDateTime, Integer> numberOfConversions() {
-		final Map<LocalDateTime, Integer> conversionsMap = new HashMap<LocalDateTime, Integer>();
+		// reset variables for next compute
+		cost = 0;
+		currentDate = dataStartDate;
+		nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
 		
-		// TODO read logic here
+		// compute click cost
+		for (Click click : campaign.getClicks()) {
+			if (click.date.isBefore(currentDate))
+				continue;
+			
+			if (click.date.isAfter(nextDate)) {
+				clicksCost.add(cost);
+				
+				if (nextDate.equals(dataEndDate))
+					break;
+				
+				cost = 0;
+				currentDate = nextDate;
+				nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
+				
+				if (nextDate.isAfter(dataEndDate))
+					nextDate = dataEndDate;
+			}
+			
+			if (dataFilter.apply(campaign.getUserFromID(click.userID)))
+				cost += click.cost;
+		}
 		
-		return conversionsMap;
-	}
-	
-	public final Map<LocalDateTime, Double> totalCost() {
-		final Map<LocalDateTime, Double> costMap = new HashMap<LocalDateTime, Double>();
+		// sum two costs, I tried to use streams but it won't work
+		// reason being two lists could be of unequal length
+		// TODO: unchecked/checked exceptions
+		if (impressionsCost.size() != clicksCost.size())			
+			System.err.println("totalCost error on impressionsCost and clicksCost size");
 		
-		// TODO read logic here
 		
-		return costMap;
+		
+		
+		return costList;
 	}
 	
 	public final Map<LocalDateTime, Double> CTR() {

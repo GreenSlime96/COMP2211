@@ -1,21 +1,21 @@
 package core.records;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 public class Server {
 	
 	// ==== Properties ====
 	
-	public final Date entryDate;
+	public final LocalDateTime entryDate;
 	public final long userID;
-	public final Date exitDate;
+	public final LocalDateTime exitDate;
 	public final int pagesViewed;
 	public final boolean conversion;
 	
 	
 	// ==== Constructor ====
 	
-	public Server(Date entryDate, long userID, Date exitDate, int pagesViewed, boolean conversion) {
+	public Server(LocalDateTime entryDate, long userID, LocalDateTime exitDate, int pagesViewed, boolean conversion) {
 		this.entryDate = entryDate;
 		this.userID = userID;
 		this.exitDate = exitDate;

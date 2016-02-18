@@ -13,6 +13,11 @@ public class DataFilter {
 	final Income income;
 	final String context;
 	
+	// Gender: Male, Female
+	// Age: <25, 25-34, 35-44, 45-54, >54
+	// Income: Low, Medium, High
+	// Context: Travel, Blog, Hobbies, News, Social Media
+	
 	
 	// ==== Constructor ====
 	

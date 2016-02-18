@@ -4,11 +4,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Observable;
 import javax.swing.Timer;
 
 import core.campaigns.Campaign;
+import core.data.DataFilter;
 import core.data.DataProcessor;
 import ui.controlelements.CampaignFileChooser;
 
@@ -24,11 +26,14 @@ public class Model extends Observable implements ActionListener {
 	// Use this Timer to update the Controller/View about the current query status
 	private final Timer timer = new Timer(1000, this);
 	
+	// The current dataprocessor in use
+	private DataProcessor dataProcessor;
+	
 	// The list of Campaigns registered with this model
 	private final List<Campaign> campaigns = new ArrayList<Campaign>();
 	
 	// The list of Charts stored in this model
-//	private final List<Chart> charts = new ArrayList<Chart>();
+	private final List<DataProcessor> charts = new ArrayList<DataProcessor>();
 	
 	// ==== Constructor ====
 
@@ -43,18 +48,28 @@ public class Model extends Observable implements ActionListener {
 			if (chooser.selectionMade()) {
 				test = new Campaign(chooser.getSelectedFile());
 				addCampaign(test);
+				DataProcessor dp = new DataProcessor(test);
+				dp.numberOfImpressions();
 			} else
 				System.out.println("No Selection");
 		}
-		
-		DataProcessor dp = new DataProcessor(test);
-		dp.numberOfImpressions();
 	}
 	
 	
 	// ==== Accessors ====
+	
+	
+	// Begin Logic 
+	
+	public DataFilter getFilter() {
+		return null; //dataProcessor.getFilter();
+	}
+	
+	public Campaign getCampaign() {
+		return null;
+	}
 
-    public List<Campaign> getCampaigns(){
+    public Collection<Campaign> getCampaigns(){
         return campaigns;
     }
     
