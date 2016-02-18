@@ -90,7 +90,9 @@ public class FilterTab extends ControlPanelBox {
 
     @Override
     public void update(Observable o, Object arg) {
-
+        if(o == model){
+            //TODO match up to filter when model updates current chart!
+        }
     }
 
 
@@ -99,6 +101,7 @@ public class FilterTab extends ControlPanelBox {
 
         private Model model = null;
 
+        //TODO match up to filter instead of using arrays
         boolean[] genderArray = new boolean[2];
         boolean[] ageArray = new boolean[5];
         boolean[] incomeArray = new boolean[3];
@@ -213,7 +216,6 @@ public class FilterTab extends ControlPanelBox {
             }
 
             if(allfalse) {
-                System.out.println("EVERYTHING IS FALSE");
                 Arrays.fill(filterArr,true);
                 for(JCheckBox checkBox : checkBoxes ) {
                     checkBox.setSelected(true);
