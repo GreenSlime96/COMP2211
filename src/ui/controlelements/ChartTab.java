@@ -5,6 +5,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.*;
 
 import javax.swing.*;
@@ -12,8 +14,12 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.xml.crypto.Data;
 
 import core.Model;
+import core.campaigns.Campaign;
+import core.data.DataProcessor;
+import core.records.Impression;
 
 /**
  * Created by james on 17/02/16.
@@ -81,7 +87,29 @@ public class ChartTab extends ControlPanelBox {
 
 	@Override
 	public void update(Observable o, Object arg) {
-		// TODO Auto-generated method stub
+        if(o == model) {
+//            ArrayList<Campaign> campaigns = (ArrayList<Campaign>) model.getCampaigns();
+//            campaignComboBox.removeAllItems();
+//
+//            for (Campaign c : campaigns) {
+//                campaignComboBox.addItem(c);
+//            }
+//
+//            DataProcessor d = model.getActive();
+//
+//            int currentImpression = model.getMetric();
+//            metricComboBox.setSelectedIndex(currentImpression);
+//
+//            Instant startInstant = d.getDataStartDate().toInstant(ZoneOffset.UTC);
+//            Date startDate = Date.from(startInstant);
+//            startTimeSpinner.setValue(startDate);
+//
+//            Instant endInstant = d.getDataEndDate().toInstant(ZoneOffset.UTC);
+//            Date endDate = Date.from(endInstant);
+//            startTimeSpinner.setValue(endDate);
+
+
+        }
 		
 	}
 
