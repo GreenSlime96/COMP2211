@@ -4,10 +4,12 @@ package ui.controlelements;
 import core.Model;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
+import java.awt.event.*;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Observable;
@@ -17,38 +19,51 @@ import java.util.Observable;
  */
 public class FilterTab extends ControlPanelBox {
 
-
     Box genderBox = new Box(BoxLayout.X_AXIS);
     Box ageBox = new Box(BoxLayout.Y_AXIS);
     Box incomeBox = new Box(BoxLayout.Y_AXIS);
     Box contextBox = new Box(BoxLayout.Y_AXIS);
+    ArrayList<JCheckBox> genderBoxes, ageBoxes, incomeBoxes, contextBoxes;
+    FilterTabController filterTabController;
     public FilterTab(Model model){
         super(model);
 
         ArrayList<String> genders = new ArrayList<>();
-        genders.add("Any"); genders.add("Male");	genders.add("Female");
+        genders.add("Male");	genders.add("Female");
 
         ArrayList<String> ages = new ArrayList<>();
-        ages.add("Any"); ages.add("<25"); ages.add("25-34"); ages.add("35-44"); ages.add("45-54"); ages.add(">54");
+        ages.add("<25"); ages.add("25-34"); ages.add("35-44"); ages.add("45-54"); ages.add(">54");
 
         ArrayList<String> incomes = new ArrayList<>();
-        incomes.add("Any"); incomes.add("Low"); incomes.add("Medium"); incomes.add("High");
+        incomes.add("Low"); incomes.add("Medium"); incomes.add("High");
 
         ArrayList<String> contexts = new ArrayList<>();
-        contexts.add("Any"); contexts.add("News"); contexts.add("Shopping"); contexts.add("Social Media"); contexts.add("Blog");
+        contexts.add("News"); contexts.add("Shopping"); contexts.add("Social Media"); contexts.add("Blog");
         contexts.add("Hobbies"); contexts.add("Travel");
 
-        createRadioButtonGroup(genders,genderBox);
-        createCheckBoxGroup(ages,ageBox);
-        createCheckBoxGroup(incomes,incomeBox);
-        createCheckBoxGroup(contexts,contextBox);
+        genderBoxes = createCheckBoxGroup(genders,genderBox);
+        ageBoxes = createCheckBoxGroup(ages,ageBox);
+        incomeBoxes = createCheckBoxGroup(incomes,incomeBox);
+        contextBoxes = createCheckBoxGroup(contexts,contextBox);
 
         addSetting(genderBox,"Gender","Filter by Gender");
         addSetting(ageBox,"Age","Filter by Age");
         addSetting(incomeBox,"Income","Filter by Income");
         addSetting(contextBox,"Context","Filter by Context");
+
+        FilterTabController filterTabController = new FilterTabController(model);
+
+        registerFilterBoxes(genderBoxes);
+        registerFilterBoxes(ageBoxes);
+        registerFilterBoxes(incomeBoxes);
+        registerFilterBoxes(contextBoxes);
     }
 
+    public void registerFilterBoxes(ArrayList<JCheckBox> checkBoxes){
+        for(JCheckBox checkBox : checkBoxes){
+            checkBox.addChangeListener(filterTabController);
+        }
+    }
     public void createRadioButtonGroup(ArrayList<String> nameList, Box buttonBox){
         ButtonGroup group = new ButtonGroup();
         for(String title : nameList){
@@ -60,11 +75,15 @@ public class FilterTab extends ControlPanelBox {
         }
     }
 
-    public void createCheckBoxGroup(ArrayList<String> nameList, Box buttonBox){
+    public ArrayList<JCheckBox> createCheckBoxGroup(ArrayList<String> nameList, Box buttonBox){
+        ArrayList<JCheckBox> checkBoxes = new ArrayList<>();
         for(String title : nameList){
             JCheckBox checkBox = new JCheckBox(title);
+            //checkBox.setSelected(true);
             buttonBox.add(checkBox);
+            checkBoxes.add(checkBox);
         }
+        return checkBoxes;
     }
 
 
@@ -73,71 +92,121 @@ public class FilterTab extends ControlPanelBox {
 
     }
 
-    private static class ClickAction implements ActionListener {
 
-        private JPopupMenu menu;
-        private JButton button;
-        private JMenuItem item;
-        private boolean active;
-        private ClickAction(JPopupMenu menu, JButton button, JMenuItem item) {
-            this.menu = menu;
-            this.button = button;
-            this.item = item;
+    class FilterTabController implements ActionListener,
+            ChangeListener, ItemListener, ListSelectionListener {
+
+        private Model model = null;
+
+        public FilterTabController(Model model){
+            model = model;
+
+            boolean[] genderArray = new boolean[2];
+            boolean[] ageArray = new boolean[5];
+            boolean[] incomeArray = new boolean[3];
+            boolean[] contextArray = new boolean[6];
+            verifyCheckBoxGroup(genderBoxes,genderArray);
+            verifyCheckBoxGroup(ageBoxes,ageArray);
+            verifyCheckBoxGroup(incomeBoxes,incomeArray);
+            verifyCheckBoxGroup(contextBoxes,contextArray);
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            active = (active) ? false : true;
 
-            if(item == menu.getComponent(0)){
-                for (int i = 1; i < menu.getComponents().length; i++) {
-                    JMenuItem menuItem = (JMenuItem) menu.getComponents()[i];
-                    if(menuItem.isSelected()) menuItem.doClick();
-                }
-                button.setText(item.getText());
-            }else {
-                if (active) {
-                    button.setText(button.getText() + " " + item.getText() + " ");
-                    button.setText(button.getText().replace("Any",""));
-                    JMenuItem menuItem = (JMenuItem) menu.getComponent(0);
-                    menuItem.setSelected(false);
+        }
 
-                } else {
-                    button.setText(button.getText().replace(" " + item.getText() + " ", ""));
+        @Override
+        public void stateChanged(ChangeEvent e) {
+            System.out.println("STATE CHANGED!");
+            boolean[] genderArray = new boolean[2];
+            boolean[] ageArray = new boolean[5];
+            boolean[] incomeArray = new boolean[3];
+            boolean[] contextArray = new boolean[6];
+
+            if(e.getSource() instanceof JCheckBox){
+
+                JCheckBox checkBox = (JCheckBox) e.getSource();
+                switch (checkBox.getText()) {
+                    case "Male":
+                        genderArray[0] = checkBox.isSelected();
+                        break;
+                    case "Female:":
+                        genderArray[1] = checkBox.isSelected();
+                        break;
+                    case "<25":
+                        ageArray[0] = checkBox.isSelected();
+                        break;
+                    case "25-34":
+                        ageArray[1] = checkBox.isSelected();
+                        break;
+                    case "35-44":
+                        ageArray[2] = checkBox.isSelected();
+                        break;
+                    case "45-54":
+                        ageArray[3] = checkBox.isSelected();
+                        break;
+                    case ">54":
+                        ageArray[4] = checkBox.isSelected();
+                        break;
+                    case "Low":
+                        incomeArray[0] = checkBox.isSelected();
+                        break;
+                    case "Medium":
+                        incomeArray[1] = checkBox.isSelected();
+                        break;
+                    case "High":
+                        incomeArray[2] = checkBox.isSelected();
+                        break;
+                    case "News":
+                        contextArray[0] = checkBox.isSelected();
+                        break;
+                    case "Shopping":
+                        contextArray[0] = checkBox.isSelected();
+                        break;
+                    case "Social Media":
+                        contextArray[0] = checkBox.isSelected();
+                        break;
+                    case "Blogs":
+                        contextArray[0] = checkBox.isSelected();
+                        break;
+                    case "Hobbies":
+                        contextArray[0] = checkBox.isSelected();
+                        break;
+                    case "Travel":
+                        contextArray[0] = checkBox.isSelected();
+                        break;
                 }
             }
-            button.invalidate();
+        }
 
+        @Override
+        public void itemStateChanged(ItemEvent e) {
+
+        }
+
+        @Override
+        public void valueChanged(ListSelectionEvent e) {
+
+        }
+
+        public void verifyCheckBoxGroup(ArrayList<JCheckBox> checkBoxes,boolean[] filterArr){
+            boolean allfalse = false;
+            for(boolean b : filterArr){
+                if (b){
+                    allfalse = true;
+                }else{
+                    allfalse = false;
+                    for(JCheckBox checkBox : checkBoxes ) {
+                        checkBox.setSelected(true);
+                    }
+                    break;
+                }
+
+            }
         }
     }
 
-//    public void setupMultipleDropdown(ArrayList<String> options, JButton button){
-//
-//        JPopupMenu popupMenu = new JPopupMenu();
-//
-//        button.addActionListener(e -> {
-//            if (!popupMenu.isVisible()) {
-//                Point p = button.getLocationOnScreen();
-//                popupMenu.setInvoker(button);
-//                popupMenu.setLocation((int) p.getX(),
-//                        (int) p.getY() + button.getHeight());
-//                popupMenu.setVisible(true);
-//            } else {
-//                popupMenu.setVisible(false);
-//            }
-//        });
-//
-//        for (String s : options){
-//            JMenuItem item = new JCheckBoxMenuItem(s);
-//            popupMenu.add(item);
-//            item.addActionListener(new ClickAction(popupMenu, button, item));
-//        }
-//
-//        popupMenu.setSelected(popupMenu.getComponent(0));
-//        JMenuItem menuItem = (JMenuItem) popupMenu.getComponent(0);
-//        menuItem.doClick();
-//
-//
-//    }
 
-    }
+
+}
