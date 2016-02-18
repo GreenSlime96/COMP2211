@@ -14,6 +14,9 @@ import java.util.Map;
 import core.campaigns.readers.ImpressionReader;
 import core.fields.Gender;
 import core.fields.Income;
+import core.records.Click;
+import core.records.Impression;
+import core.records.Server;
 import core.records.User;
 
 public class Campaign {
@@ -107,13 +110,22 @@ public class Campaign {
 	
 	// ==== Accessors ====
 	
-	public final ImpressionReader getImpressions() {
+	public final Iterable<Impression> getImpressions() {
 		try {
 			return new ImpressionReader(impressionLog);
 		} catch (IOException e) {
 			return null;
 		}
 	}
+	
+	public final Iterable<Click> getClicks() {
+		return null;
+	}
+	
+	public final Iterable<Server> getServer() {
+		return null;
+	}
+	
 	
 	public final User getUserFromID(long id) {
 		return usersMap.get(id);

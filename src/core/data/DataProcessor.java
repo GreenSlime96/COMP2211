@@ -29,7 +29,7 @@ public class DataProcessor {
 	private LocalDateTime dataEndDate;
 	
 	// the time granularity of this dataprocessor
-	private int timeGranularityInSeconds;
+	private int timeGranularityInSeconds = 60;
 	
 	// bounce logic
 	private int bounceMinimumPagesViewed;
@@ -44,7 +44,7 @@ public class DataProcessor {
 	// ==== Constructor ====
 	
 	public DataProcessor(Campaign campaign) {
-		this.campaign = campaign;
+		setCampaign(campaign);
 	}
 	
 
@@ -56,9 +56,9 @@ public class DataProcessor {
 	
 	public final void setCampaign(Campaign campaign) {
 		final LocalDateTime campaignStartDate = campaign.getStartDate();
-		final LocalDateTime campaignEndDate = campaign.getEndDate();
+		final LocalDateTime campaignEndDate = campaign.getEndDate();		
 		
-		if (dataStartDate == null || dataStartDate.isBefore(campaignStartDate))
+		if (dataStartDate == null || dataStartDate.isBefore(campaignStartDate) || !dataStartDate.isBefore(campaignEndDate))
 			dataStartDate = campaignStartDate;
 		
 		if (dataEndDate == null || dataEndDate.isAfter(campaignEndDate))
@@ -77,6 +77,14 @@ public class DataProcessor {
 		if (dataStartDate.isBefore(campaign.getStartDate()))
 			throw new IllegalArgumentException("cannot set data start date before campaign starts");
 		
+		// check input happens before the campaign ends
+		if (!dataStartDate.isBefore(campaign.getEndDate()))
+			throw new IllegalArgumentException("cannot set data start date to after campaign ends");
+		
+		// start date must be before end date
+		if (!dataStartDate.isBefore(dataEndDate))
+			throw new IllegalArgumentException("cannot set data start date to after the end date");
+		
 		// update the values if is valid
 		this.dataStartDate = dataStartDate;
 	}
@@ -86,10 +94,18 @@ public class DataProcessor {
 		return dataEndDate;
 	}
 	
-	public final void setDataEndDAte(LocalDateTime dataEndDate) {
+	public final void setDataEndDate(LocalDateTime dataEndDate) {
 		// check input is not after campaign end date
 		if (dataEndDate.isAfter(campaign.getEndDate()))
 			throw new IllegalArgumentException("cannot set data end date to after campaign ends");
+		
+		// end date must be after the start date
+		if (!dataEndDate.isAfter(campaign.getStartDate()))
+			throw new IllegalArgumentException("cannot set data end date to before campaign starts");
+		
+		// end date must be after start date
+		if (!dataEndDate.isAfter(dataStartDate))
+			throw new IllegalArgumentException("cannot set data end date to before the start date");
 		
 		// update if valid
 		this.dataEndDate = dataEndDate;
@@ -152,19 +168,39 @@ public class DataProcessor {
 	public final Map<LocalDateTime, Integer> numberOfImpressions() {
 		final Map<LocalDateTime, Integer> impressionsMap = new HashMap<LocalDateTime, Integer>();
 		
-		int count = 0;
+		int numberOfImpressions = 0;
 		long time = System.currentTimeMillis();
 		
-		LocalDateTime currentDate = campaign.getStartDate();
+		LocalDateTime currentDate = this.dataStartDate;
 		LocalDateTime nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
 		
-		for (Impression impression : campaign.getImpressions()) {
-			count++;
+		for (Impression impression : campaign.getImpressions()) {		
+			
+			// add new mapping if after time granularity separator
+			if (impression.date.isAfter(nextDate)) {	
+				
+				// add to map before reset
+				impressionsMap.put(currentDate, numberOfImpressions);
+				
+				// reset and increment
+				numberOfImpressions = 0;
+				currentDate = nextDate;
+				nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
+			}
+			
+			if (filters.isEmpty())
+				numberOfImpressions++;
+			else {
+				for (DataFilter filter : filters) {
+					if (filter.apply(campaign.getUserFromID(impression.userID))) {
+						numberOfImpressions++;
+						break;
+					}
+				}
+			}
 		}
 		
 		System.out.println(System.currentTimeMillis() - time);
-		// TODO read logic here
-		System.out.println(count);
 		
 		return impressionsMap;
 	}

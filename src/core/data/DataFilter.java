@@ -2,6 +2,7 @@ package core.data;
 
 import core.fields.Gender;
 import core.fields.Income;
+import core.records.User;
 
 public class DataFilter {
 	
@@ -20,5 +21,9 @@ public class DataFilter {
 		this.age = age;
 		this.income = income;
 		this.context = context;
+	}
+	
+	public boolean apply(User user) {
+		return user.gender == gender && user.age == age && user.income == income && user.context == context;
 	}
 }
