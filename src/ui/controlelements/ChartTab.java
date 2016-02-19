@@ -5,6 +5,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -15,6 +16,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.text.NumberFormatter;
 import javax.xml.crypto.Data;
 
 import com.sun.javafx.font.Metrics;
@@ -40,13 +42,9 @@ public class ChartTab extends ControlPanelBox {
 
 	JSpinner startTimeSpinner = new JSpinner( new SpinnerDateModel() );
 	JSpinner endTimeSpinner = new JSpinner( new SpinnerDateModel() );
-	JSpinner timeGranularitySpinner = new JSpinner( new SpinnerDateModel());
 
-	JButton genderButton = new JButton();
-	JButton incomeButton = new JButton();
-	JButton contextButton = new JButton();
-	JButton ageButton = new JButton();
-
+	String[] granularityStrings = {"Weekly","Daily","Hourly"};
+	JComboBox timeGranularityComboBox = new JComboBox(granularityStrings);
 	ChartTabController chartTabController;
 
     public ChartTab(Model model) {
@@ -60,17 +58,12 @@ public class ChartTab extends ControlPanelBox {
 		endTimeSpinner.setEditor(endTimeEditor);
 		endTimeSpinner.setValue(new Date()); // will only show the current time
 
-		JSpinner.DateEditor timeGranularityEditor = new JSpinner.DateEditor(timeGranularitySpinner, "dd HH:mm:ss");
-		timeGranularitySpinner.setEditor(timeGranularityEditor);
-		timeGranularitySpinner.setValue(new Date()); // will only show the current time
-
-
 		addSetting(campaignComboBox,"Campaign","Select a campaign for your chart");
 		addSetting(metricComboBox,"Metrics","Select a metric for your chart");
 
 		addSetting(startTimeSpinner,"Start Time","Choose Start Time for Chart");
 		addSetting(endTimeSpinner,"End Time","Choose End Time for Chart");
-		addSetting(timeGranularitySpinner,"Time Granularity","Choose Time Granularity for Chart (dd HH:mm:ss)");
+		addSetting(timeGranularityComboBox,"Time Granularity","");
 
 		chartTabController = new ChartTabController(model);
 
@@ -86,7 +79,7 @@ public class ChartTab extends ControlPanelBox {
 
 		startTimeSpinner.addChangeListener(chartTabController);
 		endTimeSpinner.addChangeListener(chartTabController);
-		timeGranularitySpinner.addChangeListener(chartTabController);
+//		timeGranularitySpinner.addChangeListener(chartTabController);
 
 	}
 
