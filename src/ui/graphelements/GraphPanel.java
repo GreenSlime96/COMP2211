@@ -80,7 +80,12 @@ public class GraphPanel extends JPanel {
 		scene = new Scene(chartElementPane, 0, 0);	
 	}	
 	
-	public void attachChartElement(ChartElement chartElement)
+	/**
+	 * Assigns a ChartElement to this panel and renders it.
+	 * ChartElement should be fully defined before assigning.
+	 * @param chartElement Element to be assigned
+	 */
+	public void setChartElement(ChartElement chartElement)
 	{
 		this.chartElement = chartElement;
 		chartElementPane.add(chartElement.getChart(), 0, 0);
