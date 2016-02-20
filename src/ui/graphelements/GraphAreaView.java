@@ -12,7 +12,6 @@ import java.util.Observer;
 import javax.swing.JComponent;
 import javax.swing.Timer;
 
-import core.Controller;
 import core.Model;
 import javafx.embed.swing.JFXPanel;
 

@@ -6,7 +6,6 @@ import java.awt.Dimension;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import core.Controller;
 import core.Model;
 import ui.controlelements.ControlPanel;
 import ui.graphelements.GraphAreaView;
@@ -30,9 +29,6 @@ public class Window extends JFrame {
 		// Initialising the Model
 		final Model model = new Model();
 		
-		// TODO you might want to register the model with the controller here?
-		final Controller controller = new Controller();
-				
 		// Initialising Controller and View
 		final ControlPanel controlPanel = new ControlPanel(model);
 		final GraphAreaView graphAreaView = new GraphAreaView(model);

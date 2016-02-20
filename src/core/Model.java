@@ -49,14 +49,26 @@ public class Model extends Observable implements ActionListener {
 				test = new Campaign(chooser.getSelectedFile());
 				addCampaign(test);
 				DataProcessor dp = new DataProcessor(test);
-				dp.numberOfImpressions();
+				long time = System.currentTimeMillis();
+				List<Integer> list1 = dp.numberOfImpressions();
+				System.out.println(System.currentTimeMillis() - time);
+//				time = System.currentTimeMillis();
+//				List<Integer> list2 = dp.numberOfConversions();
+//				System.out.println(System.currentTimeMillis() - time);
+//				System.out.println(list1.size() + "\t" + list2.size());
 			} else
+				
 				System.out.println("No Selection");
 		}
 	}
 	
 	
 	// ==== Accessors ====
+	
+	/* TODO:
+	 * - Get Filter of current chart on display
+	 * 
+	 */
 	
 	
 	// Begin Logic 
@@ -67,6 +79,10 @@ public class Model extends Observable implements ActionListener {
 	
 	public Campaign getCampaign() {
 		return null;
+	}
+	
+	public List<Integer> getMetric() {
+		return dataProcessor.numberOfUniques();
 	}
 
     public Collection<Campaign> getCampaigns(){

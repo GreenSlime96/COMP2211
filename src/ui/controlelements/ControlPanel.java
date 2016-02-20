@@ -15,7 +15,6 @@ import javax.swing.border.MatteBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-import core.Controller;
 import core.Model;
 import core.campaigns.Campaign;
 

@@ -2,24 +2,43 @@ package core.records;
 
 import java.time.LocalDateTime;
 
-public class Server {
-	
+import util.DateProcessor;
+
+public class Server extends Record {
+
 	// ==== Properties ====
-	
-	public final LocalDateTime entryDate;
-	public final long userID;
-	public final LocalDateTime exitDate;
-	public final int pagesViewed;
-	public final boolean conversion;
-	
+
+	private final long exitDateTime;
+	private final int pagesViewed;
+	private final boolean conversion;
+
 	
 	// ==== Constructor ====
 	
-	public Server(LocalDateTime entryDate, long userID, LocalDateTime exitDate, int pagesViewed, boolean conversion) {
-		this.entryDate = entryDate;
-		this.userID = userID;
-		this.exitDate = exitDate;
-		this.pagesViewed = pagesViewed;
-		this.conversion = conversion;
+	public Server(String string) {
+		this(string.split(","));
+	}
+	
+	public Server(String[] data) {
+		super(data, 5);
+		
+		exitDateTime = data[2].equals("n/a") ? 0 : DateProcessor.stringToLong(data[2]);
+		pagesViewed = Integer.parseInt(data[3]);
+		conversion = data[4].equals("No") ? false : true;
+	}
+	
+	
+	// ==== Accessor ====
+	
+	public final LocalDateTime getExitDateTime() {
+		return exitDateTime == 0 ? null : DateProcessor.longToLocalDateTime(exitDateTime);
+	}
+	
+	public final int getPagesViewed() {
+		return pagesViewed;
+	}
+	
+	public final boolean getConversion() {
+		return conversion;
 	}
 }
