@@ -50,7 +50,7 @@ public class GeneralTab extends ControlPanelBox {
     private JButton addCampaignBTN = new JButton("+");
 //    JLabel empty = new JLabel("");
     String[] arr = {"Campaign 1", "Campaign 2"};
-    private JList<Campaign> campaignList = new JList<Campaign>();
+    private JList<String> campaignList = new JList<String>(arr);
     JLabel noImpressionsLabel = new JLabel("######");
     JLabel startDateLabel = new JLabel("######");
     JLabel endDateLabel = new JLabel("######");
@@ -81,7 +81,7 @@ public class GeneralTab extends ControlPanelBox {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				model.removeCampaign((Campaign) campaignList.getSelectedValue());
+//				model.removeCampaign((Campaign) campaignList.getSelectedValue());
 			}
         	
         });
@@ -97,8 +97,8 @@ public class GeneralTab extends ControlPanelBox {
     }
     
     public void setCampaignListData(Campaign[] listData) {
-    	campaignList.setListData(listData);
-    	campaignList.setSelectedIndex(campaignList.getModel().getSize()-1);
+//    	campaignList.setListData(listData);
+//    	campaignList.setSelectedIndex(campaignList.getModel().getSize()-1);
     }
     
 
@@ -107,15 +107,15 @@ public class GeneralTab extends ControlPanelBox {
 
         if(campaignList.getSelectedValue() == null)
             return;
-
-        Campaign campaign = campaignList.getSelectedValue();
-
-        noImpressionsLabel.setText(""+campaign.getNumberOfImpressions());
-        startDateLabel.setText(campaign.getStartDate().format(dateTimeFormatter));
-        endDateLabel.setText(campaign.getEndDate().format(dateTimeFormatter));
-        totalClicksLabel.setText(""+campaign.getNumberOfClicks());
-        totalCostLabel.setText(("£"+new DecimalFormat("#.##").format(campaign.getTotalCostOfCampaign())));
-        campaignDirectoryLabel.setText(campaign.getDirectoryPath());
+//
+//        Campaign campaign = campaignList.getSelectedValue();
+//
+//        noImpressionsLabel.setText(""+campaign.getNumberOfImpressions());
+//        startDateLabel.setText(campaign.getStartDate().format(dateTimeFormatter));
+//        endDateLabel.setText(campaign.getEndDate().format(dateTimeFormatter));
+//        totalClicksLabel.setText(""+campaign.getNumberOfClicks());
+//        totalCostLabel.setText(("£"+new DecimalFormat("#.##").format(campaign.getTotalCostOfCampaign())));
+//        campaignDirectoryLabel.setText(campaign.getDirectoryPath());
 
 	}
 
