@@ -48,7 +48,7 @@ public class GeneralTab extends ControlPanelBox {
 
     private JButton removeCampaignBTN = new JButton("-");
     private JButton addCampaignBTN = new JButton("+");
-//    JLabel empty = new JLabel("");
+
     String[] arr = {"Campaign 1", "Campaign 2"};
     private JList<String> campaignList = new JList<String>(arr);
     JLabel noImpressionsLabel = new JLabel("######");
@@ -63,36 +63,19 @@ public class GeneralTab extends ControlPanelBox {
     public GeneralTab(Model model){
     	super(model);
 
-        addSetting(campaignList,"Campaigns","Click to show stats below");
-        addCampaignBTN.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				CampaignFileChooser chooser = new CampaignFileChooser();
-				if(chooser.selectionMade()) {
-//					if(!model.addCampaign(new Campaign(chooser.getSelectedFile())))
-//						controller.showMessageDialog("Campaign has already been added");
-				}else {
-//					controller.showMessageDialog("No campaign selected.");
-				}
-			}
-        });
-        
-        removeCampaignBTN.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-//				model.removeCampaign((Campaign) campaignList.getSelectedValue());
-			}
-        	
-        });
-        
+        Box addsubPanel = new Box(BoxLayout.X_AXIS);
+        addsubPanel.add(addCampaignBTN);
+        addsubPanel.add(removeCampaignBTN);
         //campaign metrics
-        addSetting(noImpressionsLabel, "Impressions", "" );
-        addSetting(startDateLabel, "Start Date", "" );
+
+        addSetting(campaignList,"Campaigns","");
+        addSetting(addsubPanel,"","");
+        addSetting(noImpressionsLabel, "Impressions", " " );
+        addSetting(startDateLabel, "Start Date", " " );
         addSetting(endDateLabel, "End Date", "" );
-        addSetting(totalClicksLabel, "Total Clicks", "" );
-        addSetting(totalCostLabel, "Total Cost", "");
-        addSetting(campaignDirectoryLabel, "Campaign Directory", "" );        
+        addSetting(totalClicksLabel, "Total Clicks", " " );
+        addSetting(totalCostLabel, "Total Cost", " ");
+        addSetting(campaignDirectoryLabel, "Campaign Directory", " " );
 
     }
     
