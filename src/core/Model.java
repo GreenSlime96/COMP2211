@@ -18,7 +18,7 @@ public class Model extends Observable implements ActionListener {
 
 	// ==== Constants ====
 
-	private static final boolean CHOOSE_FILE_ON_STARTUP = true;
+	private static final boolean CHOOSE_FILE_ON_STARTUP = false;
 
 	// ==== Properties ====
 	
@@ -56,26 +56,6 @@ public class Model extends Observable implements ActionListener {
 		}
 	}
 	
-
-//	public Model() {
-//		super();
-//		
-//		Campaign test = null;
-//		
-//		// TODO temporary file picker
-//		if (CHOOSE_FILE_ON_STARTUP) {
-//			CampaignFileChooser chooser = new CampaignFileChooser();
-//			if (chooser.selectionMade()) {
-//				test = new Campaign(chooser.getSelectedFile());
-//				addCampaign(test);
-//				DataProcessor dp = new DataProcessor(test);
-//				dp.numberOfImpressions();
-//			} else
-//				System.out.println("No Selection");
-//		}
-//	}
-//	
-
 	
 	// ==== Accessors ====
 	

@@ -2,22 +2,22 @@ package ui.graphelements;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.text.DecimalFormat;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.border.Border;
 
 import core.Model;
+import javafx.embed.swing.JFXPanel;
+import javafx.scene.Scene;
+import javafx.scene.layout.GridPane;
 
 public class GraphPanel extends JPanel {
+	
+	private Scene scene;
+	private GridPane chartElementPane;
+	private ChartElement chartElement;
 	
 	public GraphPanel(Model model){
 		this.setBackground(new java.awt.Color(0, 140, 100));
@@ -36,7 +36,7 @@ public class GraphPanel extends JPanel {
 	}
 	
 	public void init(){
-		JPanel centerPanel = new JPanel();
+		JFXPanel centerPanel = new JFXPanel();
 		JLabel myLabel = new JLabel("Here goes the name of the chart");
 		centerPanel.setBackground(new java.awt.Color(140, 0, 20));
 		
@@ -73,5 +73,18 @@ public class GraphPanel extends JPanel {
 		this.add(centerPanel, BorderLayout.CENTER);
 		this.add(myLabel, BorderLayout.NORTH);
 		this.setBorder(compound);
+		
+		chartElementPane = new GridPane();
+		scene = new Scene(chartElementPane, 0, 0);
+		
+		LineChartElement c = new LineChartElement();
+		attachChartElement(c);
+		centerPanel.setScene(scene);
 	}	
+	
+	public void attachChartElement(ChartElement chartElement)
+	{
+		this.chartElement = chartElement;
+		chartElementPane.add(chartElement.getChart(), 0, 0);
+	}
 }
