@@ -15,6 +15,8 @@ import javafx.scene.layout.GridPane;
 
 public class GraphPanel extends JPanel {
 	
+	private JFXPanel centerPanel;
+	
 	private Scene scene;
 	private GridPane chartElementPane;
 	private ChartElement chartElement;
@@ -36,7 +38,7 @@ public class GraphPanel extends JPanel {
 	}
 	
 	public void init(){
-		JFXPanel centerPanel = new JFXPanel();
+		centerPanel = new JFXPanel();
 		JLabel myLabel = new JLabel("Here goes the name of the chart");
 		centerPanel.setBackground(new java.awt.Color(140, 0, 20));
 		
@@ -75,16 +77,13 @@ public class GraphPanel extends JPanel {
 		this.setBorder(compound);
 		
 		chartElementPane = new GridPane();
-		scene = new Scene(chartElementPane, 0, 0);
-		
-		LineChartElement c = new LineChartElement();
-		attachChartElement(c);
-		centerPanel.setScene(scene);
+		scene = new Scene(chartElementPane, 0, 0);	
 	}	
 	
 	public void attachChartElement(ChartElement chartElement)
 	{
 		this.chartElement = chartElement;
 		chartElementPane.add(chartElement.getChart(), 0, 0);
+		centerPanel.setScene(scene);
 	}
 }

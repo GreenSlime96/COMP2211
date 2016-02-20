@@ -1,5 +1,4 @@
 package ui.graphelements;
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
@@ -8,18 +7,15 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
+
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.Timer;
-import javax.swing.border.Border;
-import core.Controller;
+
 import core.Model;
-import javafx.embed.swing.JFXPanel;
-import javafx.scene.paint.Color;
+import core.fields.TimeGranularity;
 
 public class GraphAreaView extends JComponent implements Observer, ActionListener {
 
@@ -56,6 +52,22 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		GraphPanel myGraphPanel1 = new GraphPanel(model);
 		GraphPanel myGraphPanel2 = new GraphPanel(model);
 		GraphPanel myGraphPanel3 = new GraphPanel(model);
+		
+		LineChartElement lc1 = new LineChartElement();
+		lc1.setTimeGranularity(TimeGranularity.DAILY);
+		List<Number> data = new ArrayList<Number>();
+		for(int i=0; i<20; i++)
+			data.add(Math.random());
+		lc1.addSeries("Test Series", data);
+		myGraphPanel.attachChartElement(lc1);
+		
+		LineChartElement lc2 = new LineChartElement();
+		lc2.setTimeGranularity(TimeGranularity.WEEKLY);
+		data.clear();
+		for(int i=0; i<20; i++)
+			data.add(Math.random());
+		lc2.addSeries("Test Series", data);
+		myGraphPanel1.attachChartElement(lc2);
 		
 		//Addding each of the 4 arrays to the array of GraphPanels
 		myGraphArray.add(myGraphPanel);
