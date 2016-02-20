@@ -1,20 +1,25 @@
 package ui.graphelements;
-
+import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
-
+import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.JComponent;
+import javax.swing.JPanel;
 import javax.swing.Timer;
-
+import javax.swing.border.Border;
 import core.Controller;
 import core.Model;
 import javafx.embed.swing.JFXPanel;
+import javafx.scene.paint.Color;
 
 public class GraphAreaView extends JComponent implements Observer, ActionListener {
 
@@ -24,10 +29,10 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 
 	// ==== Properties ====
 
-	private final JFXPanel chartFxPanel = new JFXPanel();
-
 	private final Timer timer = new Timer(250, this);
 	private final Model model;
+	
+	private ArrayList<GraphPanel> myGraphArray = new ArrayList<GraphPanel>(3);
 
 	// ==== Constructor ====
 
@@ -35,8 +40,9 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		super();
 
 		// Simple Default Settings...
-		setPreferredSize(new Dimension(800, 600));
-		setVisible(false);
+		setPreferredSize(new Dimension(2160, 1440));
+		setVisible(true);
+		setLayout(new FlowLayout());
 
 		// Register View with Model as an Observer
 		this.model = model;
@@ -44,9 +50,25 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 
 		// Set the Timer to nonrepeating
 		timer.setRepeats(false);
-
-		chartFxPanel.setPreferredSize(getPreferredSize());
-
+		
+		//creating 4 mockup graphPanel
+		GraphPanel myGraphPanel = new GraphPanel(model);
+		GraphPanel myGraphPanel1 = new GraphPanel(model);
+		GraphPanel myGraphPanel2 = new GraphPanel(model);
+		GraphPanel myGraphPanel3 = new GraphPanel(model);
+		
+		//Addding each of the 4 arrays to the array of GraphPanels
+		myGraphArray.add(myGraphPanel);
+		myGraphArray.add(myGraphPanel1);
+		myGraphArray.add(myGraphPanel2);
+		myGraphArray.add(myGraphPanel3);
+		
+		//Iterating over the array of GraphPanels and adding eachother to the view
+		for(GraphPanel myIterator : myGraphArray){
+			this.addPanel(myIterator);
+		}
+		
+		
 		// Handle Resizing
 		addComponentListener(new ComponentAdapter() {
 
@@ -63,16 +85,21 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						// model.setSize(getSize());
-						chartFxPanel.setSize(getSize());
+//						chartFxPanel.setSize(getSize());
 					}
 				});
-
 				timer.setRepeats(false);
 				timer.start();
 			}
 		});
 	}
-
+    
+	public void addPanel(GraphPanel graphPanel){
+		add(graphPanel);
+		
+//		chartFxPanel.add(graphPanel);
+	}
+	
 	// ==== JComponent Overrides ====
 
 	@Override
@@ -93,7 +120,7 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		// Trigger the Resize when Timer fires
 		if (e.getSource() == timer) {
 			// model.setSize(getSize());
-			chartFxPanel.setSize(getSize());
+//			chartFxPanel.setSize(getSize());
 		}
 	}
 
