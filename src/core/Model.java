@@ -48,8 +48,8 @@ public class Model extends Observable implements ActionListener {
 			if (chooser.selectionMade()) {
 				test = new Campaign(chooser.getSelectedFile());
 				addCampaign(test);
-				DataProcessor dp = new DataProcessor(test);
-				dp.numberOfImpressions();
+				//DataProcessor dp = new DataProcessor(test);
+				//dp.numberOfImpressions();
 			} else
 				System.out.println("No Selection");
 		}
