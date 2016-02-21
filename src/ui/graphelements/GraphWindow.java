@@ -22,7 +22,6 @@ public class GraphWindow extends JFrame {
 //		this.setResizable(false);
 		this.setLayout(new FlowLayout());
 		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		
 		this.init();
 	}
 	
@@ -32,7 +31,6 @@ public class GraphWindow extends JFrame {
 
 		centerPanel.addMouseListener(new MouseListener() {
 			public void mouseClicked(MouseEvent e) {	
-				
 				if (e.getClickCount() == 2 && !e.isConsumed()) {
 				    e.consume();
 				    dispose();
