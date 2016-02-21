@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -21,12 +22,15 @@ import java.util.Map;
 import core.campaigns.readers.ClickReader;
 import core.campaigns.readers.ImpressionReader;
 import core.campaigns.readers.ServerReader;
+import core.data.UserFields;
 import core.fields.Gender;
 import core.fields.Income;
 import core.records.Click;
 import core.records.Impression;
 import core.records.Server;
 import core.records.User;
+import gnu.trove.map.TLongIntMap;
+import gnu.trove.map.hash.TLongIntHashMap;
 import util.DateProcessor;
 
 public class Campaign {
@@ -52,8 +56,9 @@ public class Campaign {
 	private LocalDateTime campaignStartDate;
 	private LocalDateTime campaignEndDate;
 
-	private Map<Long, Integer> usersMap;
-	
+	// map users via their userID to their data, 500,000 is a safe bet
+	private TLongIntMap usersMap = new TLongIntHashMap(5000000);
+
 	private List<Impression> impressionsList;
 	private List<Click> clicksList;
 	private List<Server> serversList;
@@ -85,24 +90,35 @@ public class Campaign {
 		 * TODO Go through Impressions Log - Compute total cost - Start date,
 		 * End date - Users map, how much memory?
 		 */
+		
+		System.out.println("--------------------------------------");
 
 		System.gc();
 
 		long startMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+		long totalTime = 0;
+		
 		long time = System.currentTimeMillis();
-
 		processImpressions();
-		processClicks();
-		processServers();
-
 		long end = System.currentTimeMillis();
+		totalTime += end - time;
+		System.out.println("impression_log:\t" + (end - time) + "ms");
+		time = System.currentTimeMillis();
+		processClicks();
+		end = System.currentTimeMillis();
+		totalTime += end - time;
+		System.out.println("click_log:\t" + (end - time) + "ms");
+		processServers();
+		end = System.currentTimeMillis();
+		totalTime += end - time;
+		System.out.println("server_log:\t" + (end - time) + "ms");
 
 		System.gc();
 		long endMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 
 		System.out.println("--------------------------------------");
 		System.out.println("Campaign:\t" + campaignDirectory.getName());
-		System.out.println("Load Time:\t" + (end - time) + "ms");
+		System.out.println("Load Time:\t" + totalTime + "ms");
 		System.out.println("Memory Used:\t" + (endMem - startMem) / (1024 * 1024) + "MB");
 		System.out.println("Processed:\t" + getNumberOfRecords() + " records");
 		System.out.println("Start Date:\t" + campaignStartDate);
@@ -115,6 +131,17 @@ public class Campaign {
 		System.out.println("Conversions:\t" + numberOfConversions);
 		System.out.println("Page Views:\t" + numberOfPagesViewed);
 		System.out.println("--------------------------------------");
+		
+		
+		time = System.currentTimeMillis();
+		double tcost = 0;
+		final LocalDateTime endDate = LocalDateTime.of(2015, 02, 01, 12, 0, 0);
+		int mask = UserFields.GENDER_MALE.mask | UserFields.INCOME_HIGH.mask | UserFields.CONTEXT_TRAVEL.mask;
+		
+		System.out.println(impressionsList.parallelStream().filter(x -> (usersMap.get(x.getUserID()) & mask) == mask).mapToDouble(x -> x.getCost()).sum());
+		
+		System.out.println(System.currentTimeMillis() - time);
+
 	}
 
 	// ==== Accessors ====
@@ -131,7 +158,7 @@ public class Campaign {
 		return new ServerReader(serverLog);
 	}
 
-	public final Integer getUserFromID(long id) {
+	public final int getUserFromID(long id) {
 		return usersMap.get(id);
 	}
 
@@ -205,14 +232,14 @@ public class Campaign {
 				// increment conversions if Yes
 				if (server.getConversion())
 					numberOfConversions++;
-				
+
 				// add to memory
 				serversList.add(server);
 			}
-			
+
 			// Trim to size
 			serversList.trimToSize();
-			
+
 			// assign reference
 			this.serversList = serversList;
 		} catch (FileNotFoundException e) {
@@ -232,8 +259,8 @@ public class Campaign {
 	 * with Impressions
 	 */
 	private void processClicks() {
-		try (BufferedReader br = new BufferedReader(new FileReader(clickLog))) {			
-			
+		try (BufferedReader br = new BufferedReader(new FileReader(clickLog))) {
+
 			// reset clicks
 			ArrayList<Click> clicksList = new ArrayList<Click>(20000);
 
@@ -244,22 +271,22 @@ public class Campaign {
 			numberOfClicks = 0;
 			costOfClicks = 0;
 
-			while ((line = br.readLine()) != null) {				
+			while ((line = br.readLine()) != null) {
 				final Click click = new Click(line);
-				
+
 				// increment these values
 				costOfClicks += click.getCost();
-				
+
 				// add to memory
 				clicksList.add(click);
 			}
-			
+
 			// Trim list to save memory
 			clicksList.trimToSize();
-			
+
 			// Set these variables
 			numberOfClicks = clicksList.size();
-			this.clicksList = clicksList;			
+			this.clicksList = clicksList;
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -270,7 +297,6 @@ public class Campaign {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 	}
 
 	/**
@@ -286,96 +312,224 @@ public class Campaign {
 	 * of Enum v.s. String.intern()
 	 */
 	private void processImpressions() {
-		/*
+//		final IllegalArgumentException invalid = new IllegalArgumentException("invalid impression_log " + lineNumber + " " + colNumber);
+		final ArrayList<Impression> impressionsList = new ArrayList<Impression>(500000);
+
 		try (FileInputStream fis = new FileInputStream(impressionLog)) {
 			FileChannel fc = fis.getChannel();
-			
+
 			MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
-			
-			long time = System.nanoTime();
-			
-			byte b;
-			while ((b = mbb.get()) != 10) {
-				System.out.print((char) b);
+
+			final byte newLine = '\n';
+			final byte comma = ',';
+
+			// finish processing header line
+			while (mbb.get() != newLine) {
 			}
 			
-			int index = 0;
-			
-			long dateTime;
-			long userID;
-			
-			while (mbb.hasRemaining()) {				
-				switch (index) {
-				case 0:
-					final char[] data = new char[19];
-					mbb.get(data, mbb.position(), 19);
-					dateTime = DateProcessor.charArrayToLong(data)
-				}
-			}
-			
-			System.out.println(System.nanoTime() - time);
-
-			
-			int pos = 0;
-			
-			
-			
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
-		
-		try (BufferedReader br = new BufferedReader(new FileReader(impressionLog))) {			
-			// Temporary ArrayList - prevent unnecessary resizing
-			ArrayList<Impression> impressionsList = new ArrayList<Impression>(400000);
-
-			// Buffer the first line
-			String line = br.readLine();
-
-			// Rebuild the Users Map
-			usersMap = new HashMap<Long, Integer>();
-
-			// Reset dates
-			campaignStartDate = null;
-			campaignEndDate = null;
-
-			// Reset number of Impressions; we are counting it here
-			numberOfImpressions = 0;
+			// reset
 			costOfImpressions = 0;
+			usersMap.clear();
 
-			while ((line = br.readLine()) != null) {
-				final String[] data = line.split(",");
-				final Impression impression = new Impression(data);
-				final long userID = impression.getUserID();
+			while (mbb.hasRemaining()) {				
+				int index = mbb.position();
 
-				if (!usersMap.containsKey(userID)) 
-					usersMap.put(userID, User.of(data[2], data[3], data[4], data[5]));
-		
-				costOfImpressions += impression.getCost();
+				long dateTime = 567174281526586368L;
+				long userID = 0;
+				int userData = 0;
+				double cost = 0;
+
+				// process the date
+				final char[] data = new char[19];
+
+				for (int i = 0; i < 19; i++) {
+					data[i] = (char) mbb.get();
+				}
+
+				dateTime = DateProcessor.charArrayToLong(data);
+
+				// buffer
+				if (mbb.get() != comma)
+					throw new IllegalArgumentException("invalid impression_log " + index);
+
+				// process userID
+				for (;;) {
+					final char c = (char) mbb.get();
+
+					if (c == comma)
+						break;
+
+					final int digit = Character.digit(c, 10);
+
+					if (digit < 0)
+						throw new NumberFormatException("not valid userID");
+
+					userID *= 10;
+					userID += c & digit;
+				}
 				
-				impressionsList.add(impression);
+				if (!usersMap.containsKey(userID)) {
+					// process gender
+					index = mbb.position();
+
+					switch (mbb.get()) {
+					case 'M':
+						userData |= UserFields.GENDER_MALE.mask;
+						mbb.position(index + 4);
+						break;
+					case 'F':
+						userData |= UserFields.GENDER_FEMALE.mask;
+						mbb.position(index + 6);
+						break;
+					default:
+						throw new IllegalArgumentException("invalid gender " + index);
+					}
+
+					if (mbb.get() != comma)
+						throw new IllegalArgumentException("invalid impression_log " + index);
+
+					// process age
+					index = mbb.position();
+
+					switch (mbb.get()) {
+					case '<':
+						userData |= UserFields.AGE_BELOW_25.mask;
+						mbb.position(index + 3);
+						break;
+					case '2':
+						userData |= UserFields.AGE_25_TO_34.mask;
+						mbb.position(index + 5);
+						break;
+					case '3':
+						userData |= UserFields.AGE_35_TO_44.mask;
+						mbb.position(index + 5);
+						break;
+					case '4':
+						userData |= UserFields.AGE_45_TO_54.mask;
+						mbb.position(index + 5);
+						break;
+					case '>':
+						userData |= UserFields.AGE_ABOVE_54.mask;
+						mbb.position(index + 3);
+						break;
+					default:
+						throw new IllegalArgumentException("invalid age " + index);
+					}
+
+					if (mbb.get() != comma)
+						throw new IllegalArgumentException("invalid impression_log " + index);
+
+					// process income
+					index = mbb.position();
+
+					switch (mbb.get()) {
+					case 'L':
+						userData |= UserFields.INCOME_LOW.mask;
+						mbb.position(index + 3);
+						break;
+					case 'M':
+						userData |= UserFields.INCOME_MEDIUM.mask;
+						mbb.position(index + 6);
+						break;
+					case 'H':
+						userData |= UserFields.INCOME_HIGH.mask;
+						mbb.position(index + 4);
+						break;
+					default:
+						throw new IllegalArgumentException("invalid income " + index);
+					}
+
+					if (mbb.get() != comma)
+						throw new IllegalArgumentException("invalid impression_log " + index);
+
+					// process context
+					index = mbb.position();
+
+					switch (mbb.get()) {
+					case 'N':
+						userData |= UserFields.CONTEXT_NEWS.mask;
+						mbb.position(index + 4);
+						break;
+					case 'S':
+						switch (mbb.get()) {
+						case 'h':
+							userData |= UserFields.CONTEXT_SHOPPING.mask;
+							mbb.position(index + 8);
+							break;
+						case 'o':
+							userData |= UserFields.CONTEXT_SOCIAL_MEDIA.mask;
+							mbb.position(index + 12);
+							break;
+						default:
+							throw new IllegalArgumentException("invalid context (S) " + index);
+						}
+						break;
+					case 'B':
+						userData |= UserFields.CONTEXT_BLOG.mask;
+						mbb.position(index + 4);
+						break;
+					case 'H':
+						userData |= UserFields.CONTEXT_HOBBIES.mask;
+						mbb.position(index + 7);
+						break;
+					case 'T':
+						userData |= UserFields.CONTEXT_TRAVEL.mask;
+						mbb.position(index + 6);
+						break;
+					default:
+						throw new IllegalArgumentException("invalid context " + index);
+					}
+
+					if (mbb.get() != comma)
+						throw new IllegalArgumentException("invalid impression_log " + index);
+					
+					usersMap.put(userID, userData);
+				} else {
+					// skip by 4 commas
+					for (int i = 0; i < 4;) {
+						if (mbb.get() == comma)
+							i++;
+					}
+				}
+				
+				// process cost				
+				char[] ch = new char[10];
+				for (int i = 0;; i++) {
+					final char c = (char) mbb.get();
+					
+					if (c == newLine) {
+						// TODO: optimise via multiply/adding then division
+						cost = Double.parseDouble(String.valueOf(ch, 0, i));
+						break;
+					}
+					
+					if (ch.length == i)
+						ch = Arrays.copyOf(ch, i * 2);						
+	
+					ch[i] = c;
+				}
+				
+				// add to list
+				impressionsList.add(new Impression(dateTime, userID, cost));
+				
+				// misc increment
+				costOfImpressions += cost;
 			}
 			
-			// Resize ArrayList to reduce memory use
+			// trim the ArrayList to save capacity
 			impressionsList.trimToSize();
 			
-			// Set Start Date and End Dates
-			campaignEndDate = impressionsList.get(impressionsList.size() - 1).getDateTime();
-			campaignStartDate = impressionsList.get(0).getDateTime();
+			// transfer references
+			this.impressionsList = impressionsList;
 			
-			// List Size is Number of Impressions
+			// compute size of impressions
 			numberOfImpressions = impressionsList.size();
 			
-			// Transfer reference of object
-			this.impressionsList = impressionsList;
+			// compute dates
+			campaignStartDate = impressionsList.get(0).getDateTime();
+			campaignEndDate = impressionsList.get(numberOfImpressions - 1).getDateTime();
+
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NumberFormatException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e) {

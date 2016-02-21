@@ -49,9 +49,9 @@ public class Model extends Observable implements ActionListener {
 				test = new Campaign(chooser.getSelectedFile());
 				addCampaign(test);
 				DataProcessor dp = new DataProcessor(test);
-				long time = System.currentTimeMillis();
-				List<Integer> list1 = dp.numberOfImpressions();
-				System.out.println(System.currentTimeMillis() - time);
+//				long time = System.currentTimeMillis();
+//				List<Integer> list1 = dp.numberOfImpressions();
+//				System.out.println(System.currentTimeMillis() - time);
 //				time = System.currentTimeMillis();
 //				List<Integer> list2 = dp.numberOfConversions();
 //				System.out.println(System.currentTimeMillis() - time);

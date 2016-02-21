@@ -1,6 +1,6 @@
 package core.records;
 
-import core.data.DataFilterFlags;
+import core.data.UserFields;
 import core.fields.Gender;
 import core.fields.Income;
 
@@ -21,10 +21,10 @@ public class User {
 
 		switch (gender) {
 		case "Male":
-			mask |= 1 << DataFilterFlags.GENDER_MALE.ordinal();
+			mask |= UserFields.GENDER_MALE.mask;
 			break;
 		case "Female":
-			mask |= 1 << DataFilterFlags.GENDER_FEMALE.ordinal();
+			mask |= UserFields.GENDER_FEMALE.mask;
 			break;
 		default:
 			throw new IllegalArgumentException("unrecognised gender");
@@ -32,19 +32,19 @@ public class User {
 
 		switch (age) {
 		case "<25":
-			mask |= 1 << DataFilterFlags.AGE_BELOW_25.ordinal();
+			mask |= UserFields.AGE_BELOW_25.mask;
 			break;
 		case "25-34":
-			mask |= 1 << DataFilterFlags.AGE_25_TO_34.ordinal();
+			mask |= UserFields.AGE_25_TO_34.mask;
 			break;
 		case "35-44":
-			mask |= 1 << DataFilterFlags.AGE_35_TO_44.ordinal();
+			mask |= UserFields.AGE_35_TO_44.mask;
 			break;
 		case "45-54":
-			mask |= 1 << DataFilterFlags.AGE_45_TO_54.ordinal();
+			mask |= UserFields.AGE_45_TO_54.mask;
 			break;
 		case ">54":
-			mask |= 1 << DataFilterFlags.AGE_ABOVE_54.ordinal();
+			mask |= UserFields.AGE_ABOVE_54.mask;
 			break;
 		default:
 			throw new IllegalArgumentException("unrecognised age");
@@ -52,13 +52,13 @@ public class User {
 
 		switch (income) {
 		case "Low":
-			mask |= 1 << DataFilterFlags.INCOME_LOW.ordinal();
+			mask |= UserFields.INCOME_LOW.mask;
 			break;
 		case "Medium":
-			mask |= 1 << DataFilterFlags.INCOME_MEDIUM.ordinal();
+			mask |= UserFields.INCOME_MEDIUM.mask;
 			break;
 		case "High":
-			mask |= 1 << DataFilterFlags.INCOME_HIGH.ordinal();
+			mask |= UserFields.INCOME_HIGH.mask;
 			break;
 		default:
 			throw new IllegalArgumentException("unrecognised income");
@@ -66,22 +66,22 @@ public class User {
 
 		switch (context) {
 		case "News":
-			mask |= 1 << DataFilterFlags.CONTEXT_NEWS.ordinal();
+			mask |= UserFields.CONTEXT_NEWS.mask;
 			break;
 		case "Shopping":
-			mask |= 1 << DataFilterFlags.CONTEXT_SHOPPING.ordinal();
+			mask |= UserFields.CONTEXT_SHOPPING.mask;
 			break;
 		case "Social Media":
-			mask |= 1 << DataFilterFlags.CONTEXT_SOCIAL_MEDIA.ordinal();
+			mask |= UserFields.CONTEXT_SOCIAL_MEDIA.mask;
 			break;
 		case "Blog":
-			mask |= 1 << DataFilterFlags.CONTEXT_BLOG.ordinal();
+			mask |= UserFields.CONTEXT_BLOG.mask;
 			break;
 		case "Hobbies":
-			mask |= 1 << DataFilterFlags.CONTEXT_HOBBIES.ordinal();
+			mask |= UserFields.CONTEXT_HOBBIES.mask;
 			break;
 		case "Travel":
-			mask |= 1 << DataFilterFlags.CONTEXT_TRAVEL.ordinal();
+			mask |= UserFields.CONTEXT_TRAVEL.mask;
 			break;
 		default:
 			throw new IllegalArgumentException("unrecognised context");

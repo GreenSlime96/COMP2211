@@ -93,11 +93,16 @@ public class DateProcessor {
 		int result = 0;
 		
 		for (int i = start; i < end; i++) {
+			final int digit = Character.digit(data[i], 10);
+			
+			if (digit < 0)
+				throw new IllegalArgumentException("invalid number: " + String.valueOf(data));
+				
 			result *= 10;
-			result -= Character.digit(data[i], 10);
+			result += Character.digit(data[i], 10);
 		}
 		
-		return -result;
+		return result;
 	}
 	
 }

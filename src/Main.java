@@ -3,20 +3,36 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import ui.Window;
-import util.DateProcessor;
 
 public class Main {
-
 	public static void main(String[] args) {
-		char[] date = "2015-01-01 12:00:05".toCharArray();
-//		long inLong = DateProcessor.charArrayToLong(date);
-		long time = System.currentTimeMillis();
-		for (int i = 0; i < 100000000; i++) {
-			DateProcessor.charArrayToLong(date);
-		}
-		System.out.println(System.currentTimeMillis() - time);
-//		System.out.println(DateProcessor.longToLocalDateTime(inLong));
-		System.exit(0);
+//		String date = "1234.567890";
+//		char[] data = date.toCharArray();
+//		
+//		for (;;) {
+//			double result = 0;
+//			long time = System.currentTimeMillis();
+//			for (int i = 0; i < 1000000; i++) {
+//				result = 0;
+//				result = Double.valueOf(new String(data));
+//			}
+//			System.out.print(System.currentTimeMillis() - time + "\t" + result + "\t");
+//			time = System.currentTimeMillis();
+//			for (int i = 0; i < 1000000; i++) {
+//				result = 0;
+//				for (char c : data) {
+//					if (c == '.')
+//						continue;
+//
+//					result *= 10;
+//					result += c & 0xF;
+//				}
+//				result /= (double) 1E6;
+//			}
+//			System.out.println(System.currentTimeMillis() - time + "\t" + result);
+//		}
+		
+		
 		// use system look and feel
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

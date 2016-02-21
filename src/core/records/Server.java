@@ -1,4 +1,4 @@
-package core.records;
+ package core.records;
 
 import java.time.LocalDateTime;
 

@@ -25,6 +25,11 @@ public abstract class Record {
 		userID = Long.parseLong(data[1]);
 	}
 	
+	public Record(long dateTime, long userID) {
+		this.dateTime = dateTime;
+		this.userID = userID;
+	}
+	
 	
 	// ==== Record Methods ====
 	
@@ -34,5 +39,9 @@ public abstract class Record {
 	
 	public final LocalDateTime getDateTime() {
 		return DateProcessor.longToLocalDateTime(dateTime);
+	}
+	
+	public final long getLongDateTime() {
+		return dateTime;
 	}
 }

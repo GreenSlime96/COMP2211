@@ -11,4 +11,8 @@ public class Impression extends CostRecord {
 	public Impression(String[] data) {
 		super(data, 7);
 	}
+
+	public Impression(long dateTime, long userID, double cost) {
+		super(dateTime, userID, cost);
+	}
 }

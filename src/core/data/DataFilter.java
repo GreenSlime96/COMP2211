@@ -22,11 +22,11 @@ public class DataFilter implements Predicate<User> {
 	
 	// ==== Accessors ====
 	
-	public void setFlag(DataFilterFlags flag, boolean value) {
+	public void setFlag(UserFields flag, boolean value) {
 		flags = (short) (value ? flags | (1 << flag.ordinal()) : flags & ~(1 << flag.ordinal()));
 	}
 	
-	public boolean getFlag(DataFilterFlags flag) {
+	public boolean getFlag(UserFields flag) {
 		return (1 & (flags << flag.ordinal())) != 0;
 	}
 	
@@ -37,12 +37,12 @@ public class DataFilter implements Predicate<User> {
 	// ==== Private Helper Methods ====
 	
 	private boolean testContext(String context) {
-		final boolean newsFlagSet = getFlag(DataFilterFlags.CONTEXT_NEWS);
-		final boolean shoppingFlagSet = getFlag(DataFilterFlags.CONTEXT_SHOPPING);
-		final boolean socialMediaFlagSet = getFlag(DataFilterFlags.CONTEXT_SOCIAL_MEDIA);
-		final boolean blogFlagSet = getFlag(DataFilterFlags.CONTEXT_BLOG);
-		final boolean hobbiesFlagSet = getFlag(DataFilterFlags.CONTEXT_HOBBIES);
-		final boolean travelFlagSet = getFlag(DataFilterFlags.CONTEXT_TRAVEL);
+		final boolean newsFlagSet = getFlag(UserFields.CONTEXT_NEWS);
+		final boolean shoppingFlagSet = getFlag(UserFields.CONTEXT_SHOPPING);
+		final boolean socialMediaFlagSet = getFlag(UserFields.CONTEXT_SOCIAL_MEDIA);
+		final boolean blogFlagSet = getFlag(UserFields.CONTEXT_BLOG);
+		final boolean hobbiesFlagSet = getFlag(UserFields.CONTEXT_HOBBIES);
+		final boolean travelFlagSet = getFlag(UserFields.CONTEXT_TRAVEL);
 		
 		if (newsFlagSet == shoppingFlagSet == socialMediaFlagSet == blogFlagSet == hobbiesFlagSet == travelFlagSet)
 			return true;
@@ -73,9 +73,9 @@ public class DataFilter implements Predicate<User> {
 		if (income.toString().contains("indian"))
 			throw new NullPointerException("what income?");
 		
-		final boolean lowFlagSet = getFlag(DataFilterFlags.INCOME_LOW);
-		final boolean mediumFlagSet = getFlag(DataFilterFlags.INCOME_MEDIUM);
-		final boolean highFlagSet = getFlag(DataFilterFlags.INCOME_HIGH);
+		final boolean lowFlagSet = getFlag(UserFields.INCOME_LOW);
+		final boolean mediumFlagSet = getFlag(UserFields.INCOME_MEDIUM);
+		final boolean highFlagSet = getFlag(UserFields.INCOME_HIGH);
 		
 		if (lowFlagSet == mediumFlagSet == highFlagSet)
 			return true;
@@ -93,11 +93,11 @@ public class DataFilter implements Predicate<User> {
 	}
 	
 	private boolean testAge(String age) {
-		final boolean ageFlag1Set = getFlag(DataFilterFlags.AGE_BELOW_25);
-		final boolean ageFlag2Set = getFlag(DataFilterFlags.AGE_25_TO_34);
-		final boolean ageFlag3Set = getFlag(DataFilterFlags.AGE_35_TO_44);
-		final boolean ageFlag4Set = getFlag(DataFilterFlags.AGE_45_TO_54);
-		final boolean ageFlag5Set = getFlag(DataFilterFlags.AGE_ABOVE_54);
+		final boolean ageFlag1Set = getFlag(UserFields.AGE_BELOW_25);
+		final boolean ageFlag2Set = getFlag(UserFields.AGE_25_TO_34);
+		final boolean ageFlag3Set = getFlag(UserFields.AGE_35_TO_44);
+		final boolean ageFlag4Set = getFlag(UserFields.AGE_45_TO_54);
+		final boolean ageFlag5Set = getFlag(UserFields.AGE_ABOVE_54);
 		
 		if (ageFlag1Set == ageFlag2Set == ageFlag3Set == ageFlag4Set == ageFlag5Set)
 			return true;
@@ -121,8 +121,8 @@ public class DataFilter implements Predicate<User> {
 	}
 	
 	private boolean testGender(Gender gender) {
-		final boolean maleFlagSet = getFlag(DataFilterFlags.GENDER_MALE);
-		final boolean femaleFlagSet = getFlag(DataFilterFlags.GENDER_FEMALE);
+		final boolean maleFlagSet = getFlag(UserFields.GENDER_MALE);
+		final boolean femaleFlagSet = getFlag(UserFields.GENDER_FEMALE);
 		
 		if (maleFlagSet == femaleFlagSet)
 			return true;

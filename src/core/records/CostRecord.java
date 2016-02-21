@@ -1,6 +1,6 @@
 package core.records;
 
-public class CostRecord extends Record {
+abstract class CostRecord extends Record {
 	
 	// ==== Properties ====
 	
@@ -13,6 +13,12 @@ public class CostRecord extends Record {
 		super(data, length);
 		
 		cost = Double.parseDouble(data[length - 1]);
+	}
+	
+	public CostRecord(long dateTime, long userID, double cost) {
+		super(dateTime, userID);
+		
+		this.cost = cost;
 	}
 	
 	
