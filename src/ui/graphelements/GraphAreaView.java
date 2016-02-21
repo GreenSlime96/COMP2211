@@ -6,6 +6,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
@@ -57,11 +58,11 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		lc1.setTimeGranularity(TimeGranularity.DAILY);
 		lc1.setMetric("CPA");
 		List<Number> data = new ArrayList<Number>();
-		for(int i=0; i<20; i++)
+		for(int i=0; i<30; i++)
 			data.add(Math.random());
-		lc1.addSeries("Test Series", data);
+		lc1.addSeries("Test Series", data, LocalDateTime.now(), null);
 		myGraphPanel.setChartElement(lc1);
-
+/*
 		LineChartElement lc2 = new LineChartElement();
 		lc2.setTimeGranularity(TimeGranularity.WEEKLY);
 		lc2.setMetric("CPM");
@@ -74,6 +75,7 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 			data.add(Math.random());
 		lc2.addSeries("Test Series 2", data);
 		myGraphPanel1.setChartElement(lc2);
+		*/
 		
 		//Addding each of the 4 arrays to the array of GraphPanels
 		myGraphArray.add(myGraphPanel);
