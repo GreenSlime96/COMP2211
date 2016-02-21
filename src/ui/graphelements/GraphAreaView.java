@@ -113,18 +113,28 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		repaint();
 		
 		//Iterating over the array of GraphPanels and adding each of them to the view
+		/*
+		 * if there is only one chart add it to the view
+		 * 
+		 * if there are 2 charts, modify the size of the first so that both can fill the screen
+		 * 
+		 * if there are 3 or more charts, resize the previous charts and add the new one
+		 */
 		for(GraphPanel myIterator : myGraphArray){
+			
 			if(numberOfCharts == 0){
 				this.add(myIterator);
 			}
 			if(numberOfCharts == 2){
 				myGraphArray.get(0).setCenterPanelSize(twoChartsDimension);
 				this.add(myIterator);
+				
 			}else	if(numberOfCharts == 3){
 				myGraphArray.get(0).setCenterPanelSize(threeOrMoreDimension);
 				myGraphArray.get(1).setCenterPanelSize(threeOrMoreDimension);
 				myIterator.setCenterPanelSize(twoChartsDimension);
 				this.add(myIterator);
+				
 			}else	if(numberOfCharts > 3 ){
 				myGraphArray.get(0).setCenterPanelSize(threeOrMoreDimension);
 				myGraphArray.get(1).setCenterPanelSize(threeOrMoreDimension);
