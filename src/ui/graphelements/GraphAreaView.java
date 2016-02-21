@@ -26,6 +26,9 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 	// ==== Constants ====
 
 	private static final long serialVersionUID = -3060291319561936699L;
+	private final Dimension fullDimension = new Dimension(1070,660);
+	private final Dimension twoChartsDimension = new Dimension(1070, 325);
+	private final Dimension threeOrMoreDimension = new Dimension(530, 325);
 
 	// ==== Properties ====
 
@@ -54,7 +57,7 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		
 		//Addding 4 Panels to the View
 //		myGraphArray.add(new GraphPanel(model));
-		addPanel(new GraphPanel(model));
+		addPanel(new GraphPanel(model,numberOfCharts));
 //		addPanel(new GraphPanel(model));
 //		addPanel(new GraphPanel(model));
 //		addPanel(new GraphPanel(model));
@@ -102,10 +105,8 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 			}
 			myGraphArray.remove(numberOfChartsAsIndex);
 			myGraphArray.add(numberOfChartsAsIndex, graphPanel);
-			repaint();
 		}else{
 			myGraphArray.add(graphPanel);
-			repaint();
 		}
 		
 		this.removeAll();
@@ -113,9 +114,21 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		
 		//Iterating over the array of GraphPanels and adding each of them to the view
 		for(GraphPanel myIterator : myGraphArray){
+			if(numberOfCharts == 0){
+				this.add(myIterator);
+			}
+			if(numberOfCharts == 2){
+				myGraphArray.get(0).setCenterPanelSize(twoChartsDimension);
+				this.add(myIterator);
+			}else	if(numberOfCharts == 3){
+				myGraphArray.get(0).setCenterPanelSize(threeOrMoreDimension);
+				myGraphArray.get(1).setCenterPanelSize(threeOrMoreDimension);
+				this.add(myIterator);
+			}
 			this.add(myIterator);
 		}
 		
+		revalidate();
 //		chartFxPanel.add(graphPanel);
 	}
 	
@@ -152,5 +165,7 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 			repaint();
 		}
 	}
-
+	public int getNumberOfCharts(){
+		return numberOfCharts;
+	}
 }
