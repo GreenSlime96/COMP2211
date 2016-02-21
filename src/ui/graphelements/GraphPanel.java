@@ -18,20 +18,13 @@ import javax.swing.border.Border;
 import core.Model;
 
 public class GraphPanel extends JPanel {
+	private final Model model;
 	
 	public GraphPanel(Model model){
 		this.setBackground(new java.awt.Color(0, 140, 100));
 		this.setPreferredSize(new Dimension(530, 350));
 		this.setLayout(new BorderLayout());
-		
-		init();
-	}
-	
-	//second constructor, might use it later
-	public GraphPanel(Model model, int number){
-		this.setBackground(new java.awt.Color(200, 0, 200));
-		this.setPreferredSize(new Dimension(1500, 700));
-		this.setLayout(new BorderLayout());
+		this.model = model;
 		init();
 	}
 	
@@ -45,30 +38,32 @@ public class GraphPanel extends JPanel {
 	    Border loweredbevel = BorderFactory.createLoweredBevelBorder();
 	    Border compound = BorderFactory.createCompoundBorder(raisedbevel, loweredbevel);
 		
-//		centerPanel.addMouseListener(new MouseListener() {
-//			public void mouseClicked(MouseEvent e) {	
-//				
-//				JFrame expandedFrame = new JFrame("Your Chart");
-//				expandedFrame.setSize(1080, 720);
-//				JPanel myExpandedPanel = new JPanel();
-//				expandedFrame.setContentPane(myExpandedPanel);
-//				myExpandedPanel.setBackground(new java.awt.Color(0, 0, 120));
-//			}
-//
-//			
-//			public void mousePressed(MouseEvent e) {
-//				// TODO Auto-generated method stub	
-//			}
-//			public void mouseReleased(MouseEvent e) {
-//				// TODO Auto-generated method stub	
-//			}
-//			public void mouseEntered(MouseEvent e) {
-//				// TODO Auto-generated method stub
-//			}
-//			public void mouseExited(MouseEvent e) {
-//				// TODO Auto-generated method stub
-//			}
-//		});
+		centerPanel.addMouseListener(new MouseListener() {
+			public void mouseClicked(MouseEvent e) {	
+				
+				if (e.getClickCount() == 2 && !e.isConsumed()) {
+				     e.consume();
+				     GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");		
+//				     GraphAreaView background = (GraphAreaView) centerPanel.getParent().getParent();
+//				     background.addPanel(new GraphPanel(model));
+
+				}
+			}
+
+			
+			public void mousePressed(MouseEvent e) {
+				// TODO Auto-generated method stub	
+			}
+			public void mouseReleased(MouseEvent e) {
+				// TODO Auto-generated method stub	
+			}
+			public void mouseEntered(MouseEvent e) {
+				// TODO Auto-generated method stub
+			}
+			public void mouseExited(MouseEvent e) {
+				// TODO Auto-generated method stub
+			}
+		});
 
 		this.add(centerPanel, BorderLayout.CENTER);
 		this.add(myLabel, BorderLayout.NORTH);

@@ -31,6 +31,7 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 
 	private final Timer timer = new Timer(250, this);
 	private final Model model;
+	public int numberOfCharts = 0;
 	
 	private ArrayList<GraphPanel> myGraphArray = new ArrayList<GraphPanel>(3);
 
@@ -40,7 +41,7 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		super();
 
 		// Simple Default Settings...
-		setPreferredSize(new Dimension(2160, 1440));
+//		setPreferredSize(new Dimension(2160, 1440));
 		setVisible(true);
 		setLayout(new FlowLayout());
 
@@ -51,22 +52,12 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		// Set the Timer to nonrepeating
 		timer.setRepeats(false);
 		
-		//creating 4 mockup graphPanel
-		GraphPanel myGraphPanel = new GraphPanel(model);
-		GraphPanel myGraphPanel1 = new GraphPanel(model);
-		GraphPanel myGraphPanel2 = new GraphPanel(model);
-		GraphPanel myGraphPanel3 = new GraphPanel(model);
-		
-		//Addding each of the 4 arrays to the array of GraphPanels
-		myGraphArray.add(myGraphPanel);
-		myGraphArray.add(myGraphPanel1);
-		myGraphArray.add(myGraphPanel2);
-		myGraphArray.add(myGraphPanel3);
-		
-		//Iterating over the array of GraphPanels and adding eachother to the view
-		for(GraphPanel myIterator : myGraphArray){
-			this.addPanel(myIterator);
-		}
+		//Addding 4 Panels to the View
+//		myGraphArray.add(new GraphPanel(model));
+		addPanel(new GraphPanel(model));
+//		addPanel(new GraphPanel(model));
+//		addPanel(new GraphPanel(model));
+//		addPanel(new GraphPanel(model));
 		
 		
 		// Handle Resizing
@@ -95,7 +86,35 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 	}
     
 	public void addPanel(GraphPanel graphPanel){
-		add(graphPanel);
+		//increase the over-all number of charts 
+		numberOfCharts++;
+		
+		
+		//there can only be 4 charts at a time.
+		//if a 5th is added, delete chart 1 and add it in its place
+		if(numberOfCharts > 4){
+			int numberOfChartsAsIndex = numberOfCharts%4;
+			
+			if(numberOfChartsAsIndex != 0){
+				numberOfChartsAsIndex--;
+			}else{
+				numberOfChartsAsIndex = 3;
+			}
+			myGraphArray.remove(numberOfChartsAsIndex);
+			myGraphArray.add(numberOfChartsAsIndex, graphPanel);
+			repaint();
+		}else{
+			myGraphArray.add(graphPanel);
+			repaint();
+		}
+		
+		this.removeAll();
+		repaint();
+		
+		//Iterating over the array of GraphPanels and adding each of them to the view
+		for(GraphPanel myIterator : myGraphArray){
+			this.add(myIterator);
+		}
 		
 //		chartFxPanel.add(graphPanel);
 	}

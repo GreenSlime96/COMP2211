@@ -72,7 +72,7 @@ public class ControlPanel extends JPanel implements Observer, ActionListener, Ch
 		controlTabbedPane.addTab("Filter", null, filterTab, "Modify Chart Filters/Metrics");
 
 		modelProgress = new ProgressBox(model);
-		
+
 		// Add Settings here
 		/* addSetting(component, title, help text)
 		 * 
