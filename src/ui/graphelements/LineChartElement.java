@@ -11,13 +11,14 @@ import javafx.event.EventHandler;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.XYChart.Data;
 import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.Tooltip;
 
 public class LineChartElement implements ChartElement {
 		
-	private LineChart<Date, Number> chart;
+	private AreaChart<Date, Number> chart;
 	
 	private DateAxis xAxis;
 	private NumberAxis yAxis;
@@ -31,7 +32,7 @@ public class LineChartElement implements ChartElement {
 		yAxis = new NumberAxis();
 		yAxis.setLabel("Some Metric");
 		
-		chart = new LineChart<Date, Number>(xAxis, yAxis);
+		chart = new AreaChart<Date, Number>(xAxis, yAxis);
 		chart.setPrefSize(1920, 1080);
 	}
 	
