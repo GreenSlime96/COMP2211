@@ -118,15 +118,4 @@ public class DateProcessor {
 		
 		return result;
 	}
-	
-	public static int charArrayToInt(byte[] data) {
-		int result = 0;
-		
-		for (byte b : data) {
-			result = (result << 3) + (result << 1) + (b & 0xF);
-		}
-		
-		return result;
-	}
-	
 }
