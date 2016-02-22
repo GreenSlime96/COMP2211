@@ -47,6 +47,7 @@ public class DataProcessor {
 	
 	public DataProcessor(Campaign campaign) {
 		setCampaign(campaign);
+		numberOfImpressions();
 	}
 	
 
@@ -137,7 +138,7 @@ public class DataProcessor {
 		
 		// TODO remove, just throwing error if we reach this unreachable state
 		if (timeGranularityInSeconds < 1 || timeGranularityInSeconds >=  timeDifference)
-			throw new IllegalArgumentException("something happened in " + this.getClass().getName());
+			throw new IllegalArgumentException("something happened in DataProcessor setTimeG...");
 		
 		// time granularity 		
 		this.timeGranularityInSeconds = timeGranularityInSeconds;
@@ -185,33 +186,36 @@ public class DataProcessor {
 		LocalDateTime currentDate = dataStartDate;
 		LocalDateTime nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
 		
-		outerLoop:
+		long time = System.currentTimeMillis();
+//		outerLoop:
 		for (Impression impression : campaign.getImpressions()) {
 			final LocalDateTime dateTime = impression.getDateTime();
 			
-			// we ignore the impression if the date is before the current date
-			if (dateTime.isBefore(currentDate))
-				continue;
+//			// we ignore the impression if the date is before the current date
+//			if (dateTime.isBefore(currentDate))
+//				continue;
+//			
+//			// add new mapping if after time granularity separator
+//			while (dateTime.isAfter(nextDate)) {
+//				impressionsList.add(numberOfImpressions);
+//				
+//				if (nextDate.equals(dataEndDate))
+//					break outerLoop;
+//				
+//				numberOfImpressions = 0;
+//				
+//				currentDate = nextDate;
+//				nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
+//				
+//				if (nextDate.isAfter(dataEndDate))
+//					nextDate = dataEndDate;
+//			}
 			
-			// add new mapping if after time granularity separator
-			while (dateTime.isAfter(nextDate)) {
-				impressionsList.add(numberOfImpressions);
-				
-				if (nextDate.equals(dataEndDate))
-					break outerLoop;
-				
-				numberOfImpressions = 0;
-				
-				currentDate = nextDate;
-				nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
-				
-				if (nextDate.isAfter(dataEndDate))
-					nextDate = dataEndDate;
-			}
-			
-			if (dataFilter.test(campaign.getUserFromID(impression.getUserID())))
+//			if (dataFilter.test(campaign.getUserFromID(impression.getUserID())))
 				numberOfImpressions++;
 		}
+		System.out.println("Processing: \t" + (System.currentTimeMillis() - time));
+		System.out.println("Size of Query: \t" + impressionsList.size());
 		
 		// pack
 		impressionsList.trimToSize();
