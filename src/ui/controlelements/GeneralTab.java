@@ -18,7 +18,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import core.Controller;
+
 import core.Model;
 import core.campaigns.Campaign;
 
