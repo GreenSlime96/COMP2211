@@ -579,7 +579,7 @@ public class Campaign {
 			System.out.println(System.currentTimeMillis() - time);
 
 			// trim the ArrayList to save capacity
-//			impressionsList.trimToSize();
+			impressionsList.trimToSize();
 //			usersMap.shrink();
 			
 			System.out.println(System.currentTimeMillis() - time);
