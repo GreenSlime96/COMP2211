@@ -1,174 +1,205 @@
 package ui.controlelements;
 
-import ui.controlelements.ControlPanelBox;
-
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Observable;
-
-import javax.swing.*;
-import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import core.Model;
 
+import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.awt.event.*;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Observable;
+
 /**
- * Created by james on 17/02/16.
+ * Created by jamesadams on 18/02/2016.
  */
 public class FilterTab extends ControlPanelBox {
 
-	String[] campaignStrings = { "Campaign 1", "Campaign 2"};
-	String[] metricStrings = { "Number of Impressions", "Number of Clicks", "Number of Uniques", "Number of Bounces",
-			"Number of Conversions", "Total Cost", "CTR", "CPA", "CPC", "CPM","Bounce Rate"};
+    Box genderBox = new Box(BoxLayout.X_AXIS);
+    Box ageBox = new Box(BoxLayout.Y_AXIS);
+    Box incomeBox = new Box(BoxLayout.Y_AXIS);
+    Box contextBox = new Box(BoxLayout.Y_AXIS);
+    ArrayList<JCheckBox> genderBoxes, ageBoxes, incomeBoxes, contextBoxes;
+    FilterTabController filterTabController;
+    public FilterTab(Model model){
+        super(model);
 
-	JComboBox campaignList = new JComboBox(campaignStrings);
-    JComboBox metricList = new JComboBox(metricStrings);
+        ArrayList<String> genders = new ArrayList<>();
+        genders.add("Male");	genders.add("Female");
 
-	String[] arr = {"Filter 1", "Filter 2"};
-	JList<String> filterList= new JList<>(arr);
+        ArrayList<String> ages = new ArrayList<>();
+        ages.add("<25"); ages.add("25-34"); ages.add("35-44"); ages.add("45-54"); ages.add(">54");
 
-	JSpinner startTimeSpinner = new JSpinner( new SpinnerDateModel() );
-	JSpinner endTimeSpinner = new JSpinner( new SpinnerDateModel() );
-	JSpinner timeGranularitySpinner = new JSpinner( new SpinnerDateModel());
+        ArrayList<String> incomes = new ArrayList<>();
+        incomes.add("Low"); incomes.add("Medium"); incomes.add("High");
 
-	JButton genderButton = new JButton();
-	JButton incomeButton = new JButton();
-	JButton contextButton = new JButton();
-	JButton ageButton = new JButton();
+        ArrayList<String> contexts = new ArrayList<>();
+        contexts.add("News"); contexts.add("Shopping"); contexts.add("Social Media"); contexts.add("Blog");
+        contexts.add("Hobbies"); contexts.add("Travel");
 
+        genderBoxes = createCheckBoxGroup(genders,genderBox);
+        ageBoxes = createCheckBoxGroup(ages,ageBox);
+        incomeBoxes = createCheckBoxGroup(incomes,incomeBox);
+        contextBoxes = createCheckBoxGroup(contexts,contextBox);
 
-    public FilterTab(Model model) {
-    	super(model);
+        addSetting(genderBox,"Gender","Filter by Gender");
+        addSetting(ageBox,"Age","Filter by Age");
+        addSetting(incomeBox,"Income","Filter by Income");
+        addSetting(contextBox,"Context","Filter by Context");
 
-		JSpinner.DateEditor startTimeEditor = new JSpinner.DateEditor(startTimeSpinner, "dd-MMM-yyyy HH:mm:ss");
-		startTimeSpinner.setEditor(startTimeEditor);
-		startTimeSpinner.setValue(new Date()); // will only show the current time
+        filterTabController = new FilterTabController(model);
 
-		JSpinner.DateEditor endTimeEditor = new JSpinner.DateEditor(endTimeSpinner, "dd-MMM-yyyy HH:mm:ss");
-		endTimeSpinner.setEditor(endTimeEditor);
-		endTimeSpinner.setValue(new Date()); // will only show the current time
-
-		JSpinner.DateEditor timeGranularityEditor = new JSpinner.DateEditor(timeGranularitySpinner, "dd HH:mm:ss");
-		timeGranularitySpinner.setEditor(timeGranularityEditor);
-		timeGranularitySpinner.setValue(new Date()); // will only show the current time
-
-		ArrayList<String> genders = new ArrayList<>();
-		genders.add("Any"); genders.add("Male");	genders.add("Female");
-
-		ArrayList<String> ages = new ArrayList<>();
-		ages.add("Any"); ages.add("<25"); ages.add("25-34"); ages.add("35-44"); ages.add("45-54"); ages.add(">54");
-
-		ArrayList<String> incomes = new ArrayList<>();
-		incomes.add("Any"); incomes.add("Low"); incomes.add("Medium"); incomes.add("High");
-
-		ArrayList<String> contexts = new ArrayList<>();
-		contexts.add("Any"); contexts.add("News"); contexts.add("Shopping"); contexts.add("Social Media"); contexts.add("Blog");
-		contexts.add("Hobbies"); contexts.add("Travel");
-
-
-		setupMultipleDropdown(genders, genderButton);
-		setupMultipleDropdown(ages, ageButton);
-		setupMultipleDropdown(incomes, incomeButton);
-		setupMultipleDropdown(contexts, contextButton);
-
-		addSetting(campaignList,"Campaign","Select a campaign for your chart");
-		addSetting(metricList,"Metrics","Select a metric for your chart");
-		addSetting(filterList, "Filters", "Select a filter to edit its properties");
-
-		addSetting(startTimeSpinner,"Start Time","Choose Start Time for Chart");
-		addSetting(endTimeSpinner,"End Time","Choose End Time for Chart");
-		addSetting(timeGranularitySpinner,"Time Granularity","Choose Time Granularity for Chart (dd HH:mm:ss)");
-
-		addSetting(genderButton,"Gender","Filter by Gender");
-		addSetting(ageButton,"Age","Filter by Age");
-		addSetting(incomeButton,"Income","Filter by Income");
-		addSetting(contextButton,"Context","Filter by Context");
-
+        registerFilterBoxes(genderBoxes);
+        registerFilterBoxes(ageBoxes);
+        registerFilterBoxes(incomeBoxes);
+        registerFilterBoxes(contextBoxes);
     }
 
-	@Override
-	public void update(Observable o, Object arg) {
-		// TODO Auto-generated method stub
-		
-	}
+    public void registerFilterBoxes(ArrayList<JCheckBox> checkBoxes) {
+        for (JCheckBox checkBox : checkBoxes) {
+            checkBox.addActionListener(filterTabController);
+        }
+    }
 
-	public void setupMultipleDropdown(ArrayList<String> options, JButton button){
-
-		JPopupMenu popupMenu = new JPopupMenu();
-
-		button.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (!popupMenu.isVisible()) {
-					Point p = button.getLocationOnScreen();
-					popupMenu.setInvoker(button);
-					popupMenu.setLocation((int) p.getX(),
-							(int) p.getY() + button.getHeight());
-					popupMenu.setVisible(true);
-				} else {
-					popupMenu.setVisible(false);
-				}
-
-			}
-		});
-
-		for (String s : options){
-			JMenuItem item = new JCheckBoxMenuItem(s);
-			popupMenu.add(item);
-			item.addActionListener(new ClickAction(popupMenu, button, item));
-
-		}
-
-		popupMenu.setSelected(popupMenu.getComponent(0));
-		JMenuItem menuItem = (JMenuItem) popupMenu.getComponent(0);
-		menuItem.doClick();
+    public ArrayList<JCheckBox> createCheckBoxGroup(ArrayList<String> nameList, Box buttonBox){
+        ArrayList<JCheckBox> checkBoxes = new ArrayList<>();
+        for(String title : nameList){
+            JCheckBox checkBox = new JCheckBox(title);
+            checkBox.setSelected(true);
+            buttonBox.add(checkBox);
+            checkBoxes.add(checkBox);
+        }
+        return checkBoxes;
+    }
 
 
-	}
-
-	private static class ClickAction implements ActionListener {
-
-		private JPopupMenu menu;
-		private JButton button;
-		private JMenuItem item;
-		private boolean active;
-		private ClickAction(JPopupMenu menu, JButton button, JMenuItem item) {
-			this.menu = menu;
-			this.button = button;
-			this.item = item;
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e) {
-//			System.out.println("ACTION PERFORMED");
-//			menu.show(button, 0, button.getHeight());
-			active = (active) ? false : true;
-
-			if(item == menu.getComponent(0)){
-				for (int i = 1; i < menu.getComponents().length; i++) {
-					JMenuItem menuItem = (JMenuItem) menu.getComponents()[i];
-					if(menuItem.isSelected()) menuItem.doClick();
-				}
-				button.setText(item.getText());
-			}else {
+    @Override
+    public void update(Observable o, Object arg) {
+        if(o == model){
+            //TODO match up to filter when model updates current chart!
+        }
+    }
 
 
-				if (active) {
-					button.setText(button.getText() + " " + item.getText() + " ");
-					button.setText(button.getText().replace("Any",""));
-					JMenuItem menuItem = (JMenuItem) menu.getComponent(0);
-					menuItem.setSelected(false);
+    class FilterTabController implements ActionListener,
+            ChangeListener, ItemListener, ListSelectionListener {
 
-				} else {
-					button.setText(button.getText().replace(" " + item.getText() + " ", ""));
-				}
-			}
-			button.invalidate();
+        private Model model = null;
 
-		}
-	}
+        public FilterTabController(Model model){
+            model = model;
+
+            verifyCheckBoxGroup(genderBoxes);
+            verifyCheckBoxGroup(ageBoxes);
+            verifyCheckBoxGroup(incomeBoxes);
+            verifyCheckBoxGroup(contextBoxes);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("STATE CHANGED!");
+
+//            if(e.getSource() instanceof JCheckBox){
+//                System.out.println("Checkbox was Ticked");
+//                JCheckBox checkBox = (JCheckBox) e.getSource();
+//                switch (checkBox.getText()) {
+//                    case "Male":
+//                        genderArray[0] = checkBox.isSelected();
+//                        break;
+//                    case "Female":
+//                        genderArray[1] = checkBox.isSelected();
+//                        break;
+//                    case "<25":
+//                        ageArray[0] = checkBox.isSelected();
+//                        break;
+//                    case "25-34":
+//                        ageArray[1] = checkBox.isSelected();
+//                        break;
+//                    case "35-44":
+//                        ageArray[2] = checkBox.isSelected();
+//                        break;
+//                    case "45-54":
+//                        ageArray[3] = checkBox.isSelected();
+//                        break;
+//                    case ">54":
+//                        ageArray[4] = checkBox.isSelected();
+//                        break;
+//                    case "Low":
+//                        incomeArray[0] = checkBox.isSelected();
+//                        break;
+//                    case "Medium":
+//                        incomeArray[1] = checkBox.isSelected();
+//                        break;
+//                    case "High":
+//                        incomeArray[2] = checkBox.isSelected();
+//                        break;
+//                    case "News":
+//                        contextArray[0] = checkBox.isSelected();
+//                        break;
+//                    case "Shopping":
+//                        contextArray[1] = checkBox.isSelected();
+//                        break;
+//                    case "Social Media":
+//                        contextArray[2] = checkBox.isSelected();
+//                        break;
+//                    case "Blog":
+//                        contextArray[3] = checkBox.isSelected();
+//                        break;
+//                    case "Hobbies":
+//                        contextArray[4] = checkBox.isSelected();
+//                        break;
+//                    case "Travel":
+//                        contextArray[5] = checkBox.isSelected();
+//                        break;
+//                }
+
+                verifyCheckBoxGroup(genderBoxes);
+                verifyCheckBoxGroup(ageBoxes);
+                verifyCheckBoxGroup(incomeBoxes);
+                verifyCheckBoxGroup(contextBoxes);
+
+         //   }
+        }
+
+        @Override
+        public void stateChanged(ChangeEvent e) {
+
+        }
+
+        @Override
+        public void itemStateChanged(ItemEvent e) {
+
+        }
+
+        @Override
+        public void valueChanged(ListSelectionEvent e) {
+
+        }
+
+        public void verifyCheckBoxGroup(ArrayList<JCheckBox> checkBoxes){
+            boolean allfalse = true;
+            for(JCheckBox checkBox : checkBoxes ) {
+                if (checkBox.isSelected()){
+                    allfalse = false;
+                    break;
+                }else {
+                    allfalse = true;
+                }
+            }
+
+            if(allfalse) {
+                for(JCheckBox checkBox : checkBoxes ) {
+                    checkBox.setSelected(true);
+                }
+            }
+        }
+    }
+
+
+
 }
-

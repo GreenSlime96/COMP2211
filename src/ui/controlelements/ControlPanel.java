@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.awt.event.KeyEvent;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -35,6 +34,7 @@ public class ControlPanel extends JPanel implements Observer, ActionListener, Ch
 	 */
 	JTabbedPane controlTabbedPane;
 	private GeneralTab generalTab;
+	private ChartTab chartTab;
 	private FilterTab filterTab;
 	
 	ProgressBox modelProgress;
@@ -65,10 +65,12 @@ public class ControlPanel extends JPanel implements Observer, ActionListener, Ch
 		controlTabbedPane = new JTabbedPane();
 		
 		generalTab = new GeneralTab(model);
+		chartTab = new ChartTab(model);
 		filterTab = new FilterTab(model);
-		
+
 		controlTabbedPane.addTab("General", null, generalTab, "Inspect Campaigns");
-		controlTabbedPane.addTab("Filter", null, filterTab, "Modify Chart Filters/Metrics");
+		controlTabbedPane.addTab("Chart", null, chartTab, "Modify Chart Settings");
+		controlTabbedPane.addTab("Filter", null, filterTab, "Modify Filter Settings");
 
 		modelProgress = new ProgressBox(model);
 		
@@ -76,12 +78,12 @@ public class ControlPanel extends JPanel implements Observer, ActionListener, Ch
 		/* addSetting(component, title, help text)
 		 * 
 		 */
-		
+
 		// Add UI Elements Here
 		add(controlTabbedPane, BorderLayout.CENTER);
-		add(modelProgress,BorderLayout.SOUTH);
+		//add(modelProgress,BorderLayout.SOUTH);
 	}
-	
+
 	// ==== Private Helper Methods ====
 	
 	private void addSetting(JComponent control, String title, String text) {
@@ -115,6 +117,7 @@ public class ControlPanel extends JPanel implements Observer, ActionListener, Ch
 			// the new state of the Model
 			Campaign[] listData = new Campaign[model.getCampaigns().size()];
 //			generalTab.setCampaignListData(model.getCampaigns().toArray(listData));
+
 		}
 	}
 	

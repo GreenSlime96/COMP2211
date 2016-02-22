@@ -1,8 +1,7 @@
 package ui.controlelements;
 
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
 
@@ -14,9 +13,12 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import core.Controller;
 import core.Model;
 import core.campaigns.Campaign;
 
@@ -29,6 +31,8 @@ import core.Model;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Observable;
+import java.util.Observer;
+import java.util.logging.Filter;
 
 
 /**
@@ -38,11 +42,15 @@ import java.util.Observable;
 
 public class GeneralTab extends ControlPanelBox {
 
+    public enum FilterType {
+        GENDER, AGE, INCOME, CONTEXT
+    }
+
     private JButton removeCampaignBTN = new JButton("-");
     private JButton addCampaignBTN = new JButton("+");
-//    JLabel empty = new JLabel("");
+
     String[] arr = {"Campaign 1", "Campaign 2"};
-    private JList<Campaign> campaignList = new JList<Campaign>();
+    private JList<String> campaignList = new JList<String>(arr);
     JLabel noImpressionsLabel = new JLabel("######");
     JLabel startDateLabel = new JLabel("######");
     JLabel endDateLabel = new JLabel("######");
@@ -55,64 +63,67 @@ public class GeneralTab extends ControlPanelBox {
     public GeneralTab(Model model){
     	super(model);
 
-        addSetting(campaignList,"Campaigns","Click to show stats below");
-        addCampaignBTN.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				CampaignFileChooser chooser = new CampaignFileChooser();
-				if(chooser.selectionMade()) {
-//					if(!model.addCampaign(new Campaign(chooser.getSelectedFile())))
-//						controller.showMessageDialog("Campaign has already been added");
-				}else {
-//					controller.showMessageDialog("No campaign selected.");
-				}
-			}
-        });
-        
-        removeCampaignBTN.addActionListener(new ActionListener() {
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				model.removeCampaign((Campaign) campaignList.getSelectedValue());
-			}
-        	
-        });
-        
+        Box addsubPanel = new Box(BoxLayout.X_AXIS);
+        addsubPanel.add(addCampaignBTN);
+        addsubPanel.add(removeCampaignBTN);
         //campaign metrics
-        addSetting(noImpressionsLabel, "Impressions", "" );
-        addSetting(startDateLabel, "Start Date", "" );
+
+        addSetting(campaignList,"Campaigns","");
+        addSetting(addsubPanel,"","");
+        addSetting(noImpressionsLabel, "Impressions", " " );
+        addSetting(startDateLabel, "Start Date", " " );
         addSetting(endDateLabel, "End Date", "" );
-        addSetting(totalClicksLabel, "Total Clicks", "" );
-        addSetting(totalCostLabel, "Total Cost", "");
-        addSetting(campaignDirectoryLabel, "Campaign Directory", "" );        
+        addSetting(totalClicksLabel, "Total Clicks", " " );
+        addSetting(totalCostLabel, "Total Cost", " ");
+        addSetting(campaignDirectoryLabel, "Campaign Directory", " " );
 
-    }
-
-    private void populateCampaignData()
-    {
-    	if(campaignList.getSelectedValue() == null)
-    		return;
-
-    	Campaign campaign = campaignList.getSelectedValue();
-
-    	noImpressionsLabel.setText(""+campaign.getNumberOfImpressions());
-    	startDateLabel.setText(campaign.getStartDateTime().format(dateTimeFormatter));
-    	endDateLabel.setText(campaign.getEndDateTime().format(dateTimeFormatter));
-    	totalClicksLabel.setText(""+campaign.getNumberOfClicks());
-    	totalCostLabel.setText(("�"+new DecimalFormat("#.##").format(campaign.getTotalCostOfCampaign())));
-    	campaignDirectoryLabel.setText(campaign.getDirectoryPath());
     }
     
     public void setCampaignListData(Campaign[] listData) {
-    	campaignList.setListData(listData);
-    	campaignList.setSelectedIndex(campaignList.getModel().getSize()-1);
+//    	campaignList.setListData(listData);
+//    	campaignList.setSelectedIndex(campaignList.getModel().getSize()-1);
     }
     
 
 	@Override
 	public void update(Observable o, Object arg) {
-		// TODO Auto-generated method stub
-		
+
+        if(campaignList.getSelectedValue() == null)
+            return;
+//
+//        Campaign campaign = campaignList.getSelectedValue();
+//
+//        noImpressionsLabel.setText(""+campaign.getNumberOfImpressions());
+//        startDateLabel.setText(campaign.getStartDate().format(dateTimeFormatter));
+//        endDateLabel.setText(campaign.getEndDate().format(dateTimeFormatter));
+//        totalClicksLabel.setText(""+campaign.getNumberOfClicks());
+//        totalCostLabel.setText(("£"+new DecimalFormat("#.##").format(campaign.getTotalCostOfCampaign())));
+//        campaignDirectoryLabel.setText(campaign.getDirectoryPath());
+
 	}
+
+    class GeneralTabController implements ActionListener,
+            ChangeListener, ItemListener {
+
+        public GeneralTabController(Model model){
+
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+
+        }
+
+        @Override
+        public void stateChanged(ChangeEvent e) {
+
+        }
+
+        @Override
+        public void itemStateChanged(ItemEvent e) {
+
+        }
+    }
+
 
 }

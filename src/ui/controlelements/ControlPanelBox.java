@@ -26,8 +26,10 @@ abstract class ControlPanelBox extends Box implements Observer{
     }
 
     protected void addSetting(JComponent control, String title, String text) {
+
+
         JLabel label = new JLabel(title);
-        label.setFont(label.getFont().deriveFont(Font.BOLD));
+        label.setFont(label.getFont().deriveFont(Font.BOLD, 13));
         //fixes [g|y] not rendering correctly.
         label.setBorder(BorderFactory.createEmptyBorder(0,0,5,0));
 
@@ -41,12 +43,18 @@ abstract class ControlPanelBox extends Box implements Observer{
         help.setFont(label.getFont().deriveFont(Font.ITALIC, 10));
         help.setBorder(BorderFactory.createEmptyBorder(0,0,3,0));
 
-        add(label);
-        add(Box.createRigidArea(new Dimension(0, 3)));
+        if(!title.equals("")) {
+            add(label);
+            add(Box.createRigidArea(new Dimension(0, 3)));
+        }
+
         add(control);
         add(Box.createRigidArea(new Dimension(0, 2)));
-        add(help);
-        add(Box.createRigidArea(new Dimension(0, 15)));
+
+        if(!text.equals("")) {
+            add(help);
+            add(Box.createRigidArea(new Dimension(0, 15)));
+        }
     }
 
 }
