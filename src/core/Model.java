@@ -21,7 +21,7 @@ public class Model extends Observable implements ActionListener {
 
 	// ==== Constants ====
 
-	private static final boolean CHOOSE_FILE_ON_STARTUP = true;
+	private static final boolean CHOOSE_FILE_ON_STARTUP = false;
 
 	// ==== Properties ====
 	
