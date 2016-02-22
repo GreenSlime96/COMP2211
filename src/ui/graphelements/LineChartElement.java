@@ -9,10 +9,8 @@ import core.campaigns.Campaign;
 import extfx.scene.chart.DateAxis;
 import javafx.event.Event;
 import javafx.event.EventHandler;
-import javafx.scene.chart.LineChart;
-import javafx.scene.chart.NumberAxis;
-import javafx.scene.chart.XYChart;
 import javafx.scene.chart.AreaChart;
+import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart.Data;
 import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.Tooltip;
@@ -34,7 +32,6 @@ public class LineChartElement implements ChartElement {
 		yAxis.setLabel("Some Metric");
 		
 		chart = new AreaChart<Date, Number>(xAxis, yAxis);
-		chart.setPrefSize(1920, 1080);
 	}
 	
 	private void addTooltips()
@@ -93,6 +90,11 @@ public class LineChartElement implements ChartElement {
 		chart.getData().add(series);
 		addTooltips();
 	}
+	
+	public void resizeChart(int width, int height)
+	{
+		chart.setPrefSize(width, height-yAxis.getHeight());
+	}
 		
 	/**
 	 * Sets the time granularity for which each datum is separated.
@@ -130,7 +132,7 @@ public class LineChartElement implements ChartElement {
 		return yAxis;
 	}
 	
-	public AreaChart getChart()
+	public AreaChart<Date, Number> getChart()
 	{
 		return chart;
 	}

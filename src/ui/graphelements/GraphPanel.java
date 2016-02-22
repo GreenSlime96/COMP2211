@@ -1,7 +1,6 @@
 package ui.graphelements;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -70,7 +69,7 @@ public class GraphPanel extends JPanel {
 				     e.consume();
 				     GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");	
 				     testWindow.setScene(scene);
-				     chartElement.getChart().autosize();
+				     chartElement.resizeChart(testWindow.getWidth(), testWindow.getHeight());
 				     //GraphAreaView background = (GraphAreaView) centerPanel.getParent().getParent();
 				     //background.addPanel(new GraphPanel(model, background.getNumberOfCharts()+1));
 				}

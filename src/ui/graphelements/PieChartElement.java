@@ -6,11 +6,18 @@ import javafx.scene.chart.PieChart;
 public class PieChartElement implements ChartElement {
 
 	private PieChart chart;
+
+	private static int LEGEND_HEIGHT = 80;
 	
 	public PieChartElement(String chartTitle)
 	{
 		chart = new PieChart();
 		chart.setTitle(chartTitle);
+	}
+	
+	public void resizeChart(int width, int height)
+	{
+		chart.setPrefSize(width, height - LEGEND_HEIGHT);
 	}
 	
 	/**
