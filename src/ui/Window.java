@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 import core.Model;
 import ui.controlelements.ControlPanel;
 import ui.graphelements.GraphAreaView;
+import ui.graphelements.GraphPanel;
 
 public class Window extends JFrame {
 
