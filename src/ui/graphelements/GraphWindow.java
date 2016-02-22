@@ -8,6 +8,7 @@ import java.awt.FlowLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -58,6 +59,7 @@ public class GraphWindow extends JFrame {
 			}
 		});
 		
+
 		centerPanel.setBackground(new Color(120, 100, 0));
 		centerPanel.setPreferredSize(new Dimension(1360, 740));
 		centerPanel.setVisible(true);
@@ -67,23 +69,13 @@ public class GraphWindow extends JFrame {
 		
 		contentPane.add(northPanel, BorderLayout.NORTH);
 		contentPane.add(centerPanel, BorderLayout.CENTER);
+				
 		
-		chartElementPane = new GridPane();
-		scene = new Scene(chartElementPane, 0, 0);	
-		scene.getStylesheets().add(getClass().getResource("chart.css").toExternalForm());
-		
+	}
+	
+	public void setScene(Scene scene)
+	{
+		centerPanel.setScene(scene);
 		this.pack();
-	}
-	
-	public void setChartElement(ChartElement chartElement)
-	{
-		this.chartElement = chartElement;
-		chartElementPane.add(chartElement.getChart(), 0, 0);
-		//centerPanel.setScene(scene);
-	}
-	
-	public ChartElement getChartElement()
-	{
-		return chartElement;
 	}
 }

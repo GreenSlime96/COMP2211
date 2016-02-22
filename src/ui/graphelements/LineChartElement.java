@@ -32,6 +32,7 @@ public class LineChartElement implements ChartElement {
 		yAxis.setLabel("Some Metric");
 		
 		chart = new LineChart<Date, Number>(xAxis, yAxis);
+		chart.setPrefSize(1920, 1080);
 	}
 	
 	private void addTooltips()

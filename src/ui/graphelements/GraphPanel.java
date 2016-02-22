@@ -69,7 +69,7 @@ public class GraphPanel extends JPanel {
 				if (e.getClickCount() == 2 && !e.isConsumed()) {
 				     e.consume();
 				     GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");	
-				     testWindow.setChartElement(getChartElement());
+				     testWindow.setScene(scene);
 				     //GraphAreaView background = (GraphAreaView) centerPanel.getParent().getParent();
 				     //background.addPanel(new GraphPanel(model, background.getNumberOfCharts()+1));
 				}
