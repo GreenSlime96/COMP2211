@@ -1,9 +1,9 @@
 package ui.graphelements;
 
-import javafx.scene.chart.XYChart;
+import javafx.scene.chart.Chart;
 
 public interface ChartElement {
 
-	public XYChart getChart();
+	public Chart getChart();
 	
 }

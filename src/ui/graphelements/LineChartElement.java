@@ -5,6 +5,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
+import core.campaigns.Campaign;
 import extfx.scene.chart.DateAxis;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -71,20 +72,18 @@ public class LineChartElement implements ChartElement {
 		}
 	}
 	
-	//TODO Update this description
 	/**
-	 * Adds a new series to the chart
-	 * @param seriesName Name of the series, will be displayed as label on chart
-	 * @param data Set of y-axis values separated by the assigned time-granularity
+	 * Adds a new series to the line chart. Series name is automatically computed for given arguments.
+	 * @param data List of metric values separated by the defined time granularity
+	 * @param startDate LocalDateTime of first value in data list.
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void addSeries(String seriesName, List<Number> data, LocalDateTime startDate, LocalDateTime endDate)
+	public void addSeries(List<Number> data, LocalDateTime startDate)
 	{
 		Series series = new Series();
-		series.setName(seriesName);
+		series.setName(startDate.format(Campaign.formatter) + " - " + startDate.plusSeconds(timeGranularity * data.size()).format(Campaign.formatter));
 		
 		LocalDateTime offset = null;
-		System.out.println(timeGranularity);
 		for(int i=0; i< data.size(); i++)
 		{
 			offset = startDate.plusSeconds(timeGranularity * i);
@@ -113,12 +112,9 @@ public class LineChartElement implements ChartElement {
 		yAxis.setLabel(metric);
 	}
 	
-	//TODO Update this description
 	/**
 	 * Gets the X-Axis
-	 * @return Instance of DateAxis. The lower bound defaults at 0 and the upper bound
-	 * is set to match the longest data series. Default tick size is 1. Label is updated
-	 * when time granularity is set.
+	 * @return Instance of DateAxis. 
 	 */
 	public DateAxis getXAxis()
 	{
@@ -128,14 +124,13 @@ public class LineChartElement implements ChartElement {
 	/**
 	 * Gets the Y-Axis
 	 * @return Instance of NumberAxis. Default values used to match data series.
-	 * Label updated when metric is set.
 	 */
 	public NumberAxis getYAxis()
 	{
 		return yAxis;
 	}
 	
-	public XYChart getChart()
+	public AreaChart getChart()
 	{
 		return chart;
 	}

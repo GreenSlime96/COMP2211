@@ -16,6 +16,8 @@ import javax.swing.JComponent;
 import javax.swing.Timer;
 
 import core.Model;
+import javafx.collections.FXCollections;
+import javafx.scene.chart.PieChart;
 
 public class GraphAreaView extends JComponent implements Observer, ActionListener {
 
@@ -52,36 +54,30 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		timer.setRepeats(false);
 		
 
-		//Addding 4 Panels to the View
-//		myGraphArray.add(new GraphPanel(model));
-		addPanel(new GraphPanel(model,numberOfCharts));
-//		addPanel(new GraphPanel(model));
-//		addPanel(new GraphPanel(model));
-//		addPanel(new GraphPanel(model));
-
 		//creating 4 mockup graphPanel
 		GraphPanel myGraphPanel = new GraphPanel(model);
 		GraphPanel myGraphPanel1 = new GraphPanel(model);
 		GraphPanel myGraphPanel2 = new GraphPanel(model);
 		GraphPanel myGraphPanel3 = new GraphPanel(model);
 		
+		//Example Data
 		LineChartElement lc1 = new LineChartElement();
 		lc1.setTimeGranularity(60*60*24);
 		lc1.setMetric("CPA");
 		List<Number> data = new ArrayList<Number>();
 		for(int i=0; i<30; i++)
 			data.add(Math.random() * i);
-		lc1.addSeries("Test Series", data, LocalDateTime.now(), null);
+		lc1.addSeries(data, LocalDateTime.now());
 		myGraphPanel.setChartElement(lc1);
 
-		LineChartElement lc2 = new LineChartElement();
-		lc2.setTimeGranularity(60*60*24*7);
-		lc2.setMetric("CPM");
-		data.clear();
-		for(int i=0; i<20; i++)
-			data.add(Math.random()*i);
-		lc2.addSeries("Test Series", data, LocalDateTime.now(), null);
-		myGraphPanel1.setChartElement(lc2);
+		PieChartElement pc1 = new PieChartElement("Age Range");
+		pc1.setData(FXCollections.observableArrayList(
+				new PieChart.Data("<25", Math.random()),
+				new PieChart.Data("25-34", Math.random()),
+				new PieChart.Data("35-44", Math.random()),
+				new PieChart.Data("44-54", Math.random()),
+				new PieChart.Data(">45", Math.random())));
+		myGraphPanel1.setChartElement(pc1);
 		
 		
 		//Addding each of the 4 arrays to the array of GraphPanels

@@ -70,6 +70,7 @@ public class GraphPanel extends JPanel {
 				     e.consume();
 				     GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");	
 				     testWindow.setScene(scene);
+				     chartElement.getChart().autosize();
 				     //GraphAreaView background = (GraphAreaView) centerPanel.getParent().getParent();
 				     //background.addPanel(new GraphPanel(model, background.getNumberOfCharts()+1));
 				}
