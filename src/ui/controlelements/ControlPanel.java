@@ -115,7 +115,7 @@ public class ControlPanel extends JPanel implements Observer, ActionListener, Ch
 			
 			// We would like to update the existing values in the ControlPanel to reflect
 			// the new state of the Model
-			Campaign[] listData = new Campaign[model.getCampaigns().size()];
+//			Campaign[] listData = new Campaign[model.getCampaigns().size()];
 //			generalTab.setCampaignListData(model.getCampaigns().toArray(listData));
 
 		}
