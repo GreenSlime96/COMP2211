@@ -5,22 +5,25 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.text.DecimalFormat;
 
 import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 import javax.swing.border.Border;
 
 import core.Model;
+import javafx.embed.swing.JFXPanel;
+import javafx.scene.Scene;
+import javafx.scene.layout.GridPane;
 
 public class GraphPanel extends JPanel {
 	private final Model model;
-	JPanel centerPanel;
+
+	private JFXPanel centerPanel;
+	
+	private Scene scene;
+	private GridPane chartElementPane;
+	private ChartElement chartElement;
 	
 	public GraphPanel(Model model){
 		
@@ -50,9 +53,10 @@ public class GraphPanel extends JPanel {
 	}
 	
 	public void init(){
-		centerPanel = new JPanel();
-		JLabel myLabel = new JLabel("name of the chart goes here");
-		centerPanel.setBackground(new Color(140, 0, 20));
+
+		centerPanel = new JFXPanel();
+		JLabel myLabel = new JLabel("Here goes the name of the chart");
+		centerPanel.setBackground(new java.awt.Color(140, 0, 20));
 		
 		//Creating an ugly compound border for the TextField Panel and the Fractals
 	    Border raisedbevel = BorderFactory.createRaisedBevelBorder();
@@ -60,7 +64,7 @@ public class GraphPanel extends JPanel {
 	    Border compound = BorderFactory.createCompoundBorder(raisedbevel, loweredbevel);
 		
 		centerPanel.addMouseListener(new MouseListener() {
-			public void mouseClicked(MouseEvent e) {	
+			public void mouseClicked(MouseEvent e) {
 				
 				if (e.getClickCount() == 2 && !e.isConsumed()) {
 				     e.consume();
@@ -86,9 +90,26 @@ public class GraphPanel extends JPanel {
 		this.add(centerPanel, BorderLayout.CENTER);
 		this.add(myLabel, BorderLayout.NORTH);
 		this.setBorder(compound);
+		
+		chartElementPane = new GridPane();
+		scene = new Scene(chartElementPane, 0, 0);	
+		scene.getStylesheets().add(getClass().getResource("chart.css").toExternalForm());
 	}	
 	
-	public void setCenterPanelSize(Dimension size){
+
+	public void setCenterPanelSize(Dimension size) {
 		centerPanel.setPreferredSize(size);
+	}
+	/**
+	 * Assigns a ChartElement to this panel and renders it.
+	 * ChartElement should be fully defined before assigning.
+	 * @param chartElement Element to be assigned
+	 */
+	public void setChartElement(ChartElement chartElement)
+	{
+		this.chartElement = chartElement;
+		chartElementPane.add(chartElement.getChart(), 0, 0);
+		centerPanel.setScene(scene);
+
 	}
 }
