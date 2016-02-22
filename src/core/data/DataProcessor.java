@@ -3,17 +3,19 @@ package core.data;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import core.campaigns.Campaign;
 import core.records.Click;
 import core.records.Impression;
+import core.records.Record;
 import core.records.Server;
-import core.records.User;
 
 // TODO should we rename this to DataProcessor instead?
 // Chart sounds like something the view should be handling
@@ -34,15 +36,15 @@ public class DataProcessor {
 	private LocalDateTime dataStartDate;
 	private LocalDateTime dataEndDate;
 	
+	// the filter to filter the metrics by
+	private final DataFilter dataFilter = new DataFilter();
+	
 	// the time granularity of this dataprocessor
-	private int timeGranularityInSeconds = 60;
+	private int timeGranularityInSeconds = 60 * 60 * 24;
 	
 	// bounce logic
 	private int bounceMinimumPagesViewed;
 	private int bounceMinimumSecondsOnPage;
-	
-	// the list of filters to work with
-	private DataFilter dataFilter;
 	
 	
 	// ==== Constructor ====
@@ -59,8 +61,8 @@ public class DataProcessor {
 	}
 	
 	public final void setCampaign(Campaign campaign) {
-		final LocalDateTime campaignStartDate = campaign.getStartDate();
-		final LocalDateTime campaignEndDate = campaign.getEndDate();		
+		final LocalDateTime campaignStartDate = campaign.getStartDateTime();
+		final LocalDateTime campaignEndDate = campaign.getEndDateTime();		
 		
 		if (dataStartDate == null || dataStartDate.isBefore(campaignStartDate) || !dataStartDate.isBefore(campaignEndDate))
 			dataStartDate = campaignStartDate;
@@ -72,17 +74,17 @@ public class DataProcessor {
 	}
 	
 	
-	public final LocalDateTime getDataStartDate() {
+	public final LocalDateTime getDataStartDateTime() {
 		return dataStartDate;
 	}
 	
 	public final void setDataStartDate(LocalDateTime dataStartDate) {
 		// check if the input start date happens before the campaign start date
-		if (dataStartDate.isBefore(campaign.getStartDate()))
+		if (dataStartDate.isBefore(campaign.getStartDateTime()))
 			throw new IllegalArgumentException("cannot set data start date before campaign starts");
 		
 		// check input happens before the campaign ends
-		if (!dataStartDate.isBefore(campaign.getEndDate()))
+		if (!dataStartDate.isBefore(campaign.getEndDateTime()))
 			throw new IllegalArgumentException("cannot set data start date to after campaign ends");
 		
 		// start date must be before end date
@@ -100,11 +102,11 @@ public class DataProcessor {
 	
 	public final void setDataEndDate(LocalDateTime dataEndDate) {
 		// check input is not after campaign end date
-		if (dataEndDate.isAfter(campaign.getEndDate()))
+		if (dataEndDate.isAfter(campaign.getEndDateTime()))
 			throw new IllegalArgumentException("cannot set data end date to after campaign ends");
 		
 		// end date must be after the start date
-		if (!dataEndDate.isAfter(campaign.getStartDate()))
+		if (!dataEndDate.isAfter(campaign.getStartDateTime()))
 			throw new IllegalArgumentException("cannot set data end date to before campaign starts");
 		
 		// end date must be after start date
@@ -168,9 +170,18 @@ public class DataProcessor {
 		this.bounceMinimumSecondsOnPage = bounceMinimumSecondsOnPage;
 	}
 	
+	public final boolean getFieldFilteredValue(UserFields field) {
+		return dataFilter.getField(field);
+	}
+	public final void setFieldFilterValue(UserFields field, boolean value) {
+		dataFilter.setField(field, value);
+	}
+	
+	
+	// ==== Compute Metrics ====	
 	
 	public final List<Integer> numberOfImpressions() {
-		final List<Integer> impressionsList = new ArrayList<Integer>();
+		final ArrayList<Integer> impressionsList = new ArrayList<Integer>();
 		
 		int numberOfImpressions = 0;
 		
@@ -178,40 +189,42 @@ public class DataProcessor {
 		LocalDateTime currentDate = dataStartDate;
 		LocalDateTime nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
 		
+		outerLoop:
 		for (Impression impression : campaign.getImpressions()) {
+			final LocalDateTime dateTime = impression.getDateTime();
+			
 			// we ignore the impression if the date is before the current date
-			if (impression.date.isBefore(currentDate))
+			if (dateTime.isBefore(currentDate))
 				continue;
 			
 			// add new mapping if after time granularity separator
-			if (impression.date.isAfter(nextDate)) {
-				
-				// add to list
+			while (dateTime.isAfter(nextDate)) {
 				impressionsList.add(numberOfImpressions);
 				
-				// stop processing, we have reached the end date
 				if (nextDate.equals(dataEndDate))
-					break;
+					break outerLoop;
 				
-				// reset and increment
 				numberOfImpressions = 0;
+				
 				currentDate = nextDate;
 				nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
 				
-				// normalise the date if exceeded
 				if (nextDate.isAfter(dataEndDate))
 					nextDate = dataEndDate;
 			}
 			
-			if (dataFilter.apply(campaign.getUserFromID(impression.userID)))
+			if (dataFilter.test(campaign.getUserFromID(impression.getUserID())))
 				numberOfImpressions++;
 		}
+		
+		// pack
+		impressionsList.trimToSize();
 		
 		return impressionsList;
 	}
 	
-	public final List<Integer> numberOfClicks() {
-		final List<Integer> clicksList = new ArrayList<Integer>();
+	public final List<Integer> numberOfClicks() {		
+		final ArrayList<Integer> clicksList = new ArrayList<Integer>();
 		
 		int numberOfClicks = 0;
 		
@@ -219,33 +232,36 @@ public class DataProcessor {
 		LocalDateTime currentDate = dataStartDate;
 		LocalDateTime nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
 		
+		outerLoop:
 		for (Click click : campaign.getClicks()) {
-			// ignore if before current date -- in reality we need to throw errors
-			if (click.date.isBefore(currentDate))
+			final LocalDateTime dateTime = click.getDateTime();
+			
+			// we ignore the impression if the date is before the current date
+			if (dateTime.isBefore(currentDate))
 				continue;
 			
-			// add new entry if bounds exceeded
-			if (click.date.isAfter(nextDate)) {
+			// add new mapping if after time granularity separator
+			while (dateTime.isAfter(nextDate)) {
 				clicksList.add(numberOfClicks);
 				
-				// break off if at the end
 				if (nextDate.equals(dataEndDate))
-					break;
+					break outerLoop;
 				
-				// reset
 				numberOfClicks = 0;
+				
 				currentDate = nextDate;
 				nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
 				
-				// normalise
 				if (nextDate.isAfter(dataEndDate))
 					nextDate = dataEndDate;
 			}
 			
-			// apply filter
-			if (dataFilter.apply(campaign.getUserFromID(click.userID)))
+			if (dataFilter.test(campaign.getUserFromID(click.getUserID())))
 				numberOfClicks++;
 		}
+		
+		// pack
+		clicksList.trimToSize();
 		
 		return clicksList;
 	}
@@ -253,46 +269,6 @@ public class DataProcessor {
 	// The number of unique users that click on an ad during the course of a campaign.
 	public final List<Integer> numberOfUniques() {
 		final List<Integer> uniquesList = new ArrayList<Integer>();
-		
-		// initialise current date as startDate
-		LocalDateTime currentDate = dataStartDate;
-		LocalDateTime nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
-		
-		// store unique users here
-		// TODO: decide hash user or hash Long,
-		// kbp2g14 - I think User is better as we don't need to instantiate a new Long object
-		Set<User> userSet = new HashSet<User>();
-		
-		for (Click click : campaign.getClicks()) {
-			// ignore if before current date -- in reality we need to throw errors
-			if (click.date.isBefore(currentDate))
-				continue;
-			
-			// add new entry if bounds exceeded
-			if (click.date.isAfter(nextDate)) {
-				uniquesList.add(userSet.size());
-				
-				// break off if at the end
-				if (nextDate.equals(dataEndDate))
-					break;
-				
-				// resets variables
-				currentDate = nextDate;
-				nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
-				
-				userSet.clear();
-				
-				// normalise
-				if (nextDate.isAfter(dataEndDate))
-					nextDate = dataEndDate;
-			}
-			
-			final User user = campaign.getUserFromID(click.userID);
-			
-			// apply filter
-			if (dataFilter.apply(user))
-				userSet.add(user);
-		}
 		
 		return uniquesList;
 	}
@@ -305,96 +281,11 @@ public class DataProcessor {
 	public final List<Integer> numberOfBounces() {
 		final List<Integer> bouncesList = new ArrayList<Integer>();
 		
-		// initialise current date as startDate
-		LocalDateTime currentDate = dataStartDate;
-		LocalDateTime nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
-		
-		int numberOfBounces = 0;
-		
-		for (Server server : campaign.getServer()) {
-			
-			// ignore if before current date
-			if (server.entryDate.isBefore(currentDate))
-				continue;
-			
-			// partition if new segment
-			if (server.entryDate.isAfter(nextDate)) {
-				
-				// add to arraylist
-				bouncesList.add(numberOfBounces);
-				
-				// break if at the end
-				if (nextDate.equals(dataEndDate))
-					break;
-				
-				// reset
-				numberOfBounces = 0;
-				
-				// normalise
-				if (nextDate.isAfter(dataEndDate))
-					nextDate = dataEndDate;
-			}
-			
-			if (dataFilter.apply(campaign.getUserFromID(server.userID))) {
-				// register bounce if pages Viewed is less than or equal to threshold
-				if (server.pagesViewed > bounceMinimumPagesViewed)
-					continue;
-				
-				// if exitDate is null, we cannot compare so we continue
-				if (server.exitDate == null)
-					continue;
-				
-				// if time between entry and exit is greater than threshold
-				if (ChronoUnit.SECONDS.between(server.entryDate, server.exitDate) > bounceMinimumSecondsOnPage)
-					continue;
-				
-				numberOfBounces++;
-			}
-		}
-		
 		return bouncesList;
 	}
 	
 	public final List<Integer> numberOfConversions() {
 		final List<Integer> conversionsList = new ArrayList<Integer>();
-		
-		// initialise current date as startDate
-		LocalDateTime currentDate = dataStartDate;
-		LocalDateTime nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
-		
-		int numberOfConversions = 0;
-		
-		for (Server server : campaign.getServer()) {
-			
-			// ignore if before current date
-			if (server.entryDate.isBefore(currentDate))
-				continue;
-			
-			// partition if new segment
-			if (server.entryDate.isAfter(nextDate)) {
-				
-				// add to arraylist
-				conversionsList.add(numberOfConversions);
-				
-				// break if at the end
-				if (nextDate.equals(dataEndDate))
-					break;
-				
-				// reset
-				numberOfConversions = 0;
-				
-				// normalise
-				if (nextDate.isAfter(dataEndDate))
-					nextDate = dataEndDate;
-			}
-			
-			// TODO: conversion check, THEN apply?
-			if (dataFilter.apply(campaign.getUserFromID(server.userID))) {
-				if (server.conversion)
-					numberOfConversions++;
-			}
-			
-		}
 		
 		return conversionsList;
 	}
@@ -404,78 +295,14 @@ public class DataProcessor {
 		final List<Double> impressionsCost = new ArrayList<Double>();
 		final List<Double> clicksCost = new ArrayList<Double>();
 		final List<Double> costList = new ArrayList<Double>();
-		
-		// initialise current date as startDate
-		LocalDateTime currentDate = dataStartDate;
-		LocalDateTime nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
-		
-		// store costs in temporary variable
-		double cost = 0;
-		
-		// compute impressions cost
-		for (Impression impression : campaign.getImpressions()) {
-			if (impression.date.isBefore(currentDate))
-				continue;
-			
-			if (impression.date.isAfter(nextDate)) {
-				impressionsCost.add(cost);
-				
-				if (nextDate.equals(dataEndDate))
-					break;
-				
-				cost = 0;
-				currentDate = nextDate;
-				nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
-				
-				if (nextDate.isAfter(dataEndDate))
-					nextDate = dataEndDate;
-			}
-			
-			if (dataFilter.apply(campaign.getUserFromID(impression.userID)))
-				cost += impression.cost;
-		}
-		
-		// reset variables for next compute
-		cost = 0;
-		currentDate = dataStartDate;
-		nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
-		
-		// compute click cost
-		for (Click click : campaign.getClicks()) {
-			if (click.date.isBefore(currentDate))
-				continue;
-			
-			if (click.date.isAfter(nextDate)) {
-				clicksCost.add(cost);
-				
-				if (nextDate.equals(dataEndDate))
-					break;
-				
-				cost = 0;
-				currentDate = nextDate;
-				nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
-				
-				if (nextDate.isAfter(dataEndDate))
-					nextDate = dataEndDate;
-			}
-			
-			if (dataFilter.apply(campaign.getUserFromID(click.userID)))
-				cost += click.cost;
-		}
-		
-		// sum two costs, I tried to use streams but it won't work
-		// reason being two lists could be of unequal length
-		// TODO: unchecked/checked exceptions
-		if (impressionsCost.size() != clicksCost.size())			
-			System.err.println("totalCost error on impressionsCost and clicksCost size");
-		
-		
-		
+
 		
 		return costList;
 	}
 	
-	public final Map<LocalDateTime, Double> CTR() {
+	// average clicks per impression
+	public final List<Double> CTR() {
+		
 		return null;
 	}
 	
@@ -493,5 +320,55 @@ public class DataProcessor {
 	
 	public final Map<LocalDateTime, Integer> bounceRate() {
 		return null;
+	}
+	
+	
+	// ==== Private Helper Methods ====
+	
+	private final <T extends Record> List<Double> metricsCalculator(Iterable<T> iterable, Predicate<T> predicate, Function<T, Double> function) {
+		final ArrayList<Double> results = new ArrayList<Double>();
+		
+		// initialise current date as startDate
+		LocalDateTime currentDate = dataStartDate;
+		LocalDateTime nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
+		
+		double accumulator = 0;
+		
+		outerLoop:
+		for (T row : iterable) {
+			final LocalDateTime dateTime = row.getDateTime();
+			final long userID = row.getUserID();
+			
+			// we ignore the impression if the date is before the current date
+			if (dateTime.isBefore(currentDate))
+				continue;
+			
+			// add new mapping if after time granularity separator
+			while (dateTime.isAfter(nextDate)) {
+				results.add(accumulator);
+				
+				if (nextDate.equals(dataEndDate))
+					break outerLoop;
+				
+				accumulator = 0;
+				
+				currentDate = nextDate;
+				nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
+				
+				if (nextDate.isAfter(dataEndDate))
+					nextDate = dataEndDate;
+			}
+			
+			// filter for users and execute process
+			if ((campaign.getUserFromID(userID) & 1) != 0) {
+				if (predicate.test(row))
+					accumulator += function.apply(row);
+			}			
+		}
+		
+		// reduce memory usage, necessary?
+		results.trimToSize();
+		
+		return results;
 	}
 }

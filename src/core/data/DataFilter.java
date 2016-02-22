@@ -1,34 +1,49 @@
 package core.data;
 
-import core.fields.Gender;
-import core.fields.Income;
-import core.records.User;
+import java.util.function.Predicate;
 
-public class DataFilter {
+public class DataFilter implements Predicate<Integer> {
+	
+	// ==== Constants ====
+	
+	public static final int FLAGS_ALL = -1;
+	
 	
 	// ==== Properties ====
-	
-	final Gender gender;
-	final String age;
-	final Income income;
-	final String context;
-	
-	// Gender: Male, Female
-	// Age: <25, 25-34, 35-44, 45-54, >54
-	// Income: Low, Medium, High
-	// Context: Travel, Blog, Hobbies, News, Social Media
+		
+	private int flags;
 	
 	
 	// ==== Constructor ====
 	
-	public DataFilter(Gender gender, String age, Income income, String context) {
-		this.gender = gender;
-		this.age = age;
-		this.income = income;
-		this.context = context;
+	public DataFilter() {
+		flags = FLAGS_ALL;
 	}
 	
-	public boolean apply(User user) {
-		return user.gender == gender && user.age == age && user.income == income && user.context == context;
+	
+	// ==== Accessors ====
+	
+	
+	public boolean getField(UserFields field) {
+		return (1 & (flags << field.mask)) != 0;
+	}
+	
+	public void setField(UserFields field, boolean value) {
+		if (value)
+			flags |= field.mask;
+		else
+			flags &= ~field.mask;
+	}
+	
+	
+	// ==== Predicate Implementation ====
+
+	@Override
+	public boolean test(Integer t) {
+		return test(t);
+	}
+	
+	public boolean test(int user) {
+		return (user & flags) == flags;
 	}
 }

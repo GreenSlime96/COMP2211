@@ -1,21 +1,18 @@
 package core.records;
 
-import java.time.LocalDateTime;
+public class Impression extends CostRecord {
 
-public class Impression {
-	
-	// ==== Properties ====
-	
-	public final LocalDateTime date;
-	public final long userID;
-	public final double cost;
-	
-	
 	// ==== Constructor ====
-	
-	public Impression(LocalDateTime date, long userID, double cost) {
-		this.date = date;
-		this.userID = userID;
-		this.cost = cost;
+
+	public Impression(String string) {
+		this(string.split(","));
+	}
+
+	public Impression(String[] data) {
+		super(data, 7);
+	}
+
+	public Impression(long dateTime, long userID, double cost) {
+		super(dateTime, userID, cost);
 	}
 }

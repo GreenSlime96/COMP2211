@@ -1,22 +1,18 @@
 package core.records;
 
-import java.time.LocalDateTime;
+public class Click extends CostRecord {
 
-public class Click {
-	
-	// ==== Properties ====
-	
-	public final LocalDateTime date;
-	public final long userID;
-	public final double cost;
-	
-	
 	// ==== Constructor ====
-	
-	public Click(LocalDateTime date, long userID, double cost) {
-		this.date = date;
-		this.userID = userID;
-		this.cost = cost;
+
+	public Click(String string) {
+		this(string.split(","));
+	}
+
+	public Click(String[] data) {
+		super(data, 3);
 	}
 	
+	public Click(long dateTime, long userID, double cost) {
+		super(dateTime, userID, cost);
+	}
 }

@@ -2,5 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="trove-3.1a1.jar"/>
+	<classpathentry kind="lib" path="koloboke-impl-jdk8-0.6.8.jar"/>
+	<classpathentry kind="lib" path="koloboke-api-jdk8-0.6.8.jar"/>
+	<classpathentry kind="lib" path="fastutil-7.0.10.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
