@@ -3,6 +3,9 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
@@ -16,6 +19,9 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.border.Border;
+
+
+
 import core.Controller;
 import core.Model;
 import javafx.embed.swing.JFXPanel;
@@ -26,10 +32,11 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 	// ==== Constants ====
 
 	private static final long serialVersionUID = -3060291319561936699L;
-	private final Dimension fullDimension = new Dimension(1070,660);
-	private final Dimension twoChartsDimension = new Dimension(1070, 325);
-	private final Dimension threeOrMoreDimension = new Dimension(530, 325);
-
+	Dimension fullViewDimension = Toolkit.getDefaultToolkit().getScreenSize();
+	private final Dimension maxDimensionForPanel = new Dimension((int)fullViewDimension.getWidth()-300, (int)fullViewDimension.getHeight()-100);
+	private final Dimension secondDimension = new Dimension((int)maxDimensionForPanel.getWidth(), (int)(maxDimensionForPanel.getHeight()-20)/2);
+	private final Dimension minimumDimension = new Dimension((int)secondDimension.getWidth()/2-20, (int) secondDimension.getHeight());
+	
 	// ==== Properties ====
 
 	private final Timer timer = new Timer(250, this);
@@ -42,9 +49,10 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 
 	public GraphAreaView(Model model) {
 		super();
-
+		
 		// Simple Default Settings...
-//		setPreferredSize(new Dimension(2160, 1440));
+		this.setSize(fullViewDimension);
+		
 		setVisible(true);
 		setLayout(new FlowLayout());
 
@@ -55,13 +63,8 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		// Set the Timer to nonrepeating
 		timer.setRepeats(false);
 		
-		//Addding 4 Panels to the View
-//		myGraphArray.add(new GraphPanel(model));
+		//Addding the first panel to the View
 		addPanel(new GraphPanel(model,numberOfCharts));
-//		addPanel(new GraphPanel(model));
-//		addPanel(new GraphPanel(model));
-//		addPanel(new GraphPanel(model));
-		
 		
 		// Handle Resizing
 		addComponentListener(new ComponentAdapter() {
@@ -108,37 +111,32 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		}else{
 			myGraphArray.add(graphPanel);
 		}
-		
-		this.removeAll();
+		removeAll();
 		repaint();
-		
-		//Iterating over the array of GraphPanels and adding each of them to the view
-		/*
-		 * if there is only one chart add it to the view
-		 * 
-		 * if there are 2 charts, modify the size of the first so that both can fill the screen
-		 * 
-		 * if there are 3 or more charts, resize the previous charts and add the new one
-		 */
-		for(GraphPanel myIterator : myGraphArray){
 			
+		//Iterating over the array of GraphPanels and adding each of them to the view
+		//if there is only one chart add it to the view
+		//if there are 2 charts, modify the size of the first so that both can fill the screen
+		// if there are 3 or more charts, resize the previous charts and add the new one
+		for(GraphPanel myIterator : myGraphArray){
 			if(numberOfCharts == 0){
 				this.add(myIterator);
 			}
+			
 			if(numberOfCharts == 2){
-				myGraphArray.get(0).setCenterPanelSize(twoChartsDimension);
+				myGraphArray.get(0).setCenterPanelSize(secondDimension);
 				this.add(myIterator);
 				
 			}else	if(numberOfCharts == 3){
-				myGraphArray.get(0).setCenterPanelSize(threeOrMoreDimension);
-				myGraphArray.get(1).setCenterPanelSize(threeOrMoreDimension);
-				myIterator.setCenterPanelSize(twoChartsDimension);
+				myGraphArray.get(0).setCenterPanelSize(minimumDimension);
+				myGraphArray.get(1).setCenterPanelSize(minimumDimension);
+				myIterator.setCenterPanelSize(secondDimension);
 				this.add(myIterator);
 				
 			}else	if(numberOfCharts > 3 ){
-				myGraphArray.get(0).setCenterPanelSize(threeOrMoreDimension);
-				myGraphArray.get(1).setCenterPanelSize(threeOrMoreDimension);
-				myGraphArray.get(2).setCenterPanelSize(threeOrMoreDimension);
+				myGraphArray.get(0).setCenterPanelSize(minimumDimension);
+				myGraphArray.get(1).setCenterPanelSize(minimumDimension);
+				myGraphArray.get(2).setCenterPanelSize(minimumDimension);
 				this.add(myIterator);
 			}
 			this.add(myIterator);
@@ -146,6 +144,9 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		
 		revalidate();
 //		chartFxPanel.add(graphPanel);
+	}
+	public Dimension getDimension(){
+		return this.getPreferredSize();
 	}
 	
 	// ==== JComponent Overrides ====

@@ -17,7 +17,8 @@ public class GraphWindow extends JFrame {
 	
 	public GraphWindow(Model model, String title){
 		this.setTitle(title);
-		this.setPreferredSize(new Dimension(1366, 740));
+//		this.setPreferredSize(new Dimension(1366, 740));
+		this.setExtendedState(JFrame.MAXIMIZED_BOTH); 
 		this.setVisible(true);
 //		this.setResizable(false);
 		this.setLayout(new FlowLayout());
