@@ -187,8 +187,7 @@ public class DataProcessor {
 		LocalDateTime nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
 		
 		long time = System.currentTimeMillis();
-		
-		outerLoop:
+//		outerLoop:
 		for (Impression impression : campaign.getImpressions()) {
 			final LocalDateTime dateTime = impression.getDateTime();
 			
@@ -212,12 +211,10 @@ public class DataProcessor {
 //					nextDate = dataEndDate;
 //			}
 			
-			if (dataFilter.test(campaign.getUserFromID(impression.getUserID())))
+//			if (dataFilter.test(campaign.getUserFromID(impression.getUserID())))
 				numberOfImpressions++;
 		}
-		
 		System.out.println("Processing: \t" + (System.currentTimeMillis() - time));
-		System.out.println(numberOfImpressions);
 		System.out.println("Size of Query: \t" + impressionsList.size());
 		
 		// pack

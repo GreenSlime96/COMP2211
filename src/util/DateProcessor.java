@@ -97,7 +97,7 @@ public class DateProcessor {
 	 * @param end - end reference
 	 * @return
 	 */
-	public static int charArrayToInt(char[] data, int start, int end) {
+	private static int charArrayToInt(char[] data, int start, int end) {
 		int result = 0;
 		
 		for (int i = start; i < end; i++) {				
@@ -107,15 +107,5 @@ public class DateProcessor {
 		
 		return result;
 	}
-	
-	public static int charArrayToInt(byte[] data, int start, int end) {
-		int result = 0;
-		
-		for (int i = start; i < end; i++) {				
-			result *= 10;
-			result += data[i] & 0xF;
-		}
-		
-		return result;
-	}
+
 }
