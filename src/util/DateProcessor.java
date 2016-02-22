@@ -97,12 +97,33 @@ public class DateProcessor {
 	 * @param end - end reference
 	 * @return
 	 */
-	private static int charArrayToInt(char[] data, int start, int end) {
+	public static int charArrayToInt(char[] data, int start, int end) {
 		int result = 0;
 		
 		for (int i = start; i < end; i++) {				
 			result *= 10;
 			result += data[i] & 0xF;
+		}
+		
+		return result;
+	}
+	
+	public static int charArrayToInt(byte[] data, int start, int end) {
+		int result = 0;
+		
+		for (int i = start; i < end; i++) {				
+			result *= 10;
+			result += data[i] & 0xF;
+		}
+		
+		return result;
+	}
+	
+	public static int charArrayToInt(byte[] data) {
+		int result = 0;
+		
+		for (byte b : data) {
+			result = (result << 3) + (result << 1) + (b & 0xF);
 		}
 		
 		return result;

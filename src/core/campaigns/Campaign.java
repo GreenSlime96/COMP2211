@@ -18,6 +18,8 @@ import core.records.Click;
 import core.records.Impression;
 import core.records.Server;
 import gnu.trove.map.hash.TLongIntHashMap;
+import net.openhft.koloboke.collect.map.hash.HashLongIntMap;
+import net.openhft.koloboke.collect.map.hash.HashLongIntMaps;
 import util.DateProcessor;
 
 public class Campaign {
@@ -80,7 +82,7 @@ public class Campaign {
 		 */
 		System.out.println("--------------------------------------");
 
-//		System.gc();
+		System.gc();
 
 		long startMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 		long totalTime = 0;
@@ -100,7 +102,7 @@ public class Campaign {
 		totalTime += end - time;
 		System.out.println("server_log:\t" + (end - time) + "ms");
 
-//		System.gc();
+		System.gc();
 		long endMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 
 		System.out.println("--------------------------------------");
@@ -121,18 +123,16 @@ public class Campaign {
 		
 		time = System.currentTimeMillis();
 		
-		for (int k = 0; k < 10; k++) {
-			for (Impression i : impressionsList) {
-				usersMap.get(i.getUserID());
-			}
+		for (Impression i : impressionsList) {
+			usersMap.get(i.getUserID());
+		}
 
-			for (Server s : serversList) {
-				usersMap.get(s.getUserID());
-			}
+		for (Server s : serversList) {
+			usersMap.get(s.getUserID());
+		}
 
-			for (Click c : clicksList) {
-				usersMap.get(c.getUserID());
-			}
+		for (Click c : clicksList) {
+			usersMap.get(c.getUserID());
 		}
 		
 		end = System.currentTimeMillis();
@@ -313,7 +313,7 @@ public class Campaign {
 
 			final byte newLine = '\n';
 			final byte comma = ',';
-
+			
 			// finish processing header line
 			while (mbb.get() != newLine) {
 			}
@@ -322,20 +322,18 @@ public class Campaign {
 			costOfImpressions = 0;
 			usersMap.clear();
 			
-			long time = System.currentTimeMillis();
 			while (mbb.hasRemaining()) {				
 				int index = mbb.position();
 
-				long dateTime = 0;
+				long dateTime = DateProcessor.DATE_NULL;
 				long userID = 0;
 				double cost = 0;
 
-				// process the date
+				// process the date -- adds 200ms
 				final char[] ch = new char[19];
 
-				for (int i = 0; i < 19; i++) {
+				for (int i = 0; i < 19; i++)
 					ch[i] = (char) mbb.get();
-				}
 
 				dateTime = DateProcessor.charArrayToLong(ch);
 
@@ -550,6 +548,7 @@ public class Campaign {
 				}
 				
 				// process cost
+//				int tmp = 0;
 				for (int i = 0; i < 6; i++) {
 					byte c = mbb.get();
 										
@@ -558,14 +557,18 @@ public class Campaign {
 						continue;
 					}
 
+//					tmp *= 10;
+//					tmp += c & 0xF;
 					cost *= 10;
 					cost += c & 0xF;
 				}
 				
 				// divide by 1 million -- long arithmetic -> double is faster
-				cost /= 1e6;
-				
-//				while (mbb.get() != '\n') {}
+//				cost = tmp * 0.000001;
+//				cost /= 1000000;
+				cost *= 0.000001;
+					
+//				while (mbb.get() != newLine) {}
 				
 				if (mbb.get() != newLine)
 					throw new IllegalArgumentException("invalid impression log " + index);
@@ -576,13 +579,10 @@ public class Campaign {
 				// misc increment
 				costOfImpressions += cost;
 			}
-			System.out.println(System.currentTimeMillis() - time);
 
 			// trim the ArrayList to save capacity
 			impressionsList.trimToSize();
 //			usersMap.shrink();
-			
-			System.out.println(System.currentTimeMillis() - time);
 			
 			// transfer references
 			this.impressionsList = impressionsList;

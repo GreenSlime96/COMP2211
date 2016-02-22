@@ -1,7 +1,7 @@
 package core.records;
 
 public class Impression extends CostRecord {
-
+	
 	// ==== Constructor ====
 
 	public Impression(String string) {

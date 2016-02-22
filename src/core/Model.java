@@ -54,13 +54,13 @@ public class Model extends Observable implements ActionListener {
 					addCampaign(test);
 					currentProcessor = new DataProcessor(test);
 					currentCampaign = test;
-	//				long time = System.currentTimeMillis();
-	//				List<Integer> list1 = dp.numberOfImpressions();
-	//				System.out.println(System.currentTimeMillis() - time);
-	//				time = System.currentTimeMillis();
-	//				List<Integer> list2 = dp.numberOfConversions();
-	//				System.out.println(System.currentTimeMillis() - time);
-	//				System.out.println(list1.size() + "\t" + list2.size());
+//					long time = System.currentTimeMillis();
+//					List<Integer> list1 = dp.numberOfImpressions();
+//					System.out.println(System.currentTimeMillis() - time);
+//					time = System.currentTimeMillis();
+//					List<Integer> list2 = dp.numberOfConversions();
+//					System.out.println(System.currentTimeMillis() - time);
+//					System.out.println(list1.size() + "\t" + list2.size());
 					System.exit(0);
 				} else
 					
