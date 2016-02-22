@@ -15,10 +15,7 @@ import java.util.Observer;
 import javax.swing.JComponent;
 import javax.swing.Timer;
 
-import javax.swing.border.Border;
-
 import core.Model;
-import core.fields.TimeGranularity;
 
 public class GraphAreaView extends JComponent implements Observer, ActionListener {
 
@@ -69,7 +66,7 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		GraphPanel myGraphPanel3 = new GraphPanel(model);
 		
 		LineChartElement lc1 = new LineChartElement();
-		lc1.setTimeGranularity(TimeGranularity.HOURLY);
+		lc1.setTimeGranularity(60*60*24);
 		lc1.setMetric("CPA");
 		List<Number> data = new ArrayList<Number>();
 		for(int i=0; i<30; i++)
@@ -92,17 +89,11 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		*/
 		
 		//Addding each of the 4 arrays to the array of GraphPanels
-		myGraphArray.add(myGraphPanel);
-		myGraphArray.add(myGraphPanel1);
-		myGraphArray.add(myGraphPanel2);
-		myGraphArray.add(myGraphPanel3);
-		
-		//Iterating over the array of GraphPanels and adding eachother to the view
-		for(GraphPanel myIterator : myGraphArray){
-			this.addPanel(myIterator);
-		}
-
-		
+		addPanel(myGraphPanel);
+		addPanel(myGraphPanel1);
+		//addPanel(myGraphPanel2);
+		//addPanel(myGraphPanel3);
+				
 		
 		// Handle Resizing
 		addComponentListener(new ComponentAdapter() {

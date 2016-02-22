@@ -11,9 +11,18 @@ import java.awt.event.MouseListener;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+
 import core.Model;
+import javafx.embed.swing.JFXPanel;
+import javafx.scene.Scene;
+import javafx.scene.layout.GridPane;
 
 public class GraphWindow extends JFrame {
+	
+	private JFXPanel centerPanel;
+	private Scene scene;
+	private GridPane chartElementPane;
+	private ChartElement chartElement;
 	
 	public GraphWindow(Model model, String title){
 		this.setTitle(title);
@@ -28,7 +37,7 @@ public class GraphWindow extends JFrame {
 	
 	public void init(){
 		Container contentPane = this.getContentPane();
-		JPanel centerPanel = new JPanel();
+		centerPanel = new JFXPanel();
 
 		centerPanel.addMouseListener(new MouseListener() {
 			public void mouseClicked(MouseEvent e) {	
@@ -58,7 +67,23 @@ public class GraphWindow extends JFrame {
 		
 		contentPane.add(northPanel, BorderLayout.NORTH);
 		contentPane.add(centerPanel, BorderLayout.CENTER);
-			
+		
+		chartElementPane = new GridPane();
+		scene = new Scene(chartElementPane, 0, 0);	
+		scene.getStylesheets().add(getClass().getResource("chart.css").toExternalForm());
+		
 		this.pack();
+	}
+	
+	public void setChartElement(ChartElement chartElement)
+	{
+		this.chartElement = chartElement;
+		chartElementPane.add(chartElement.getChart(), 0, 0);
+		//centerPanel.setScene(scene);
+	}
+	
+	public ChartElement getChartElement()
+	{
+		return chartElement;
 	}
 }

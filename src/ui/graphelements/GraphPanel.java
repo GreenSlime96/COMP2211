@@ -68,9 +68,10 @@ public class GraphPanel extends JPanel {
 				
 				if (e.getClickCount() == 2 && !e.isConsumed()) {
 				     e.consume();
-				     GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");		
-				     GraphAreaView background = (GraphAreaView) centerPanel.getParent().getParent();
-				     background.addPanel(new GraphPanel(model, background.getNumberOfCharts()+1));
+				     GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");	
+				     testWindow.setChartElement(getChartElement());
+				     //GraphAreaView background = (GraphAreaView) centerPanel.getParent().getParent();
+				     //background.addPanel(new GraphPanel(model, background.getNumberOfCharts()+1));
 				}
 			}
 			public void mousePressed(MouseEvent e) {
@@ -110,6 +111,10 @@ public class GraphPanel extends JPanel {
 		this.chartElement = chartElement;
 		chartElementPane.add(chartElement.getChart(), 0, 0);
 		centerPanel.setScene(scene);
-
+	}
+	
+	public ChartElement getChartElement()
+	{
+		return chartElement;
 	}
 }

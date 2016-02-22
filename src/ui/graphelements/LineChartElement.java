@@ -5,7 +5,6 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
-import core.fields.TimeGranularity;
 import extfx.scene.chart.DateAxis;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -22,7 +21,7 @@ public class LineChartElement implements ChartElement {
 	
 	private DateAxis xAxis;
 	private NumberAxis yAxis;
-	private TimeGranularity timeGranularity;
+	private int timeGranularity;
 	
 	public LineChartElement()
 	{		
@@ -83,17 +82,10 @@ public class LineChartElement implements ChartElement {
 		series.setName(seriesName);
 		
 		LocalDateTime offset = null;
-		
+		System.out.println(timeGranularity);
 		for(int i=0; i< data.size(); i++)
 		{
-			switch(timeGranularity)
-			{
-			case HOURLY: offset = startDate.plusHours(i); break;
-			case DAILY: offset = startDate.plusDays(i); break;
-			case WEEKLY: offset = startDate.plusWeeks(i); break;
-			case MONTHLY: offset = startDate.plusMonths(i); break;
-			}
-			
+			offset = startDate.plusSeconds(timeGranularity * i);
 			Data d = new Data(Date.from(offset.atZone(ZoneId.systemDefault()).toInstant()), data.get(i));
 			series.getData().add(d);			
 		}
@@ -105,16 +97,9 @@ public class LineChartElement implements ChartElement {
 	 * Sets the time granularity for which each datum is separated.
 	 * @param timeGranularity Time granularity of chart
 	 */
-	public void setTimeGranularity(TimeGranularity timeGranularity)
+	public void setTimeGranularity(int timeGranularity) 
 	{
 		this.timeGranularity = timeGranularity;
-		switch(timeGranularity)
-		{
-		case HOURLY: xAxis.setLabel("Time (Hours)"); break;
-		case DAILY: xAxis.setLabel("Time (Days)"); break;
-		case WEEKLY: xAxis.setLabel("Time (Weeks)"); break;
-		case MONTHLY: xAxis.setLabel("Time (Months)"); break;
-		}
 	}
 	
 	/**
