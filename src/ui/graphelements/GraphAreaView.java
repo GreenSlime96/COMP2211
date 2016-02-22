@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Random;
 
 import javax.swing.JComponent;
 import javax.swing.Timer;
@@ -61,7 +62,7 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		GraphPanel myGraphPanel3 = new GraphPanel(model);
 		
 		//Example Data
-		LineChartElement lc1 = new LineChartElement();
+		LineChartElement lc1 = new LineChartElement("CPA Chart");
 		lc1.setTimeGranularity(60*60*24);
 		lc1.setMetric("CPA");
 		List<Number> data = new ArrayList<Number>();
@@ -71,14 +72,14 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		myGraphPanel.setChartElement(lc1);
 
 		PieChartElement pc1 = new PieChartElement("Age Range");
+		Random random = new Random();
 		pc1.setData(FXCollections.observableArrayList(
-				new PieChart.Data("<25", Math.random()),
-				new PieChart.Data("25-34", Math.random()),
-				new PieChart.Data("35-44", Math.random()),
-				new PieChart.Data("44-54", Math.random()),
-				new PieChart.Data(">45", Math.random())));
+				new PieChart.Data("<25", random.nextInt(10)),
+				new PieChart.Data("25-34", random.nextInt(10)),
+				new PieChart.Data("35-44", random.nextInt(10)),
+				new PieChart.Data("44-54", random.nextInt(10)),
+				new PieChart.Data(">45", random.nextInt(10))));
 		myGraphPanel1.setChartElement(pc1);
-		
 		
 		//Addding each of the 4 arrays to the array of GraphPanels
 		addPanel(myGraphPanel);

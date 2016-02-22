@@ -4,6 +4,10 @@ import javafx.scene.chart.Chart;
 
 public interface ChartElement {
 
+	/**
+	 * Gets the JavaFX chart for this element
+	 * @return JavaFX chart, either PieChart or some superclass of XYChart
+	 */
 	public Chart getChart();
 	
 	/**

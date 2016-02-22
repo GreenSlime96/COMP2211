@@ -2,10 +2,10 @@ package ui.graphelements;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 
-import core.campaigns.Campaign;
 import extfx.scene.chart.DateAxis;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -16,14 +16,18 @@ import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.Tooltip;
 
 public class LineChartElement implements ChartElement {
-		
+			
+	private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, u, HH:mm");
+	
+	private static int TITLE_HEIGHT = 30;
+	
 	private AreaChart<Date, Number> chart;
 	
 	private DateAxis xAxis;
 	private NumberAxis yAxis;
 	private int timeGranularity;
 	
-	public LineChartElement()
+	public LineChartElement(String chartTitle)
 	{		
 		xAxis = new DateAxis();
 		xAxis.setLabel("Time");
@@ -32,6 +36,7 @@ public class LineChartElement implements ChartElement {
 		yAxis.setLabel("Some Metric");
 		
 		chart = new AreaChart<Date, Number>(xAxis, yAxis);
+		chart.setTitle(chartTitle);
 	}
 	
 	private void addTooltips()
@@ -42,8 +47,8 @@ public class LineChartElement implements ChartElement {
 			{
 				//Tooltips
 				Tooltip.install(d.getNode(), new Tooltip(
-		                d.getXValue().toString() + "\n" + 
-		        yAxis.getLabel() + d.getYValue()));
+						LocalDateTime.ofInstant(d.getXValue().toInstant(), ZoneId.systemDefault()).format(formatter) + "\n" + 
+		        yAxis.getLabel() + ": " + d.getYValue()));
 				
 				
 				//Adding class on hover
@@ -78,7 +83,7 @@ public class LineChartElement implements ChartElement {
 	public void addSeries(List<Number> data, LocalDateTime startDate)
 	{
 		Series series = new Series();
-		series.setName(startDate.format(Campaign.formatter) + " - " + startDate.plusSeconds(timeGranularity * data.size()).format(Campaign.formatter));
+		series.setName(startDate.format(formatter) + " to " + startDate.plusSeconds(timeGranularity * data.size()).format(formatter));
 		
 		LocalDateTime offset = null;
 		for(int i=0; i< data.size(); i++)
@@ -93,7 +98,7 @@ public class LineChartElement implements ChartElement {
 	
 	public void resizeChart(int width, int height)
 	{
-		chart.setPrefSize(width, height-yAxis.getHeight());
+		chart.setPrefSize(width, height-yAxis.getHeight()-TITLE_HEIGHT);
 	}
 		
 	/**

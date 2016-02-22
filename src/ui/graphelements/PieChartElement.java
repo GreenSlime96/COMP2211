@@ -5,9 +5,10 @@ import javafx.scene.chart.PieChart;
 
 public class PieChartElement implements ChartElement {
 
+	private static int TITLE_HEIGHT = 30;
+	private static int LEGEND_HEIGHT = 50;
+	
 	private PieChart chart;
-
-	private static int LEGEND_HEIGHT = 80;
 	
 	public PieChartElement(String chartTitle)
 	{
@@ -17,7 +18,7 @@ public class PieChartElement implements ChartElement {
 	
 	public void resizeChart(int width, int height)
 	{
-		chart.setPrefSize(width, height - LEGEND_HEIGHT);
+		chart.setPrefSize(width, height - TITLE_HEIGHT - LEGEND_HEIGHT);
 	}
 	
 	/**
