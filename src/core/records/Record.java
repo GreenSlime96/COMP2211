@@ -40,10 +40,7 @@ public abstract class Record {
 	}
 	
 	public final LocalDateTime getDateTime() {
-		if (troll == null)
-			troll = DateProcessor.longToLocalDateTime(dateTime);
-		
-		return troll;
+		return DateProcessor.longToLocalDateTime(dateTime);
 	}
 	
 	public final long getLongDateTime() {
