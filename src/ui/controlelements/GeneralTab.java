@@ -96,8 +96,8 @@ public class GeneralTab extends ControlPanelBox {
     	Campaign campaign = campaignList.getSelectedValue();
 
     	noImpressionsLabel.setText(""+campaign.getNumberOfImpressions());
-    	startDateLabel.setText(campaign.getStartDate().format(dateTimeFormatter));
-    	endDateLabel.setText(campaign.getEndDate().format(dateTimeFormatter));
+    	startDateLabel.setText(campaign.getStartDateTime().format(dateTimeFormatter));
+    	endDateLabel.setText(campaign.getEndDateTime().format(dateTimeFormatter));
     	totalClicksLabel.setText(""+campaign.getNumberOfClicks());
     	totalCostLabel.setText(("�"+new DecimalFormat("#.##").format(campaign.getTotalCostOfCampaign())));
     	campaignDirectoryLabel.setText(campaign.getDirectoryPath());

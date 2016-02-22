@@ -6,33 +6,6 @@ import ui.Window;
 
 public class Main {
 	public static void main(String[] args) {
-//		String date = "1234.567890";
-//		char[] data = date.toCharArray();
-//		
-//		for (;;) {
-//			double result = 0;
-//			long time = System.currentTimeMillis();
-//			for (int i = 0; i < 1000000; i++) {
-//				result = 0;
-//				result = Double.valueOf(new String(data));
-//			}
-//			System.out.print(System.currentTimeMillis() - time + "\t" + result + "\t");
-//			time = System.currentTimeMillis();
-//			for (int i = 0; i < 1000000; i++) {
-//				result = 0;
-//				for (char c : data) {
-//					if (c == '.')
-//						continue;
-//
-//					result *= 10;
-//					result += c & 0xF;
-//				}
-//				result /= (double) 1E6;
-//			}
-//			System.out.println(System.currentTimeMillis() - time + "\t" + result);
-//		}
-		
-		
 		// use system look and feel
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

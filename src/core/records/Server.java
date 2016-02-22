@@ -22,16 +22,16 @@ public class Server extends Record {
 	public Server(String[] data) {
 		super(data, 5);
 		
-		exitDateTime = data[2].equals("n/a") ? 0 : DateProcessor.stringToLong(data[2]);
+		exitDateTime = DateProcessor.stringToLong(data[2]);
 		pagesViewed = Integer.parseInt(data[3]);
 		conversion = data[4].equals("No") ? false : true;
 	}
 	
 	
 	// ==== Accessor ====
-	
+
 	public final LocalDateTime getExitDateTime() {
-		return exitDateTime == 0 ? null : DateProcessor.longToLocalDateTime(exitDateTime);
+		return DateProcessor.longToLocalDateTime(exitDateTime);
 	}
 	
 	public final int getPagesViewed() {

@@ -11,6 +11,8 @@ public abstract class Record {
 	
 	final long dateTime;
 	final long userID;
+	
+	LocalDateTime troll;
 
 	
 	// ==== Constructor ====
@@ -38,7 +40,10 @@ public abstract class Record {
 	}
 	
 	public final LocalDateTime getDateTime() {
-		return DateProcessor.longToLocalDateTime(dateTime);
+		if (troll == null)
+			troll = DateProcessor.longToLocalDateTime(dateTime);
+		
+		return troll;
 	}
 	
 	public final long getLongDateTime() {

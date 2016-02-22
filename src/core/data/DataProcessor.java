@@ -16,7 +16,6 @@ import core.records.Click;
 import core.records.Impression;
 import core.records.Record;
 import core.records.Server;
-import core.records.User;
 
 // TODO should we rename this to DataProcessor instead?
 // Chart sounds like something the view should be handling
@@ -37,15 +36,15 @@ public class DataProcessor {
 	private LocalDateTime dataStartDate;
 	private LocalDateTime dataEndDate;
 	
+	// the filter to filter the metrics by
+	private final DataFilter dataFilter = new DataFilter();
+	
 	// the time granularity of this dataprocessor
 	private int timeGranularityInSeconds = 60 * 60 * 24;
 	
 	// bounce logic
 	private int bounceMinimumPagesViewed;
 	private int bounceMinimumSecondsOnPage;
-	
-	// the list of filters to work with
-	private DataFilter dataFilter = new DataFilter();
 	
 	
 	// ==== Constructor ====
@@ -61,13 +60,9 @@ public class DataProcessor {
 		return campaign;
 	}
 	
-	public final DataFilter getDataFilter() {
-		return dataFilter;
-	}
-	
 	public final void setCampaign(Campaign campaign) {
-		final LocalDateTime campaignStartDate = campaign.getStartDate();
-		final LocalDateTime campaignEndDate = campaign.getEndDate();		
+		final LocalDateTime campaignStartDate = campaign.getStartDateTime();
+		final LocalDateTime campaignEndDate = campaign.getEndDateTime();		
 		
 		if (dataStartDate == null || dataStartDate.isBefore(campaignStartDate) || !dataStartDate.isBefore(campaignEndDate))
 			dataStartDate = campaignStartDate;
@@ -79,17 +74,17 @@ public class DataProcessor {
 	}
 	
 	
-	public final LocalDateTime getDataStartDate() {
+	public final LocalDateTime getDataStartDateTime() {
 		return dataStartDate;
 	}
 	
 	public final void setDataStartDate(LocalDateTime dataStartDate) {
 		// check if the input start date happens before the campaign start date
-		if (dataStartDate.isBefore(campaign.getStartDate()))
+		if (dataStartDate.isBefore(campaign.getStartDateTime()))
 			throw new IllegalArgumentException("cannot set data start date before campaign starts");
 		
 		// check input happens before the campaign ends
-		if (!dataStartDate.isBefore(campaign.getEndDate()))
+		if (!dataStartDate.isBefore(campaign.getEndDateTime()))
 			throw new IllegalArgumentException("cannot set data start date to after campaign ends");
 		
 		// start date must be before end date
@@ -107,11 +102,11 @@ public class DataProcessor {
 	
 	public final void setDataEndDate(LocalDateTime dataEndDate) {
 		// check input is not after campaign end date
-		if (dataEndDate.isAfter(campaign.getEndDate()))
+		if (dataEndDate.isAfter(campaign.getEndDateTime()))
 			throw new IllegalArgumentException("cannot set data end date to after campaign ends");
 		
 		// end date must be after the start date
-		if (!dataEndDate.isAfter(campaign.getStartDate()))
+		if (!dataEndDate.isAfter(campaign.getStartDateTime()))
 			throw new IllegalArgumentException("cannot set data end date to before campaign starts");
 		
 		// end date must be after start date
@@ -175,6 +170,13 @@ public class DataProcessor {
 		this.bounceMinimumSecondsOnPage = bounceMinimumSecondsOnPage;
 	}
 	
+	public final boolean getFieldFilteredValue(UserFields field) {
+		return dataFilter.getField(field);
+	}
+	public final void setFieldFilterValue(UserFields field, boolean value) {
+		dataFilter.setField(field, value);
+	}
+	
 	
 	// ==== Compute Metrics ====	
 	
@@ -211,7 +213,7 @@ public class DataProcessor {
 					nextDate = dataEndDate;
 			}
 			
-			if ((campaign.getUserFromID(impression.getUserID()) & dataFilter.getFlags()) != 0)
+			if (dataFilter.test(campaign.getUserFromID(impression.getUserID())))
 				numberOfImpressions++;
 		}
 		
@@ -254,7 +256,7 @@ public class DataProcessor {
 					nextDate = dataEndDate;
 			}
 			
-			if ((campaign.getUserFromID(click.getUserID()) & dataFilter.getFlags()) != 0)
+			if (dataFilter.test(campaign.getUserFromID(click.getUserID())))
 				numberOfClicks++;
 		}
 		

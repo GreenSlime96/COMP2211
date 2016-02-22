@@ -7,6 +7,8 @@ public class DateProcessor {
 	
 	// ==== Constants ====
 	
+	public static final long DATE_NULL = -1;
+	
 	static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	
 	
@@ -23,8 +25,11 @@ public class DateProcessor {
 	}
 	
 	public static long charArrayToLong(char[] data) {
-		if (data.length != 19)
-			throw new IllegalArgumentException(String.valueOf(data) + " is invalid date");
+		if (data.length < 19)
+			if (data[0] == 'n' && data[1] == '/' && data[2] == 'a')
+				return DATE_NULL;
+			else
+				throw new IllegalArgumentException("date in incorrect format!");
 		
 		final long year = charArrayToInt(data, 0, 4);
 		final long month = charArrayToInt(data, 5, 7);
@@ -45,6 +50,9 @@ public class DateProcessor {
 	 * @return  the LocalDateTime represented by thie date
 	 */
 	public static LocalDateTime longToLocalDateTime(long dateTime) {
+		if (dateTime == DATE_NULL)
+			return null;
+		
 		final int year = (int) (dateTime >> 48);
 		final int month = (int) (dateTime >> 40 & 0xFF);
 		final int day = (int) (dateTime >> 32 & 0xFF);
@@ -92,14 +100,9 @@ public class DateProcessor {
 	private static int charArrayToInt(char[] data, int start, int end) {
 		int result = 0;
 		
-		for (int i = start; i < end; i++) {
-			final int digit = Character.digit(data[i], 10);
-			
-			if (digit < 0)
-				throw new IllegalArgumentException("invalid number: " + String.valueOf(data));
-				
+		for (int i = start; i < end; i++) {				
 			result *= 10;
-			result += Character.digit(data[i], 10);
+			result += data[i] & 0xF;
 		}
 		
 		return result;
