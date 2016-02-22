@@ -78,6 +78,7 @@ public class GraphPanel extends JPanel {
 		
 		chartElementPane = new GridPane();
 		scene = new Scene(chartElementPane, 0, 0);	
+		scene.getStylesheets().add(getClass().getResource("chart.css").toExternalForm());
 	}	
 	
 	/**

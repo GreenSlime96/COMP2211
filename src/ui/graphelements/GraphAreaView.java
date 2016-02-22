@@ -55,7 +55,7 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		GraphPanel myGraphPanel3 = new GraphPanel(model);
 		
 		LineChartElement lc1 = new LineChartElement();
-		lc1.setTimeGranularity(TimeGranularity.DAILY);
+		lc1.setTimeGranularity(TimeGranularity.HOURLY);
 		lc1.setMetric("CPA");
 		List<Number> data = new ArrayList<Number>();
 		for(int i=0; i<30; i++)

@@ -46,12 +46,12 @@ public class LineChartElement implements ChartElement {
 		                d.getXValue().toString() + "\n" + 
 		        yAxis.getLabel() + d.getYValue()));
 				
+				
 				//Adding class on hover
 		        d.getNode().setOnMouseEntered(new EventHandler<Event>() {
 		
 		            @Override
 		            public void handle(Event event) {
-		            	System.out.println("hover");
 		                d.getNode().getStyleClass().add("onHover");                     
 		            }
 		        });
@@ -64,6 +64,7 @@ public class LineChartElement implements ChartElement {
 		                d.getNode().getStyleClass().remove("onHover");      
 		            }
 		        });
+		        
 		        
 			}
 		}
