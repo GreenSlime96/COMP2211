@@ -86,7 +86,7 @@ public class ChartTab extends ControlPanelBox {
 	@Override
 	public void update(Observable o, Object arg) {
         if(o == model) {
-            ArrayList<Campaign> campaigns = (ArrayList<Campaign>) model.getCampaigns();
+//            ArrayList<Campaign> campaigns = (ArrayList<Campaign>) model.getCampaigns();
 //            campaignComboBox.removeAllItems();
 //
 //            for (Campaign c : campaigns) {
