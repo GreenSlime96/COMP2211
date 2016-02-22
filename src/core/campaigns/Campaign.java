@@ -11,19 +11,13 @@ import java.nio.channels.FileChannel;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import core.data.UserFields;
 import core.records.Click;
 import core.records.Impression;
 import core.records.Server;
 import gnu.trove.map.hash.TLongIntHashMap;
-import it.unimi.dsi.fastutil.longs.Long2IntMap;
-import it.unimi.dsi.fastutil.longs.Long2IntOpenHashMap;
-import net.openhft.koloboke.collect.map.hash.HashLongIntMap;
-import net.openhft.koloboke.collect.map.hash.HashLongIntMaps;
 import util.DateProcessor;
 
 public class Campaign {
@@ -50,8 +44,8 @@ public class Campaign {
 	private LocalDateTime campaignEndDate;
 
 	// map users via their userID to their data, 500,000 is a safe bet
-	private HashLongIntMap usersMap = HashLongIntMaps.newUpdatableMap();  // 8062
-//	private TLongIntHashMap usersMap = new TLongIntHashMap(); // 6000
+//	private HashLongIntMap usersMap = HashLongIntMaps.newUpdatableMap();  // 8062
+	private TLongIntHashMap usersMap = new TLongIntHashMap(); // 6000
 
 	private List<Impression> impressionsList;
 	private List<Click> clicksList;
