@@ -5,8 +5,7 @@ import javax.swing.UIManager;
 import ui.Window;
 
 public class Main {
-
-	public static void main(String[] args) {		
+	public static void main(String[] args) {
 		// use system look and feel
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
