@@ -3,19 +3,15 @@ package core.data;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import core.campaigns.Campaign;
 import core.records.Click;
 import core.records.Impression;
 import core.records.Record;
-import core.records.Server;
 
 // TODO should we rename this to DataProcessor instead?
 // Chart sounds like something the view should be handling
