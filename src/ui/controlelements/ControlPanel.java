@@ -81,7 +81,7 @@ public class ControlPanel extends JPanel implements Observer, ActionListener, Ch
 
 		// Add UI Elements Here
 		add(controlTabbedPane, BorderLayout.CENTER);
-		add(modelProgress,BorderLayout.SOUTH);
+		//add(modelProgress,BorderLayout.SOUTH);
 	}
 
 	// ==== Private Helper Methods ====

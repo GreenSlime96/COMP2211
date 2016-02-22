@@ -60,19 +60,9 @@ public class FilterTab extends ControlPanelBox {
         registerFilterBoxes(contextBoxes);
     }
 
-    public void registerFilterBoxes(ArrayList<JCheckBox> checkBoxes){
-        for(JCheckBox checkBox : checkBoxes){
+    public void registerFilterBoxes(ArrayList<JCheckBox> checkBoxes) {
+        for (JCheckBox checkBox : checkBoxes) {
             checkBox.addActionListener(filterTabController);
-        }
-    }
-    public void createRadioButtonGroup(ArrayList<String> nameList, Box buttonBox){
-        ButtonGroup group = new ButtonGroup();
-        for(String title : nameList){
-            JRadioButton radioButton = new JRadioButton(title);
-            radioButton.setMnemonic(KeyEvent.VK_P);
-            radioButton.setActionCommand(title);
-            buttonBox.add(radioButton);
-            group.add(radioButton);
         }
     }
 
@@ -101,91 +91,79 @@ public class FilterTab extends ControlPanelBox {
 
         private Model model = null;
 
-        //TODO match up to filter instead of using arrays
-        boolean[] genderArray = new boolean[2];
-        boolean[] ageArray = new boolean[5];
-        boolean[] incomeArray = new boolean[3];
-        boolean[] contextArray = new boolean[6];
-
         public FilterTabController(Model model){
             model = model;
 
-            Arrays.fill(genderArray,true);
-            Arrays.fill(ageArray,true);
-            Arrays.fill(incomeArray,true);
-            Arrays.fill(contextArray,true);
-
-
-            verifyCheckBoxGroup(genderBoxes,genderArray);
-            verifyCheckBoxGroup(ageBoxes,ageArray);
-            verifyCheckBoxGroup(incomeBoxes,incomeArray);
-            verifyCheckBoxGroup(contextBoxes,contextArray);
+            verifyCheckBoxGroup(genderBoxes);
+            verifyCheckBoxGroup(ageBoxes);
+            verifyCheckBoxGroup(incomeBoxes);
+            verifyCheckBoxGroup(contextBoxes);
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("STATE CHANGED!");
 
-            if(e.getSource() instanceof JCheckBox){
-                System.out.println("Checkbox was Ticked");
-                JCheckBox checkBox = (JCheckBox) e.getSource();
-                switch (checkBox.getText()) {
-                    case "Male":
-                        genderArray[0] = checkBox.isSelected();
-                        break;
-                    case "Female":
-                        genderArray[1] = checkBox.isSelected();
-                        break;
-                    case "<25":
-                        ageArray[0] = checkBox.isSelected();
-                        break;
-                    case "25-34":
-                        ageArray[1] = checkBox.isSelected();
-                        break;
-                    case "35-44":
-                        ageArray[2] = checkBox.isSelected();
-                        break;
-                    case "45-54":
-                        ageArray[3] = checkBox.isSelected();
-                        break;
-                    case ">54":
-                        ageArray[4] = checkBox.isSelected();
-                        break;
-                    case "Low":
-                        incomeArray[0] = checkBox.isSelected();
-                        break;
-                    case "Medium":
-                        incomeArray[1] = checkBox.isSelected();
-                        break;
-                    case "High":
-                        incomeArray[2] = checkBox.isSelected();
-                        break;
-                    case "News":
-                        contextArray[0] = checkBox.isSelected();
-                        break;
-                    case "Shopping":
-                        contextArray[1] = checkBox.isSelected();
-                        break;
-                    case "Social Media":
-                        contextArray[2] = checkBox.isSelected();
-                        break;
-                    case "Blog":
-                        contextArray[3] = checkBox.isSelected();
-                        break;
-                    case "Hobbies":
-                        contextArray[4] = checkBox.isSelected();
-                        break;
-                    case "Travel":
-                        contextArray[5] = checkBox.isSelected();
-                        break;
-                }
+//            if(e.getSource() instanceof JCheckBox){
+//                System.out.println("Checkbox was Ticked");
+//                JCheckBox checkBox = (JCheckBox) e.getSource();
+//                switch (checkBox.getText()) {
+//                    case "Male":
+//                        genderArray[0] = checkBox.isSelected();
+//                        break;
+//                    case "Female":
+//                        genderArray[1] = checkBox.isSelected();
+//                        break;
+//                    case "<25":
+//                        ageArray[0] = checkBox.isSelected();
+//                        break;
+//                    case "25-34":
+//                        ageArray[1] = checkBox.isSelected();
+//                        break;
+//                    case "35-44":
+//                        ageArray[2] = checkBox.isSelected();
+//                        break;
+//                    case "45-54":
+//                        ageArray[3] = checkBox.isSelected();
+//                        break;
+//                    case ">54":
+//                        ageArray[4] = checkBox.isSelected();
+//                        break;
+//                    case "Low":
+//                        incomeArray[0] = checkBox.isSelected();
+//                        break;
+//                    case "Medium":
+//                        incomeArray[1] = checkBox.isSelected();
+//                        break;
+//                    case "High":
+//                        incomeArray[2] = checkBox.isSelected();
+//                        break;
+//                    case "News":
+//                        contextArray[0] = checkBox.isSelected();
+//                        break;
+//                    case "Shopping":
+//                        contextArray[1] = checkBox.isSelected();
+//                        break;
+//                    case "Social Media":
+//                        contextArray[2] = checkBox.isSelected();
+//                        break;
+//                    case "Blog":
+//                        contextArray[3] = checkBox.isSelected();
+//                        break;
+//                    case "Hobbies":
+//                        contextArray[4] = checkBox.isSelected();
+//                        break;
+//                    case "Travel":
+//                        contextArray[5] = checkBox.isSelected();
+//                        break;
+//                }
 
-                verifyCheckBoxGroup(genderBoxes,genderArray);
-                verifyCheckBoxGroup(ageBoxes,ageArray);
-                verifyCheckBoxGroup(incomeBoxes,incomeArray);
-                verifyCheckBoxGroup(contextBoxes,contextArray);
+                verifyCheckBoxGroup(genderBoxes);
+                verifyCheckBoxGroup(ageBoxes);
+                verifyCheckBoxGroup(incomeBoxes);
+                verifyCheckBoxGroup(contextBoxes);
 
-            }
+         //   }
         }
 
         @Override
@@ -203,11 +181,10 @@ public class FilterTab extends ControlPanelBox {
 
         }
 
-        public void verifyCheckBoxGroup(ArrayList<JCheckBox> checkBoxes,boolean[] filterArr){
+        public void verifyCheckBoxGroup(ArrayList<JCheckBox> checkBoxes){
             boolean allfalse = true;
-            for (int i = 0; i < filterArr.length; i++) {
-                System.out.println(filterArr[i]);
-                if (filterArr[i]){
+            for(JCheckBox checkBox : checkBoxes ) {
+                if (checkBox.isSelected()){
                     allfalse = false;
                     break;
                 }else {
@@ -216,7 +193,6 @@ public class FilterTab extends ControlPanelBox {
             }
 
             if(allfalse) {
-                Arrays.fill(filterArr,true);
                 for(JCheckBox checkBox : checkBoxes ) {
                     checkBox.setSelected(true);
                 }
