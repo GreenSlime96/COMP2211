@@ -23,11 +23,11 @@ import core.campaigns.Campaign;
  */
 public class ChartTab extends ControlPanelBox {
 
-	String[] campaignStrings = { "Campaign 1", "Campaign 2"};
+//	String[] campaignStrings = { "Campaign 1", "Campaign 2"};
 	String[] metricStrings = { "Number of Impressions", "Number of Clicks", "Number of Uniques", "Number of Bounces",
 			"Number of Conversions", "Total Cost", "CTR", "CPA", "CPC", "CPM","Bounce Rate"};
 
-	JComboBox campaignComboBox = new JComboBox(campaignStrings);
+	JComboBox campaignComboBox = new JComboBox();
     JComboBox metricComboBox = new JComboBox(metricStrings);
 
 //	String[] arr = {"Filter 1", "Filter 2"};
@@ -78,6 +78,8 @@ public class ChartTab extends ControlPanelBox {
 
 	@Override
 	public void update(Observable o, Object arg) {
+
+		System.out.println("General Tab Updating");
         if(o == model) {
             ArrayList<Campaign> campaigns = (ArrayList<Campaign>) model.getListOfCampaigns();
             campaignComboBox.removeAllItems();

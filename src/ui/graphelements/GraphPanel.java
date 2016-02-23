@@ -106,9 +106,9 @@ public class GraphPanel extends JPanel {
 				 		background.addPanel(myPiePanel);
 				     }
 				     //creating a new window, adding the chart and resizing it
-//				     GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");	
-//				     testWindow.setScene(scene);
-//				     chartElement.resizeChart(testWindow.fullViewDimension); 
+				     GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");
+				     testWindow.setScene(scene);
+				     chartElement.resizeChart(testWindow.fullViewDimension);
 				}
 			}
 			public void mousePressed(MouseEvent e) {
