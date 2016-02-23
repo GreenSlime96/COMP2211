@@ -2,6 +2,7 @@ package ui.graphelements;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -24,14 +25,12 @@ public class GraphPanel extends JPanel {
 	private GridPane chartElementPane;
 	private ChartElement chartElement;
 	
-	public GraphPanel(Model model){
-		
-		this.setBackground(new java.awt.Color(0, 140, 100));
-		this.setPreferredSize(new Dimension(530, 325));
-		this.setLayout(new BorderLayout());
-		this.model = model;
-		init();
-	}
+	Dimension fullViewDimension = Toolkit.getDefaultToolkit().getScreenSize();
+	private final Dimension maxDimensionForPanel = new Dimension((int)fullViewDimension.getWidth()-300, (int)fullViewDimension.getHeight()-100);
+	private final Dimension secondDimension = new Dimension((int)maxDimensionForPanel.getWidth(), (int)(maxDimensionForPanel.getHeight()-20)/2);
+	private final Dimension minimumDimension = new Dimension((int)secondDimension.getWidth()/2-20, (int) secondDimension.getHeight());
+	
+
 	public GraphPanel(Model model, int numberOfCharts){
 		
 		this.setBackground(new java.awt.Color(0, 140, 100));
@@ -43,11 +42,11 @@ public class GraphPanel extends JPanel {
 		//if there are 2 charts to display, split the view
 		//else show all 4
 		if(numberOfCharts==0){
-			centerPanel.setPreferredSize(new Dimension(1070,660));
+			centerPanel.setPreferredSize(maxDimensionForPanel);
 		}else	if(numberOfCharts == 2){
-			centerPanel.setPreferredSize(new Dimension(1070, 325));
+			centerPanel.setPreferredSize(secondDimension);
 		}else{
-			centerPanel.setPreferredSize(new Dimension(530, 325));
+			centerPanel.setPreferredSize(minimumDimension);
 		}
 	}
 	

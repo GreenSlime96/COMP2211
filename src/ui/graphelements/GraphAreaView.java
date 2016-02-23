@@ -56,7 +56,7 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		
 
 		//creating 4 mockup graphPanel
-		GraphPanel myGraphPanel = new GraphPanel(model);
+		GraphPanel myGraphPanel = new GraphPanel(model,0);
 		GraphPanel myGraphPanel1 = new GraphPanel(model);
 		GraphPanel myGraphPanel2 = new GraphPanel(model);
 		GraphPanel myGraphPanel3 = new GraphPanel(model);
