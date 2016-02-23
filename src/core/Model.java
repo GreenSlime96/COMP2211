@@ -93,6 +93,10 @@ public class Model extends Observable implements ActionListener {
     public final void addCampaign(File campaignDirectory) throws FileNotFoundException {
     	campaigns.add(new Campaign(campaignDirectory));
     }
+    
+    public final void addCampaign(Campaign campaign) {
+    	campaigns.add(campaign);
+    }
 	
 	public final void removeCampaign(Campaign campaign) {
 		campaigns.remove(campaign);
