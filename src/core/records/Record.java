@@ -1,8 +1,6 @@
 package core.records;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
-
 import util.DateProcessor;
 
 public abstract class Record {

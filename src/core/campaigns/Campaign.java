@@ -156,10 +156,6 @@ public class Campaign {
 		return serversList;
 	}
 
-	public final int getUserFromID(long id) {
-		return usersMap.get(id);
-	}
-
 	public final LocalDateTime getStartDateTime() {
 		return campaignStartDate;
 	}
@@ -340,7 +336,7 @@ public class Campaign {
 			// reset
 			costOfImpressions = 0;
 			numberOfUniques = 0;
-			
+			long time = System.currentTimeMillis();
 			while (mbb.hasRemaining()) {				
 				int index = mbb.position();
 
@@ -502,6 +498,7 @@ public class Campaign {
 				// misc increment
 				costOfImpressions += cost;
 			}
+			System.out.println(System.currentTimeMillis() - time);
 			
 			// trim the ArrayList to save capacity
 			impressionsList.trimToSize();

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.time.chrono.IsoChronology;
 import java.time.format.DateTimeFormatter;
 
 public class DateProcessor {
@@ -14,6 +15,15 @@ public class DateProcessor {
 	
 	static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	static final ZoneOffset systemZone = ZoneOffset.UTC;
+	
+	// see LocalDate.class header
+	static final int DAYS_PER_CYCLE = 146097;
+    static final long DAYS_0000_TO_1970 = (DAYS_PER_CYCLE * 5L) - (30L * 365L + 7L);
+    
+    // see LocalTime.class header
+    static final int MINUTES_PER_HOUR = 60;
+    static final int SECONDS_PER_MINUTE = 60;
+    static final int SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
 	
 	
 	// ==== Static Methods ====
@@ -59,9 +69,27 @@ public class DateProcessor {
 		
 		final int hour = charArrayToInt(data, 11, 13);
 		final int minute = charArrayToInt(data, 14, 16);
-		final int second = charArrayToInt(data, 17, 19);	
-
-		return ZonedDateTime.of(year, month, day, hour, minute, second, 0, ZoneOffset.UTC).toEpochSecond();
+		final int second = charArrayToInt(data, 17, 19);
+		
+        long total = 0;
+        total += 365 * year;
+        if (year >= 0) {
+            total += (year + 3) / 4 - (year + 99) / 100 + (year + 399) / 400;
+        } else {
+            total -= year / -4 - year / -100 + year / -400;
+        }
+        total += ((367 * month - 362) / 12);
+        total += day - 1;
+        if (month > 2) {
+            total--;
+            // if is a leap year
+            if (!((year & 3) == 0) && ((year % 100) != 0 || (year % 400) == 0)) {
+                total--;
+            }
+        }
+        
+        return (total - DAYS_0000_TO_1970) * 86400 + hour * SECONDS_PER_HOUR + minute * SECONDS_PER_MINUTE + second;
+//        return ZonedDateTime.of(year, month, day, hour, minute, second, 0, ZoneOffset.UTC).toEpochSecond();
 	}
 	
 	public static long stringToEpoch(String data) {
