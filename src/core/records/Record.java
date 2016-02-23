@@ -9,29 +9,17 @@ public abstract class Record {
 	
 	// ==== Properties ====
 	
-	final long dateTime;
-	final long userID;
-	
-	LocalDateTime troll;
-
+	private final long epochSeconds;
+	private final long userID;
+	private final int userData;
 	
 	// ==== Constructor ====
 	
-	public Record(String[] data, int length) {
-		Objects.requireNonNull(data);
-		
-		if (data.length != length)
-			throw new IllegalArgumentException("invalid record");
-		
-		dateTime = DateProcessor.stringToLong(data[0]);
-		userID = Long.parseLong(data[1]);
-	}
-	
-	public Record(long dateTime, long userID) {
-		this.dateTime = dateTime;
+	public Record(long dateTime, long userID, int userData) {
+		this.epochSeconds = dateTime;
 		this.userID = userID;
-	}
-	
+		this.userData = userData;
+	}	
 	
 	// ==== Record Methods ====
 	
@@ -39,11 +27,15 @@ public abstract class Record {
 		return userID;
 	}
 	
-	public final LocalDateTime getDateTime() {
-		return DateProcessor.longToLocalDateTime(dateTime);
+	public final int getUserData() {
+		return userData;
 	}
 	
-	public final long getLongDateTime() {
-		return dateTime;
+	public final LocalDateTime getLocalDateTime() {		
+		return DateProcessor.epochSecondsToLocalDateTime(epochSeconds);
+	}
+	
+	public final long getEpochSeconds() {
+		return epochSeconds;
 	}
 }

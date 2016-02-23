@@ -44,6 +44,6 @@ public class DataFilter implements Predicate<Integer> {
 	}
 	
 	public boolean test(int user) {
-		return (user | flags) == flags;
+		return (user & flags) == user;
 	}
 }

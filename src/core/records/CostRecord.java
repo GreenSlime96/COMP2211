@@ -8,15 +8,9 @@ abstract class CostRecord extends Record {
 	
 	
 	// ==== Constructor ====
-
-	public CostRecord(String[] data, int length) {
-		super(data, length);
-		
-		cost = Double.parseDouble(data[length - 1]);
-	}
 	
-	public CostRecord(long dateTime, long userID, double cost) {
-		super(dateTime, userID);
+	public CostRecord(long dateTime, long userID, int userData, double cost) {
+		super(dateTime, userID, userData);
 		
 		this.cost = cost;
 	}

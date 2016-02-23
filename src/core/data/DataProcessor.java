@@ -1,8 +1,11 @@
 package core.data;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -12,6 +15,7 @@ import core.campaigns.Campaign;
 import core.records.Click;
 import core.records.Impression;
 import core.records.Record;
+import util.DateProcessor;
 
 // TODO should we rename this to DataProcessor instead?
 // Chart sounds like something the view should be handling
@@ -48,6 +52,7 @@ public class DataProcessor {
 	public DataProcessor(Campaign campaign) {
 		setCampaign(campaign);
 		numberOfImpressions();
+		numberOfClicks();
 	}
 	
 
@@ -182,44 +187,58 @@ public class DataProcessor {
 		
 		int numberOfImpressions = 0;
 		
-		// initialise current date as startDate
-		LocalDateTime currentDate = dataStartDate;
-		LocalDateTime nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
+//		dataFilter.setField(UserFields.GENDER_FEMALE, false);
+//		dataFilter.setField(UserFields.INCOME_LOW, false);
+//		dataFilter.setField(UserFields.INCOME_MEDIUM, false);
 		
-		long time = System.currentTimeMillis();
-//		outerLoop:
+		// initialise current date as startDate
+		long currentDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
+		long nextDate = currentDate + timeGranularityInSeconds;
+		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
+		
+		final long time = System.currentTimeMillis();	
+		
+		outerLoop:
 		for (Impression impression : campaign.getImpressions()) {
-			final LocalDateTime dateTime = impression.getDateTime();
+			final long dateTime = impression.getEpochSeconds();
+						
+			// we ignore the impression if the date is before the current date
+			if (dateTime < currentDate)
+				continue;
 			
-//			// we ignore the impression if the date is before the current date
-//			if (dateTime.isBefore(currentDate))
-//				continue;
-//			
-//			// add new mapping if after time granularity separator
-//			while (dateTime.isAfter(nextDate)) {
-//				impressionsList.add(numberOfImpressions);
-//				
-//				if (nextDate.equals(dataEndDate))
-//					break outerLoop;
-//				
-//				numberOfImpressions = 0;
-//				
-//				currentDate = nextDate;
-//				nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
-//				
-//				if (nextDate.isAfter(dataEndDate))
-//					nextDate = dataEndDate;
-//			}
+			// add new mapping if after time granularity separator
+			while (dateTime > nextDate) {
+				if (nextDate == finalDate)
+					break outerLoop;
+				
+				impressionsList.add(numberOfImpressions);
+				
+				System.out.println(currentDate + "\t" + nextDate + "\t" + numberOfImpressions);
+				
+				numberOfImpressions = 0;
+				
+				currentDate = nextDate;
+				nextDate = currentDate + timeGranularityInSeconds;
+				
+				if (nextDate > finalDate)
+					nextDate = finalDate;
+			}
 			
-//			if (dataFilter.test(campaign.getUserFromID(impression.getUserID())))
+			if (dataFilter.test(impression.getUserData()))
 				numberOfImpressions++;
 		}
+		
+		// add last entry
+		impressionsList.add(numberOfImpressions);
+		
 		System.out.println("Processing: \t" + (System.currentTimeMillis() - time));
 		System.out.println("Size of Query: \t" + impressionsList.size());
 		
+//		System.out.println(impressionsList.parallelStream().mapToInt(x -> x).sum());
+		
 		// pack
 		impressionsList.trimToSize();
-		
+				
 		return impressionsList;
 	}
 	
@@ -229,36 +248,44 @@ public class DataProcessor {
 		int numberOfClicks = 0;
 		
 		// initialise current date as startDate
-		LocalDateTime currentDate = dataStartDate;
-		LocalDateTime nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
+		long currentDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
+		long nextDate = currentDate + timeGranularityInSeconds;
+		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
+		
+		final long time = System.currentTimeMillis();	
 		
 		outerLoop:
-		for (Click click : campaign.getClicks()) {
-			final LocalDateTime dateTime = click.getDateTime();
+		for (Impression impression : campaign.getImpressions()) {
+			final long dateTime = impression.getEpochSeconds();
 			
 			// we ignore the impression if the date is before the current date
-			if (dateTime.isBefore(currentDate))
+			if (dateTime < currentDate)
 				continue;
 			
 			// add new mapping if after time granularity separator
-			while (dateTime.isAfter(nextDate)) {
-				clicksList.add(numberOfClicks);
-				
-				if (nextDate.equals(dataEndDate))
+			while (dateTime > nextDate) {
+				if (nextDate == finalDate)
 					break outerLoop;
+				
+				clicksList.add(numberOfClicks);
 				
 				numberOfClicks = 0;
 				
 				currentDate = nextDate;
-				nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
+				nextDate = currentDate + timeGranularityInSeconds;
 				
-				if (nextDate.isAfter(dataEndDate))
-					nextDate = dataEndDate;
+				if (nextDate > finalDate)
+					nextDate = finalDate;
 			}
 			
-			if (dataFilter.test(campaign.getUserFromID(click.getUserID())))
+			if (dataFilter.test(impression.getUserData()))
 				numberOfClicks++;
 		}
+		
+		clicksList.add(numberOfClicks);
+		
+		System.out.println("Processing: \t" + (System.currentTimeMillis() - time));
+		System.out.println("Size of Query: \t" + clicksList.size());
 		
 		// pack
 		clicksList.trimToSize();
@@ -329,38 +356,39 @@ public class DataProcessor {
 		final ArrayList<Double> results = new ArrayList<Double>();
 		
 		// initialise current date as startDate
-		LocalDateTime currentDate = dataStartDate;
-		LocalDateTime nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
+		long currentDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
+		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
+		long nextDate = currentDate + timeGranularityInSeconds;
 		
 		double accumulator = 0;
 		
 		outerLoop:
 		for (T row : iterable) {
-			final LocalDateTime dateTime = row.getDateTime();
-			final long userID = row.getUserID();
+			final long epochSeconds = row.getEpochSeconds();
+			final int userData = row.getUserData();
 			
 			// we ignore the impression if the date is before the current date
-			if (dateTime.isBefore(currentDate))
+			if (epochSeconds < currentDate)
 				continue;
 			
 			// add new mapping if after time granularity separator
-			while (dateTime.isAfter(nextDate)) {
+			while (epochSeconds > nextDate) {
 				results.add(accumulator);
 				
-				if (nextDate.equals(dataEndDate))
+				if (nextDate == finalDate)
 					break outerLoop;
 				
 				accumulator = 0;
 				
 				currentDate = nextDate;
-				nextDate = currentDate.plusSeconds(timeGranularityInSeconds);
+				nextDate = nextDate + timeGranularityInSeconds;
 				
-				if (nextDate.isAfter(dataEndDate))
-					nextDate = dataEndDate;
+				if (nextDate > finalDate)
+					nextDate = finalDate;
 			}
 			
 			// filter for users and execute process
-			if ((campaign.getUserFromID(userID) & 1) != 0) {
+			if (dataFilter.test(userData)) {
 				if (predicate.test(row))
 					accumulator += function.apply(row);
 			}			

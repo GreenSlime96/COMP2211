@@ -18,6 +18,7 @@ import core.records.Click;
 import core.records.Impression;
 import core.records.Server;
 import gnu.trove.map.hash.TLongIntHashMap;
+import gnu.trove.map.hash.TLongObjectHashMap;
 import net.openhft.koloboke.collect.map.hash.HashLongIntMap;
 import net.openhft.koloboke.collect.map.hash.HashLongIntMaps;
 import util.DateProcessor;
@@ -57,6 +58,7 @@ public class Campaign {
 	private int numberOfClicks;
 	private int numberOfConversions;
 	private int numberOfPagesViewed;
+	private int numberOfUniques;
 
 	private double costOfImpressions;
 	private double costOfClicks;
@@ -101,7 +103,7 @@ public class Campaign {
 		end = System.currentTimeMillis();
 		totalTime += end - time;
 		System.out.println("server_log:\t" + (end - time) + "ms");
-
+		usersMap = null;
 		System.gc();
 		long endMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 
@@ -113,7 +115,7 @@ public class Campaign {
 		System.out.println("Start Date:\t" + campaignStartDate);
 		System.out.println("End Date:\t" + campaignEndDate);
 		System.out.println("Impressions:\t" + numberOfImpressions);
-		System.out.println("Uniques:\t" + usersMap.size());
+		System.out.println("Uniques:\t" + numberOfUniques);
 		System.out.println("Cost(I):\t" + costOfImpressions);
 		System.out.println("Cost(C):\t" + costOfClicks);
 		System.out.println("Cost(T):\t" + (costOfImpressions + costOfClicks));
@@ -124,15 +126,15 @@ public class Campaign {
 		time = System.currentTimeMillis();
 		
 		for (Impression i : impressionsList) {
-			usersMap.get(i.getUserID());
+			i.getUserData();
 		}
 
 		for (Server s : serversList) {
-			usersMap.get(s.getUserID());
+			s.getUserData();
 		}
 
 		for (Click c : clicksList) {
-			usersMap.get(c.getUserID());
+			c.getUserData();
 		}
 		
 		end = System.currentTimeMillis();
@@ -219,13 +221,22 @@ public class Campaign {
 			numberOfConversions = 0;
 
 			while ((line = br.readLine()) != null) {
-				final Server server = new Server(line);
+				final String[] data = line.split(",");
+				
+				final long dateTime = DateProcessor.stringToEpoch(data[0]);
+				final long userID = Long.valueOf(data[1]);
+				final int userData = usersMap.get(userID);
+				final long exitDateTime = DateProcessor.stringToEpoch(data[2]);
+				final int pagesViewed = Integer.valueOf(data[3]);
+				final boolean conversion = data[4].equals("No") ? false : true;
+				
+				final Server server = new Server(dateTime, userID, userData, exitDateTime, pagesViewed, conversion);
 
 				// update page views
-				numberOfPagesViewed += server.getPagesViewed();
+				numberOfPagesViewed += pagesViewed;
 
 				// increment conversions if Yes
-				if (server.getConversion())
+				if (conversion)
 					numberOfConversions++;
 
 				// add to memory
@@ -263,10 +274,17 @@ public class Campaign {
 			costOfClicks = 0;
 
 			while ((line = br.readLine()) != null) {
-				final Click click = new Click(line);
+				final String[] data = line.split(",");
+				
+				final long dateTime = DateProcessor.stringToEpoch(data[0]);
+				final long userID = Long.valueOf(data[1]);
+				final int userData = usersMap.get(userID);
+				final double cost = Double.parseDouble(data[2]);
+				
+				final Click click = new Click(dateTime, userID, userData, cost);
 
 				// increment these values
-				costOfClicks += click.getCost();
+				costOfClicks += cost;
 
 				// add to memory
 				clicksList.add(click);
@@ -311,6 +329,7 @@ public class Campaign {
 
 			final MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
 
+			final int nullEntry = usersMap.getNoEntryValue();			
 			final byte newLine = '\n';
 			final byte comma = ',';
 			
@@ -320,7 +339,7 @@ public class Campaign {
 			
 			// reset
 			costOfImpressions = 0;
-			usersMap.clear();
+			numberOfUniques = 0;
 			
 			while (mbb.hasRemaining()) {				
 				int index = mbb.position();
@@ -335,7 +354,7 @@ public class Campaign {
 				for (int i = 0; i < 19; i++)
 					ch[i] = (char) mbb.get();
 
-				dateTime = DateProcessor.charArrayToLong(ch);
+				dateTime = DateProcessor.charArrayToEpochSeconds(ch);
 
 				// buffer
 				if (mbb.get() != comma)
@@ -352,12 +371,13 @@ public class Campaign {
 					userID += c & 0xF;
 				}
 				
-				if (!usersMap.containsKey(userID)) {					
+				int userData = usersMap.get(userID);
+				
+				if (userData == nullEntry) {					
 					// process gender
 					index = mbb.position();
 
 					byte temp;
-					int userData = 0;
 					
 					if ((temp = mbb.get()) == 'F') {
 						userData |= UserFields.GENDER_FEMALE.mask;
@@ -368,19 +388,6 @@ public class Campaign {
 					} else {
 						throw new IllegalArgumentException("invalid gender " + temp);
 					}
-					
-//					switch (temp = mbb.get()) {
-//					case 'M':
-//						userData |= UserFields.GENDER_MALE.mask;
-//						mbb.position(index + 4);
-//						break;
-//					case 'F':
-//						userData |= UserFields.GENDER_FEMALE.mask;
-//						mbb.position(index + 6);
-//						break;
-//					default:
-//						throw new IllegalArgumentException("invalid gender" + temp);
-//					}
 
 					if (mbb.get() != comma)
 						throw new IllegalArgumentException("invalid impression_log " + index);
@@ -406,31 +413,6 @@ public class Campaign {
 					} else {
 						throw new IllegalArgumentException("invalid age " + temp);
 					}
-					
-//					switch (temp = mbb.get()) {
-//					case '<':
-//						userData |= UserFields.AGE_BELOW_25.mask;
-//						mbb.position(index + 3);
-//						break;
-//					case '2':
-//						userData |= UserFields.AGE_25_TO_34.mask;
-//						mbb.position(index + 5);
-//						break;
-//					case '3':
-//						userData |= UserFields.AGE_35_TO_44.mask;
-//						mbb.position(index + 5);
-//						break;
-//					case '4':
-//						userData |= UserFields.AGE_45_TO_54.mask;
-//						mbb.position(index + 5);
-//						break;
-//					case '>':
-//						userData |= UserFields.AGE_ABOVE_54.mask;
-//						mbb.position(index + 3);
-//						break;
-//					default:
-//						throw new IllegalArgumentException("invalid age" + temp);
-//					}
 
 					if (mbb.get() != comma)
 						throw new IllegalArgumentException("invalid impression_log " + index);
@@ -450,23 +432,6 @@ public class Campaign {
 					} else {
 						throw new IllegalArgumentException("invalid income " + temp);
 					}
-					
-//					switch (temp = mbb.get()) {
-//					case 'L':
-//						userData |= UserFields.INCOME_LOW.mask;
-//						mbb.position(index + 3);
-//						break;
-//					case 'M':
-//						userData |= UserFields.INCOME_MEDIUM.mask;
-//						mbb.position(index + 6);
-//						break;
-//					case 'H':
-//						userData |= UserFields.INCOME_HIGH.mask;
-//						mbb.position(index + 4);
-//						break;
-//					default:
-//						throw new IllegalArgumentException("invalid income" + temp);
-//					}
 
 					if (mbb.get() != comma)
 						throw new IllegalArgumentException("invalid impression_log " + index);
@@ -500,41 +465,6 @@ public class Campaign {
 						throw new IllegalArgumentException("invalid context " + temp);
 					}
 
-//					switch (temp = mbb.get()) {
-//					case 'N':
-//						userData |= UserFields.CONTEXT_NEWS.mask;
-//						mbb.position(index + 4);
-//						break;
-//					case 'S':
-//						switch (temp = mbb.get()) {
-//						case 'h':
-//							userData |= UserFields.CONTEXT_SHOPPING.mask;
-//							mbb.position(index + 8);
-//							break;
-//						case 'o':
-//							userData |= UserFields.CONTEXT_SOCIAL_MEDIA.mask;
-//							mbb.position(index + 12);
-//							break;
-//						default:
-//							throw new IllegalArgumentException("invalid context S" + temp);
-//						}
-//						break;
-//					case 'B':
-//						userData |= UserFields.CONTEXT_BLOG.mask;
-//						mbb.position(index + 4);
-//						break;
-//					case 'H':
-//						userData |= UserFields.CONTEXT_HOBBIES.mask;
-//						mbb.position(index + 7);
-//						break;
-//					case 'T':
-//						userData |= UserFields.CONTEXT_TRAVEL.mask;
-//						mbb.position(index + 6);
-//						break;
-//					default:
-//						throw new IllegalArgumentException("invalid context " + temp);
-//					}
-
 					if (mbb.get() != comma)
 						throw new IllegalArgumentException("invalid impression_log " + index);
 					
@@ -548,7 +478,6 @@ public class Campaign {
 				}
 				
 				// process cost
-//				int tmp = 0;
 				for (int i = 0; i < 6; i++) {
 					byte c = mbb.get();
 										
@@ -556,43 +485,37 @@ public class Campaign {
 						i = -1;
 						continue;
 					}
-
-//					tmp *= 10;
-//					tmp += c & 0xF;
+					
 					cost *= 10;
 					cost += c & 0xF;
 				}
 				
 				// divide by 1 million -- long arithmetic -> double is faster
-//				cost = tmp * 0.000001;
-//				cost /= 1000000;
 				cost *= 0.000001;
-					
-//				while (mbb.get() != newLine) {}
 				
 				if (mbb.get() != newLine)
 					throw new IllegalArgumentException("invalid impression log " + index);
 				
 				// add to list
-				impressionsList.add(new Impression(dateTime, userID, cost));
+				impressionsList.add(new Impression(dateTime, userID, userData, cost));
 				
 				// misc increment
 				costOfImpressions += cost;
 			}
-
+			
 			// trim the ArrayList to save capacity
 			impressionsList.trimToSize();
-//			usersMap.shrink();
 			
 			// transfer references
 			this.impressionsList = impressionsList;
 			
 			// compute size of impressions
 			numberOfImpressions = impressionsList.size();
+			numberOfUniques = usersMap.size();
 			
 			// compute dates
-			campaignStartDate = impressionsList.get(0).getDateTime();
-			campaignEndDate = impressionsList.get(numberOfImpressions - 1).getDateTime();
+			campaignStartDate = impressionsList.get(0).getLocalDateTime();
+			campaignEndDate = impressionsList.get(numberOfImpressions - 1).getLocalDateTime();
 
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
