@@ -1,11 +1,9 @@
 package ui.controlelements;
 
-import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
-import java.text.DecimalFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -16,14 +14,9 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.text.NumberFormatter;
-import javax.xml.crypto.Data;
 
-import com.sun.javafx.font.Metrics;
 import core.Model;
 import core.campaigns.Campaign;
-import core.data.DataProcessor;
-import core.records.Impression;
 
 /**
  * Created by james on 17/02/16.
@@ -74,37 +67,43 @@ public class ChartTab extends ControlPanelBox {
 
 		campaignComboBox.addActionListener(chartTabController);
 		metricComboBox.addActionListener(chartTabController);
+		timeGranularityComboBox.addActionListener(chartTabController);
 
 //		filterList.addListSelectionListener(c);
 
 		startTimeSpinner.addChangeListener(chartTabController);
 		endTimeSpinner.addChangeListener(chartTabController);
-//		timeGranularitySpinner.addChangeListener(chartTabController);
 
 	}
 
 	@Override
 	public void update(Observable o, Object arg) {
         if(o == model) {
-//            ArrayList<Campaign> campaigns = (ArrayList<Campaign>) model.getCampaigns();
-//            campaignComboBox.removeAllItems();
-//
-//            for (Campaign c : campaigns) {
-//                campaignComboBox.addItem(c);
-//            }
-//
-//            DataProcessor d = model.getActive();
-//
-//            int currentImpression = model.getMetric();
-//            metricComboBox.setSelectedIndex(currentImpression);
-//
-//            Instant startInstant = d.getDataStartDate().toInstant(ZoneOffset.UTC);
-//            Date startDate = Date.from(startInstant);
-//            startTimeSpinner.setValue(startDate);
-//
-//            Instant endInstant = d.getDataEndDate().toInstant(ZoneOffset.UTC);
-//            Date endDate = Date.from(endInstant);
-//            startTimeSpinner.setValue(endDate);
+            ArrayList<Campaign> campaigns = (ArrayList<Campaign>) model.getListOfCampaigns();
+            campaignComboBox.removeAllItems();
+
+            for (Campaign c : campaigns) {
+                campaignComboBox.addItem(c.getDirectoryPath());
+            }
+
+            metricComboBox.setSelectedIndex(model.getCurrentMetric());
+
+            Instant startInstant = model.getStartDateTime().toInstant(ZoneOffset.UTC);
+            Date startDate = Date.from(startInstant);
+            startTimeSpinner.setValue(startDate);
+
+            Instant endInstant = model.getEndDateTime().toInstant(ZoneOffset.UTC);
+            Date endDate = Date.from(endInstant);
+            startTimeSpinner.setValue(endDate);
+
+			int timeGranularityInSeconds = model.getTimeGranularityInSeconds();
+			if(timeGranularityInSeconds>500000){
+				timeGranularityComboBox.setSelectedIndex(0);
+			}else if (timeGranularityInSeconds > 70000){
+				timeGranularityComboBox.setSelectedIndex(1);
+			}else{
+				timeGranularityComboBox.setSelectedIndex(2);
+			}
 
         }
 		
@@ -122,30 +121,34 @@ public class ChartTab extends ControlPanelBox {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			if(e.getSource() == campaignComboBox){
-				Campaign selectedCampaign = (Campaign) campaignComboBox.getSelectedItem();
-				//TODO tell the damn model we have changed campaign for this chart
+				model.setCurrentCampaign(model.getListOfCampaigns().get(campaignComboBox.getSelectedIndex()));
 			}else if (e.getSource() == metricComboBox){
-				String selectedMetric = (String) metricComboBox.getSelectedItem();
-				//TODO tell the damn model we have changed metric
+				model.setCurrentMetric();
+			}else if (e.getSource() == timeGranularityComboBox){
+				int timeGranularitySeconds = 0;
+				switch (timeGranularityComboBox.getSelectedIndex()) {
+					case 0: timeGranularitySeconds = 604800; break;
+					case 1: timeGranularitySeconds = 86400; break;
+					case 2: timeGranularitySeconds = 3600; break;
+				}
+				model.setTimeGranularityInSeconds(timeGranularitySeconds);
 			}
 		}
 
 		@Override
 		public void stateChanged(ChangeEvent e) {
 			if(e.getSource() == startTimeSpinner){
-				System.out.println("CHANGES");
 				Date startDate = (Date) startTimeSpinner.getValue();
 				Instant startInstant = Instant.ofEpochMilli(startDate.getTime());
 				LocalDateTime startLocalDateTime = LocalDateTime.ofInstant(startInstant, ZoneOffset.UTC);
 
-				//TODO update chart here
-			}else if (e.getSource() == endTimeSpinner){
-				System.out.println("CHANGES");
+				model.setStartDateTime(startLocalDateTime);
+			}else if (e.getSource() == endTimeSpinner) {
 				Date endDate = (Date) endTimeSpinner.getValue();
 				Instant endInstant = Instant.ofEpochMilli(endDate.getTime());
 				LocalDateTime endLocalDateTime = LocalDateTime.ofInstant(endInstant, ZoneOffset.UTC);
 
-				//TODO update chart here
+				model.setEndDateTime(endLocalDateTime);
 			}
 		}
 
