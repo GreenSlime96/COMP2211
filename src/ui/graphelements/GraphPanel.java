@@ -43,7 +43,9 @@ public class GraphPanel extends JPanel {
 		//else show all 4
 		if(numberOfCharts==0){
 			centerPanel.setPreferredSize(maxDimensionForPanel);
-		}else	if(numberOfCharts == 2){
+			System.out.println(fullViewDimension);
+			System.out.println(maxDimensionForPanel);
+		}else	if(numberOfCharts == 2 || numberOfCharts == 1){
 			centerPanel.setPreferredSize(secondDimension);
 		}else{
 			centerPanel.setPreferredSize(minimumDimension);
@@ -66,9 +68,11 @@ public class GraphPanel extends JPanel {
 				
 				if (e.getClickCount() == 2 && !e.isConsumed()) {
 				     e.consume();
+				     //creating a new window, adding the chart and resizing it
 				     GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");	
 				     testWindow.setScene(scene);
-				     chartElement.resizeChart(testWindow.getWidth(), testWindow.getHeight());
+				     chartElement.resizeChart(testWindow.getWidth(), testWindow.getHeight());	
+				     
 				     //GraphAreaView background = (GraphAreaView) centerPanel.getParent().getParent();
 				     //background.addPanel(new GraphPanel(model, background.getNumberOfCharts()+1));
 				}
@@ -117,3 +121,6 @@ public class GraphPanel extends JPanel {
 		return chartElement;
 	}
 }
+
+
+

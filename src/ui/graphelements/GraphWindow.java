@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
@@ -18,8 +19,12 @@ import javafx.embed.swing.JFXPanel;
 import javafx.scene.Scene;
 import javafx.scene.layout.GridPane;
 
+
+
 public class GraphWindow extends JFrame {
-	
+	Dimension fullViewDimension = Toolkit.getDefaultToolkit().getScreenSize();
+	int width = (int) fullViewDimension.getWidth();
+	int height = (int) fullViewDimension.getHeight();
 	private JFXPanel centerPanel;
 	private Scene scene;
 	private GridPane chartElementPane;
@@ -71,6 +76,12 @@ public class GraphWindow extends JFrame {
 		contentPane.add(centerPanel, BorderLayout.CENTER);
 				
 		
+	}
+	public int getWidth(){
+		return width;
+	}
+	public int getHeight(){
+		return height;
 	}
 	
 	public void setScene(Scene scene)

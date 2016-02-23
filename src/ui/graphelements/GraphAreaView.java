@@ -61,9 +61,9 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 
 		//creating 4 mockup graphPanel
 		GraphPanel myGraphPanel = new GraphPanel(model,0);
-		GraphPanel myGraphPanel1 = new GraphPanel(model,1);
-		GraphPanel myGraphPanel2 = new GraphPanel(model,2);
-		GraphPanel myGraphPanel3 = new GraphPanel(model,3);
+//		GraphPanel myGraphPanel1 = new GraphPanel(model,1);
+//		GraphPanel myGraphPanel2 = new GraphPanel(model,2);
+//		GraphPanel myGraphPanel3 = new GraphPanel(model,3);
 		
 
 
@@ -87,13 +87,11 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 				new PieChart.Data("35-44", random.nextInt(10)),
 				new PieChart.Data("44-54", random.nextInt(10)),
 				new PieChart.Data(">45", random.nextInt(10))));
-		myGraphPanel1.setChartElement(pc1);
+//		myGraphPanel1.setChartElement(pc1);
 		
 		//Addding each of the 4 arrays to the array of GraphPanels
 		addPanel(myGraphPanel);
-		addPanel(myGraphPanel1);
-		//addPanel(myGraphPanel2);
-		//addPanel(myGraphPanel3);
+//		addPanel(myGraphPanel1);
 				
 		
 		// Handle Resizing
@@ -149,23 +147,29 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		// if there are 3 or more charts, resize the previous charts and add the new one
 		for(GraphPanel myIterator : myGraphArray){
 			if(numberOfCharts == 0){
+				myGraphArray.get(0).getChartElement().resizeChart((int)maxDimensionForPanel.getWidth(), (int)maxDimensionForPanel.getHeight());
 				this.add(myIterator);
 			}
-			
 			if(numberOfCharts == 2 || numberOfCharts ==1){
 				myGraphArray.get(0).setCenterPanelSize(secondDimension);
+				myGraphArray.get(0).getChartElement().resizeChart((int)secondDimension.getWidth(), (int)secondDimension.getHeight());
 				this.add(myIterator);
 				
 			}else	if(numberOfCharts == 3){
 				myGraphArray.get(0).setCenterPanelSize(minimumDimension);
+				myGraphArray.get(0).getChartElement().resizeChart((int)minimumDimension.getWidth(), (int)minimumDimension.getHeight());
 				myGraphArray.get(1).setCenterPanelSize(minimumDimension);
+				myGraphArray.get(1).getChartElement().resizeChart((int)secondDimension.getWidth(), (int)secondDimension.getHeight());
 				myIterator.setCenterPanelSize(secondDimension);
 				this.add(myIterator);
 				
 			}else	if(numberOfCharts > 3 ){
 				myGraphArray.get(0).setCenterPanelSize(minimumDimension);
+				myGraphArray.get(0).getChartElement().resizeChart((int)minimumDimension.getWidth(), (int)minimumDimension.getHeight());
 				myGraphArray.get(1).setCenterPanelSize(minimumDimension);
+				myGraphArray.get(1).getChartElement().resizeChart((int)minimumDimension.getWidth(), (int)minimumDimension.getHeight());
 				myGraphArray.get(2).setCenterPanelSize(minimumDimension);
+				myGraphArray.get(2).getChartElement().resizeChart((int)minimumDimension.getWidth(), (int)minimumDimension.getHeight());
 				this.add(myIterator);
 			}
 			this.add(myIterator);
