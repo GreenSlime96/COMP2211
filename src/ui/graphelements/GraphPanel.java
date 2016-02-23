@@ -69,16 +69,13 @@ public class GraphPanel extends JPanel {
 	    Border compound = BorderFactory.createCompoundBorder(raisedbevel, loweredbevel);
 
 		centerPanel.addMouseListener(new MouseListener() {
+			@SuppressWarnings("restriction")
 			public void mouseClicked(MouseEvent e) {
 				
 				if (e.getClickCount() == 2 && !e.isConsumed()) {
 				     e.consume();
-				     //creating a new window, adding the chart and resizing it
-//				     GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");	
-//				     testWindow.setScene(scene);
-//				     chartElement.resizeChart(testWindow.fullViewDimension);
-
 				     GraphAreaView background = (GraphAreaView) centerPanel.getParent().getParent();
+				     
 				     if(!isItAPieChart){
 				    	 isItAPieChart = true;
 				    	 GraphPanel myGraphPanel = new GraphPanel(model,background.getNumberOfCharts()+1);
@@ -92,8 +89,7 @@ public class GraphPanel extends JPanel {
 					     lc1.addSeries(data, LocalDateTime.now());
 					     myGraphPanel.setChartElement(lc1);
 					     background.addPanel(myGraphPanel);
-					     
-					     
+
 				     }else{
 				    	 isItAPieChart = false;
 				    	 GraphPanel myPiePanel = new GraphPanel(model,background.getNumberOfCharts()+1);
@@ -109,7 +105,10 @@ public class GraphPanel extends JPanel {
 				 		myPiePanel.setChartElement(pc1);
 				 		background.addPanel(myPiePanel);
 				     }
-				     
+				     //creating a new window, adding the chart and resizing it
+//				     GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");	
+//				     testWindow.setScene(scene);
+//				     chartElement.resizeChart(testWindow.fullViewDimension); 
 				}
 			}
 			public void mousePressed(MouseEvent e) {

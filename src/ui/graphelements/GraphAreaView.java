@@ -42,6 +42,7 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 
 	// ==== Constructor ====
 
+	@SuppressWarnings("restriction")
 	public GraphAreaView(Model model) {
 		super();
 		
