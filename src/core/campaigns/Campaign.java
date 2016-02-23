@@ -123,24 +123,6 @@ public class Campaign {
 		System.out.println("Conversions:\t" + numberOfConversions);
 		System.out.println("Page Views:\t" + numberOfPagesViewed);
 		System.out.println("--------------------------------------");
-		
-		time = System.currentTimeMillis();
-		
-		for (Impression i : impressionsList) {
-			i.getUserData();
-		}
-
-		for (Server s : serversList) {
-			s.getUserData();
-		}
-
-		for (Click c : clicksList) {
-			c.getUserData();
-		}
-		
-		end = System.currentTimeMillis();
-		
-		System.out.println("Lookup Test:\t" + (end - time));
 	}
 
 	// ==== Accessors ====

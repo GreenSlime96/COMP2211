@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Observable;
+import java.util.stream.Collectors;
+
 import javax.swing.Timer;
 
 import core.campaigns.Campaign;
@@ -78,33 +80,22 @@ public class Model extends Observable implements ActionListener {
 	// ==== Chart Stuff ====
 	
 	public final List<? extends Number> getChartData() {
-		return currentProcessor.numberOfImpressions();
+		return currentProcessor.getData();
 	}
 	
 	
 	// ==== General Tab ====
 	
-    public final List<Campaign> getListOfCampaigns(){
-        return campaigns;
+    public final List<String> getListOfCampaigns() {
+        return campaigns.stream().map(x -> x.getDirectoryPath()).collect(Collectors.toList());
     }
     
     public final void addCampaign(File campaignDirectory) throws FileNotFoundException {
     	campaigns.add(new Campaign(campaignDirectory));
     }
 	
-	public boolean addCampaign(Campaign campaign) {
-		if (campaigns.contains(campaign))
-			return false;
-		
-		campaigns.add(campaign);
-		update();
-		return true;		
-	}
-	
-	public boolean removeCampaign(Campaign campaign) {
-		boolean result = campaigns.remove(campaign);
-		update();
-		return result;
+	public final void removeCampaign(Campaign campaign) {
+		campaigns.remove(campaign);
 	}
 	
 	public final int getNumberOfImpressions() {
@@ -139,15 +130,15 @@ public class Model extends Observable implements ActionListener {
 	}
 	
 	public final void setCurrentCampaign(Campaign campaign) {
-		currentCampaign = campaign;
+		currentProcessor.setCampaign(campaign);
 	}
 		
-	public final int getCurrentMetric() {
-		return 0;
+	public final Metric getCurrentMetric() {
+		return currentProcessor.getMetric();
 	}
 	
-	public final void setCurrentMetric() {
-		// TODO;
+	public final void setCurrentMetric(Metric metric) {
+		currentProcessor.setMetric(metric);
 	}
 	
 	public final LocalDateTime getStartDateTime() {
