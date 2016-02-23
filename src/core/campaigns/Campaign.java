@@ -11,6 +11,7 @@ import java.nio.channels.FileChannel;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import core.data.User;
@@ -144,15 +145,15 @@ public class Campaign {
 
 	// ==== Accessors ====
 
-	public final Iterable<Impression> getImpressions() {
+	public final Collection<Impression> getImpressions() {
 		return impressionsList;
 	}
 
-	public final Iterable<Click> getClicks() {
+	public final Collection<Click> getClicks() {
 		return clicksList;
 	}
 
-	public final Iterable<Server> getServer() {
+	public final Collection<Server> getServer() {
 		return serversList;
 	}
 
