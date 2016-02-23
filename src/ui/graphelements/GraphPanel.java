@@ -76,7 +76,8 @@ public class GraphPanel extends JPanel {
 				     //creating a new window, adding the chart and resizing it
 //				     GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");	
 //				     testWindow.setScene(scene);
-//				     chartElement.resizeChart(testWindow.getWidth(), testWindow.getHeight());
+//				     chartElement.resizeChart(testWindow.fullViewDimension);
+
 				     GraphAreaView background = (GraphAreaView) centerPanel.getParent().getParent();
 				     if(!isItAPieChart){
 				    	 isItAPieChart = true;
@@ -91,6 +92,8 @@ public class GraphPanel extends JPanel {
 					     lc1.addSeries(data, LocalDateTime.now());
 					     myGraphPanel.setChartElement(lc1);
 					     background.addPanel(myGraphPanel);
+					     
+					     
 				     }else{
 				    	 isItAPieChart = false;
 				    	 GraphPanel myPiePanel = new GraphPanel(model,background.getNumberOfCharts()+1);

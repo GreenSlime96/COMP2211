@@ -120,7 +120,6 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 	}
     
 	public void addPanel(GraphPanel graphPanel){
-
 		//increase the over-all number of charts 
 		numberOfCharts++;
 		
@@ -128,7 +127,7 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		//if a 5th is added, delete chart 1 and add it in its place
 		if(numberOfCharts > 4){
 			//temporary
-			removeAll();
+//			removeAll();
 			int numberOfChartsAsIndex = numberOfCharts%4;
 			
 			if(numberOfChartsAsIndex != 0){
@@ -141,8 +140,6 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		}else{
 			myGraphArray.add(graphPanel);
 		}
-
-//		revalidate();
 			
 		//Iterating over the array of GraphPanels and adding each of them to the view
 		//if there is only one chart add it to the view

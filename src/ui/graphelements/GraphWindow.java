@@ -23,8 +23,7 @@ import javafx.scene.layout.GridPane;
 
 public class GraphWindow extends JFrame {
 	Dimension fullViewDimension = Toolkit.getDefaultToolkit().getScreenSize();
-	int width = (int) fullViewDimension.getWidth();
-	int height = (int) fullViewDimension.getHeight();
+
 	private JFXPanel centerPanel;
 	private Scene scene;
 	private GridPane chartElementPane;
@@ -76,12 +75,6 @@ public class GraphWindow extends JFrame {
 		contentPane.add(centerPanel, BorderLayout.CENTER);
 				
 		
-	}
-	public int getWidth(){
-		return width;
-	}
-	public int getHeight(){
-		return height;
 	}
 	
 	public void setScene(Scene scene)
