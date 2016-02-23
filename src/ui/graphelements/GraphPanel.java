@@ -71,7 +71,6 @@ public class GraphPanel extends JPanel {
 		centerPanel.addMouseListener(new MouseListener() {
 			@SuppressWarnings("restriction")
 			public void mouseClicked(MouseEvent e) {
-				
 				if (e.getClickCount() == 2 && !e.isConsumed()) {
 				     e.consume();
 				     GraphAreaView background = (GraphAreaView) centerPanel.getParent().getParent();
@@ -87,6 +86,12 @@ public class GraphPanel extends JPanel {
 							data.add(Math.random() * i);
 					     }
 					     lc1.addSeries(data, LocalDateTime.now());
+					     
+					     //creating a new window, adding the chart and resizing it
+//					     GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");	
+//					     testWindow.setScene(scene);
+//					     chartElement.resizeChart(testWindow.fullViewDimension); 
+					     
 					     myGraphPanel.setChartElement(lc1);
 					     background.addPanel(myGraphPanel);
 
@@ -102,13 +107,17 @@ public class GraphPanel extends JPanel {
 				 				new PieChart.Data("35-44", random.nextInt(10)),
 				 				new PieChart.Data("44-54", random.nextInt(10)),
 				 				new PieChart.Data(">45", random.nextInt(10))));
+					 		
+					    //creating a new window, adding the chart and resizing it
+//					    GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");	
+//					    testWindow.setScene(scene);
+//					    chartElement.resizeChart(testWindow.fullViewDimension); 
+					     
 				 		myPiePanel.setChartElement(pc1);
 				 		background.addPanel(myPiePanel);
 				     }
-				     //creating a new window, adding the chart and resizing it
-//				     GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");	
-//				     testWindow.setScene(scene);
-//				     chartElement.resizeChart(testWindow.fullViewDimension); 
+				     
+
 				}
 			}
 			public void mousePressed(MouseEvent e) {

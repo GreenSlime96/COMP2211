@@ -27,7 +27,7 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 	private static final long serialVersionUID = -3060291319561936699L;
 
 	
-	Dimension fullViewDimension = Toolkit.getDefaultToolkit().getScreenSize();
+	private final Dimension fullViewDimension = Toolkit.getDefaultToolkit().getScreenSize();
 	private final Dimension maxDimensionForPanel = new Dimension((int)fullViewDimension.getWidth()-300, (int)fullViewDimension.getHeight()-100);
 	private final Dimension secondDimension = new Dimension((int)maxDimensionForPanel.getWidth(), (int)(maxDimensionForPanel.getHeight()-20)/2);
 	private final Dimension minimumDimension = new Dimension((int)secondDimension.getWidth()/2-20, (int) secondDimension.getHeight());

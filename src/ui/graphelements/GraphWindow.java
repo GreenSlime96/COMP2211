@@ -49,6 +49,8 @@ public class GraphWindow extends JFrame {
 				
 				if (e.getClickCount() == 2 && !e.isConsumed()) {
 				    e.consume();
+//				    GraphAreaView background = (GraphAreaView) centerPanel.getParent();
+				    
 				    dispose();
 				}
 			}
