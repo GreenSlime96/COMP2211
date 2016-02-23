@@ -141,7 +141,6 @@ public class FilterTab extends ControlPanelBox {
 
         public FilterTabController(Model model){
             this.model = model;
-
             verifyCheckBoxGroup(genderBoxes);
             verifyCheckBoxGroup(ageBoxes);
             verifyCheckBoxGroup(incomeBoxes);

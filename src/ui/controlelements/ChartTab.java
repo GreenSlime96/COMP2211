@@ -126,7 +126,6 @@ public class ChartTab extends ControlPanelBox {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-
 			if (active){
 				System.out.println("ACTION PERFORMED");
 				if(e.getSource() == campaignComboBox){
@@ -148,19 +147,21 @@ public class ChartTab extends ControlPanelBox {
 
 		@Override
 		public void stateChanged(ChangeEvent e) {
-//			if(e.getSource() == startTimeSpinner){
-//				Date startDate = (Date) startTimeSpinner.getValue();
-//				Instant startInstant = Instant.ofEpochMilli(startDate.getTime());
-//				LocalDateTime startLocalDateTime = LocalDateTime.ofInstant(startInstant, ZoneOffset.UTC);
-//
-//				model.setStartDateTime(startLocalDateTime);
-//			}else if (e.getSource() == endTimeSpinner) {
-//				Date endDate = (Date) endTimeSpinner.getValue();
-//				Instant endInstant = Instant.ofEpochMilli(endDate.getTime());
-//				LocalDateTime endLocalDateTime = LocalDateTime.ofInstant(endInstant, ZoneOffset.UTC);
-//
-//				model.setEndDateTime(endLocalDateTime);
-//			}
+			if(active) {
+				if (e.getSource() == startTimeSpinner) {
+					Date startDate = (Date) startTimeSpinner.getValue();
+					Instant startInstant = Instant.ofEpochMilli(startDate.getTime());
+					LocalDateTime startLocalDateTime = LocalDateTime.ofInstant(startInstant, ZoneOffset.UTC);
+
+					model.setStartDateTime(startLocalDateTime);
+				} else if (e.getSource() == endTimeSpinner) {
+					Date endDate = (Date) endTimeSpinner.getValue();
+					Instant endInstant = Instant.ofEpochMilli(endDate.getTime());
+					LocalDateTime endLocalDateTime = LocalDateTime.ofInstant(endInstant, ZoneOffset.UTC);
+
+					model.setEndDateTime(endLocalDateTime);
+				}
+			}
 		}
 
 		@Override

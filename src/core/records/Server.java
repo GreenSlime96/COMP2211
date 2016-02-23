@@ -25,6 +25,10 @@ public class Server extends Record {
 	
 	
 	// ==== Accessor ====
+	
+	public final long getExitEpochSeconds() {
+		return exitDateTime;
+	}
 
 	public final LocalDateTime getExitDateTime() {
 		return DateProcessor.longToLocalDateTime(exitDateTime);

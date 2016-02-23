@@ -5,6 +5,7 @@ import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -18,8 +19,12 @@ import java.util.stream.Collectors;
 import core.Metric;
 import core.campaigns.Campaign;
 import core.records.Click;
+import core.records.CostRecord;
 import core.records.Impression;
 import core.records.Record;
+import core.records.Server;
+import gnu.trove.set.TLongSet;
+import gnu.trove.set.hash.TLongHashSet;
 import util.DateProcessor;
 
 // TODO should we rename this to DataProcessor instead?
@@ -51,16 +56,19 @@ public class DataProcessor {
 	private int timeGranularityInSeconds = 60 * 60 * 24;
 	
 	// bounce logic
-	private int bounceMinimumPagesViewed;
-	private int bounceMinimumSecondsOnPage;
+	private int bounceMinimumPagesViewed = 1;
+	private int bounceMinimumSecondsOnPage = 30;
 	
 	
 	// ==== Constructor ====
 	
 	public DataProcessor(Campaign campaign) {
 		setCampaign(campaign);
-		numberOfImpressions();
-		numberOfClicks();
+		
+		for (Metric m : Metric.values()) {
+			metric = m;
+			getData();
+		}
 	}
 	
 
@@ -71,6 +79,9 @@ public class DataProcessor {
 	}
 	
 	public final void setCampaign(Campaign campaign) {
+		if (this.campaign.equals(campaign))
+			return;
+		
 		final LocalDateTime campaignStartDate = campaign.getStartDateTime();
 		final LocalDateTime campaignEndDate = campaign.getEndDateTime();		
 		
@@ -97,24 +108,53 @@ public class DataProcessor {
 	
 	
 	public final List<? extends Number> getData() {
+		List<? extends Number> returnList;
+
+		final long time = System.currentTimeMillis();
+		
 		switch (metric) {
 		case NUMBER_OF_IMPRESSIONS:
-			return numberOfImpressions();
+			returnList = numberOfImpressions();
+			break;
 		case NUMBER_OF_CLICKS:
-			return numberOfClicks();
+			returnList = numberOfClicks();
+			break;
 		case NUMBER_OF_UNIQUES:
-			return numberOfUniques();
+			returnList = numberOfUniques();
+			break;
 		case NUMBER_OF_BOUNCES:
-			return numberOfBounces();
+			returnList = numberOfBounces();
+			break;
 		case TOTAL_COST:
-			return totalCost();
+			returnList = totalCost();
+			break;
 		case CLICK_THROUGH_RATE:
-			return CTR();
+			returnList = clickThroughRate();
+			break;
 		case COST_PER_ACQUISITION:
-			return null;
+			returnList = costPerAcquisition();
+			break;
+		case COST_PER_CLICK:
+			returnList = costPerClick();
+			break;
+		case COST_PER_THOUSAND_IMPRESSIONS:
+			returnList = costPerThousandImpressions();
+			break;
+		case BOUNCE_RATE:
+			returnList = bounceRate();
+			break;
 		default:
-			return null;
+			returnList = null;
 		}
+		
+		if (returnList != null) {
+			System.out.println("Metric Type:\t" + metric.toString());
+			System.out.println("Data Size:\t" + returnList.size());
+			System.out.println("Time Taken:\t" + (System.currentTimeMillis() - time));
+			System.out.println("--------------------------------------");
+		}
+		
+		return returnList;
 	}
 	
 	
@@ -223,9 +263,8 @@ public class DataProcessor {
 	
 	
 	// ==== Compute Metrics ====	
-	// 75ms without parallelstream
 	
-	public final List<Integer> numberOfImpressions() {
+	private final List<Integer> numberOfImpressions() {
 		final ArrayList<Integer> impressionsList = new ArrayList<Integer>();
 		
 		int numberOfImpressions = 0;
@@ -234,8 +273,6 @@ public class DataProcessor {
 		long currentDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
 		long nextDate = currentDate + timeGranularityInSeconds;
 		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
-		
-		long time = System.currentTimeMillis();	
 		
 		outerLoop:
 		for (Impression impression : campaign.getImpressions()) {
@@ -268,9 +305,6 @@ public class DataProcessor {
 		
 		// add last entry
 		impressionsList.add(numberOfImpressions);
-		
-		System.out.println("Processing: \t" + (System.currentTimeMillis() - time));
-		System.out.println("Size of Query: \t" + impressionsList.size());
 
 		// pack
 		impressionsList.trimToSize();
@@ -278,7 +312,7 @@ public class DataProcessor {
 		return impressionsList;
 	}
 	
-	public final List<Integer> numberOfClicks() {		
+	private final List<Integer> numberOfClicks() {		
 		final ArrayList<Integer> clicksList = new ArrayList<Integer>();
 		
 		int numberOfClicks = 0;
@@ -287,8 +321,6 @@ public class DataProcessor {
 		long currentDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
 		long nextDate = currentDate + timeGranularityInSeconds;
 		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
-		
-		final long time = System.currentTimeMillis();	
 		
 		outerLoop:
 		for (Impression impression : campaign.getImpressions()) {
@@ -318,10 +350,8 @@ public class DataProcessor {
 				numberOfClicks++;
 		}
 		
+		// add last entry
 		clicksList.add(numberOfClicks);
-		
-		System.out.println("Processing: \t" + (System.currentTimeMillis() - time));
-		System.out.println("Size of Query: \t" + clicksList.size());
 		
 		// pack
 		clicksList.trimToSize();
@@ -330,9 +360,51 @@ public class DataProcessor {
 	}
 	
 	// The number of unique users that click on an ad during the course of a campaign.
-	public final List<Integer> numberOfUniques() {
-		final List<Integer> uniquesList = new ArrayList<Integer>();
+	private final List<Integer> numberOfUniques() {
+		final ArrayList<Integer> uniquesList = new ArrayList<Integer>();
 		
+//		TLongSet usersSet = new TLongHashSet();
+		HashSet<Long> usersSet = new HashSet<Long>();
+		
+		// initialise current date as startDate
+		long currentDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
+		long nextDate = currentDate + timeGranularityInSeconds;
+		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
+				
+		outerLoop:
+		for (Impression impression : campaign.getImpressions()) {
+			final long dateTime = impression.getEpochSeconds();
+						
+			// we ignore the impression if the date is before the current date
+			if (dateTime < currentDate)
+				continue;
+			
+			// add new mapping if after time granularity separator
+			while (dateTime > nextDate) {
+				if (nextDate == finalDate)
+					break outerLoop;
+				
+				uniquesList.add(usersSet.size());
+				
+				usersSet.clear();
+				
+				currentDate = nextDate;
+				nextDate = currentDate + timeGranularityInSeconds;
+				
+				if (nextDate > finalDate)
+					nextDate = finalDate;
+			}
+			
+			if (dataFilter.test(impression.getUserData()))
+				usersSet.add(impression.getUserID());
+		}
+		
+		// add last entry
+		uniquesList.add(usersSet.size());
+
+		// pack
+		uniquesList.trimToSize();
+				
 		return uniquesList;
 	}
 	
@@ -341,130 +413,255 @@ public class DataProcessor {
 	 * (typically detected when a user navigates away from the website after a
 	 * short time, or when only a single page has been viewed).
 	 */
-	public final List<Integer> numberOfBounces() {
-		final List<Integer> bouncesList = new ArrayList<Integer>();
+	private final List<Integer> numberOfBounces() {
+		final ArrayList<Integer> bouncesList = new ArrayList<Integer>();
 		
-		return bouncesList;
-	}
-	
-	public final List<Integer> numberOfConversions() {
-		final List<Integer> conversionsList = new ArrayList<Integer>();
-		
-		return conversionsList;
-	}
-	
-	// I'm assuming this is cost of impression and click
-	public final List<Double> totalCost() {
-		final List<Double> impressionsCost = new ArrayList<Double>();
-		final List<Double> clicksCost = new ArrayList<Double>();
-		final List<Double> costList = new ArrayList<Double>();
-
-		
-		return costList;
-	}
-	
-	// average clicks per impression
-	public final List<Double> CTR() {
-		
-		return null;
-	}
-	
-	public final Map<LocalDateTime, Double> CPA() {
-		return null;
-	}
-	
-	public final Map<LocalDateTime, Double> CPC() {
-		return null;
-	}
-	
-	public final Map<LocalDateTime, Double> CPM() {
-		return null;
-	}
-	
-	public final Map<LocalDateTime, Integer> bounceRate() {
-		return null;
-	}
-	
-	public final List<? extends Number> computeCurrentMetric() {
-		return null;
-	}
-	
-	public final List<Double> newNumberOfImpressions() {
-		int idx = 0;
-		Set<Long> niceSet = new HashSet<Long>();
-		
-		Iterable<Impression> iterable = campaign.getImpressions();
-		Predicate<Impression> predicate = x -> true;
-		Function<Impression, Double> function = x -> 1d;
-		Consumer<Impression> doStuffHere = x -> niceSet.add(x.getUserID());
-		Consumer<Impression> clearStuffHere = x -> niceSet.clear();
-//		Consumer<Impression> accumulator = x -> idx++;
-		
-		return metricsCalculator(iterable, predicate, function);
-	}
-	
-	public int whatever(long epochSeconds) {
-		long startDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
-		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
-		
-		for (int i = 0;; i++) {
-			final long currentDate = startDate + i * timeGranularityInSeconds;
-			
-			if (epochSeconds < currentDate)
-				return i - 1;
-		}
-	}
-	
-	// ==== Private Helper Methods ====
-	
-	private final <T extends Record> List<Double> metricsCalculator(Iterable<T> iterable, Predicate<T> predicate, Function<T, Double> function) {
-		final ArrayList<Double> results = new ArrayList<Double>();
+		int numberOfBounces = 0;
 		
 		// initialise current date as startDate
 		long currentDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
-		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
 		long nextDate = currentDate + timeGranularityInSeconds;
-		
-		double accumulator = 0;
-		
+		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
+				
 		outerLoop:
-		for (T row : iterable) {
-			final long epochSeconds = row.getEpochSeconds();
-			final int userData = row.getUserData();
-			
+		for (Server server : campaign.getServers()) {
+			final long dateTime = server.getEpochSeconds();
+						
 			// we ignore the impression if the date is before the current date
-			if (epochSeconds < currentDate)
+			if (dateTime < currentDate)
 				continue;
 			
 			// add new mapping if after time granularity separator
-			while (epochSeconds > nextDate) {				
+			while (dateTime > nextDate) {
 				if (nextDate == finalDate)
 					break outerLoop;
 				
-				results.add(accumulator);
+				bouncesList.add(numberOfBounces);
 				
-				accumulator = 0;
+				numberOfBounces = 0;
 				
 				currentDate = nextDate;
-				nextDate = nextDate + timeGranularityInSeconds;
+				nextDate = currentDate + timeGranularityInSeconds;
 				
 				if (nextDate > finalDate)
 					nextDate = finalDate;
 			}
 			
-			// filter for users and execute process
-			if (dataFilter.test(userData)) {
-				if (predicate.test(row))
-					accumulator += function.apply(row);
-			}			
+			if (dataFilter.test(server.getUserData())) {				
+				if (server.getPagesViewed() > bounceMinimumPagesViewed)
+					continue;
+				
+				if (server.getExitEpochSeconds() == DateProcessor.DATE_NULL)
+					continue;
+				
+				if (server.getExitEpochSeconds() - server.getEpochSeconds() > bounceMinimumSecondsOnPage)
+					continue;
+				
+				numberOfBounces++;
+			}
 		}
 		
-		// add final value
-		results.add(accumulator);
+		// add last entry
+		bouncesList.add(numberOfBounces);
+
+		// pack
+		bouncesList.trimToSize();
 		
-		// reduce memory usage, necessary?
-		results.trimToSize();
+		return bouncesList;
+	}
+	
+	private final List<Integer> numberOfConversions() {
+		final ArrayList<Integer> conversionsList = new ArrayList<Integer>();
 		
-		return results;
+		int numberOfConversions = 0;
+		
+		// initialise current date as startDate
+		long currentDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
+		long nextDate = currentDate + timeGranularityInSeconds;
+		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
+				
+		outerLoop:
+		for (Server server : campaign.getServers()) {
+			final long dateTime = server.getEpochSeconds();
+						
+			// we ignore the impression if the date is before the current date
+			if (dateTime < currentDate)
+				continue;
+			
+			// add new mapping if after time granularity separator
+			while (dateTime > nextDate) {
+				if (nextDate == finalDate)
+					break outerLoop;
+				
+				conversionsList.add(numberOfConversions);
+				
+				numberOfConversions = 0;
+				
+				currentDate = nextDate;
+				nextDate = currentDate + timeGranularityInSeconds;
+				
+				if (nextDate > finalDate)
+					nextDate = finalDate;
+			}
+			
+			if (dataFilter.test(server.getUserData())) {
+				if (server.getConversion())
+					numberOfConversions++;
+			}
+		}
+		
+		// add last entry
+		conversionsList.add(numberOfConversions);
+
+		// pack
+		conversionsList.trimToSize();
+		
+		return conversionsList;
+	}
+	
+	private final <T extends CostRecord> List<Double> costOfRecord(Collection<T> records) {
+		final ArrayList<Double> costList = new ArrayList<Double>();
+		
+		double costOfImpressions = 0;
+		
+		// initialise current date as startDate
+		long currentDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
+		long nextDate = currentDate + timeGranularityInSeconds;
+		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
+		
+		outerLoop:
+		for (CostRecord costRecord : records) {
+			final long dateTime = costRecord.getEpochSeconds();
+						
+			// we ignore the impression if the date is before the current date
+			if (dateTime < currentDate)
+				continue;
+			
+			// add new mapping if after time granularity separator
+			while (dateTime > nextDate) {
+				if (nextDate == finalDate)
+					break outerLoop;
+				
+				costList.add(costOfImpressions);
+				
+				costOfImpressions = 0;
+				
+				currentDate = nextDate;
+				nextDate = currentDate + timeGranularityInSeconds;
+				
+				if (nextDate > finalDate)
+					nextDate = finalDate;
+			}
+			
+			if (dataFilter.test(costRecord.getUserData())) {
+				costOfImpressions += costRecord.getCost();
+			}
+		}
+		
+		// add last entry
+		costList.add(costOfImpressions);
+
+		// pack
+		costList.trimToSize();
+				
+		return costList;
+	}
+	
+	// I'm assuming this is cost of impression and click
+	private final List<Double> totalCost() {
+		final List<Double> impressionsCost = costOfRecord(campaign.getImpressions());
+		final List<Double> clicksCost = costOfRecord(campaign.getClicks());
+		
+		if (impressionsCost.size() != clicksCost.size())
+			throw new IllegalArgumentException("totalCost: impressions and clicks not equal");
+		
+		final ArrayList<Double> costList = new ArrayList<Double>(impressionsCost.size());
+		
+		for (int i = 0; i < impressionsCost.size(); i++)
+			costList.add(impressionsCost.get(i) + clicksCost.get(i));
+
+		return costList;
+	}
+	
+	// average clicks per impression
+	private final List<Double> clickThroughRate() {
+		final List<Integer> impressionsList = numberOfImpressions();
+		final List<Integer> clicksList = numberOfClicks();
+		
+		if (impressionsList.size() != clicksList.size())
+			System.err.println("CTR: this shouldn't happen");
+		
+		final ArrayList<Double> clickThroughRate = new ArrayList<Double>(impressionsList.size());
+		
+		for (int i = 0; i < impressionsList.size(); i++)
+			clickThroughRate.add((double) clicksList.get(i) / (double) impressionsList.get(i));
+		
+		return clickThroughRate;
+	}
+	
+	
+	// The average amount of money spent on an advertising campaign
+	// for each acquisition (i.e., conversion).
+	private final List<Double> costPerAcquisition() {
+		final List<Integer> conversionList = numberOfConversions();
+		final List<Double> costList = totalCost();
+
+		if (conversionList.size() != costList.size())
+			System.err.println("CPA: this shouldn't happen");
+		
+		final ArrayList<Double> costPerAcquisition = new ArrayList<Double>(conversionList.size());
+		
+		for (int i = 0; i < conversionList.size(); i++)
+			costPerAcquisition.add(costList.get(i) / conversionList.get(i));
+		
+		return costPerAcquisition;
+	}
+	
+	// The average amount of money spent on an advertising campaign for each click.
+	private final List<Double> costPerClick() {
+		final List<Integer> clickList = numberOfClicks();
+		final List<Double> costList = totalCost();
+		
+		if (clickList.size() != costList.size())
+			System.err.println("CPC: this shouldn't happen");
+		
+		final ArrayList<Double> costPerAcquisition = new ArrayList<Double>(clickList.size());
+		
+		for (int i = 0; i < clickList.size(); i++)
+			costPerAcquisition.add(costList.get(i) / clickList.get(i));
+		
+		return costPerAcquisition;
+	}
+	
+	// The average amount of money spent on an advertising campaign for every one thousand impressions.
+	private final List<Double> costPerThousandImpressions() {
+		final List<Integer> impressionsList = numberOfImpressions();
+		final List<Double> costsList = totalCost();
+		
+		if (impressionsList.size() != costsList.size())
+			System.err.println("CPM: this shouldn't happen");
+		
+		final ArrayList<Double> costPerThousandImpressions = new ArrayList<Double>(impressionsList.size());
+		
+		for (int i = 0; i < impressionsList.size(); i++)
+			costPerThousandImpressions.add(costsList.get(i) * 1000 / impressionsList.get(i));
+		
+		return costPerThousandImpressions;
+	}
+	
+	// The average number of bounces per click.
+	private final List<Double> bounceRate() {
+		final List<Integer> bouncesList = numberOfBounces();
+		final List<Integer> clicksList = numberOfClicks();
+		
+		if (bouncesList.size() != clicksList.size())
+			System.err.println("Bounce Rate: this shoudn't happen");
+		
+		final ArrayList<Double> bounceRates = new ArrayList<Double>(bouncesList.size());
+		
+		for (int i = 0; i < bouncesList.size(); i++)
+			bounceRates.add((double) bouncesList.get(i) / (double) clicksList.get(i));
+		
+		return bounceRates;
 	}
 }

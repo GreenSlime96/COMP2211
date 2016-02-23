@@ -78,11 +78,9 @@ public class Campaign {
 			throw new FileNotFoundException(campaignDirectory + " is not a valid campaign directory!");
 
 		this.campaignDirectory = campaignDirectory;
-
-		/*
-		 * TODO Go through Impressions Log - Compute total cost - Start date,
-		 * End date - Users map, how much memory?
-		 */
+	}
+	
+	public final void loadData() {
 		System.out.println("--------------------------------------");
 
 		System.gc();
@@ -135,7 +133,7 @@ public class Campaign {
 		return clicksList;
 	}
 
-	public final Collection<Server> getServer() {
+	public final Collection<Server> getServers() {
 		return serversList;
 	}
 
@@ -178,10 +176,7 @@ public class Campaign {
 	public final double getCostOfClicks() {
 		return costOfClicks;
 	}
-
-	public final String getDirectoryPath() {
-		return campaignDirectory.getName();
-	}
+	
 
 	// ==== Private Helper Methods ====
 
@@ -312,6 +307,11 @@ public class Campaign {
 			final byte newLine = '\n';
 			final byte comma = ',';
 			
+			long time = System.currentTimeMillis();
+			mbb.load();
+			System.out.println("Load time:\t" + (System.currentTimeMillis() - time) + "ms");
+			time = System.currentTimeMillis();
+			
 			// finish processing header line
 			while (mbb.get() != newLine) {
 			}
@@ -322,9 +322,11 @@ public class Campaign {
 			while (mbb.hasRemaining()) {				
 				int index = mbb.position();
 
-				long dateTime = DateProcessor.DATE_NULL;
+				long dateTime = 0;
 				long userID = 0;
 				double cost = 0;
+				
+				byte temp;
 
 				// process the date -- adds 200ms
 				final char[] ch = new char[19];
@@ -340,13 +342,13 @@ public class Campaign {
 
 				// process userID
 				for (;;) {
-					byte c =  mbb.get();
+					temp =  mbb.get();
 
-					if (c == comma)
+					if (temp == comma)
 						break;
 
 					userID *= 10;
-					userID += c & 0xF;
+					userID += temp & 0xF;
 				}
 				
 				int userData = usersMap.get(userID);
@@ -354,8 +356,6 @@ public class Campaign {
 				if (userData == nullEntry) {					
 					// process gender
 					index = mbb.position();
-
-					byte temp;
 					
 					if ((temp = mbb.get()) == 'F') {
 						userData |= User.GENDER_FEMALE.mask;
@@ -456,23 +456,34 @@ public class Campaign {
 				}
 				
 				// process cost
-				for (int i = 0; i < 6; i++) {
-					byte c = mbb.get();
-										
-					if (c == '.') {
-						i = -1;
-						continue;
-					}
-					
+				while ((temp = mbb.get()) != '.') {
 					cost *= 10;
-					cost += c & 0xF;
+					cost += temp & 0xF;
 				}
+				
+				while ((temp = mbb.get()) != newLine) {
+					cost *= 10;
+					cost += temp & 0xF;
+					
+				}
+				
+//				for (int i = 0; i < 6; i++) {
+//					byte c = mbb.get();
+//										
+//					if (c == '.') {
+//						i = -1;
+//						continue;
+//					}
+//					
+//					cost *= 10;
+//					cost += c & 0xF;
+//				}
 				
 				// divide by 1 million -- long arithmetic -> double is faster
 				cost *= 0.000001;
 				
-				if (mbb.get() != newLine)
-					throw new IllegalArgumentException("invalid impression log " + index);
+//				if (mbb.get() != newLine)
+//					throw new IllegalArgumentException("invalid impression log " + index);
 				
 				// add to list
 				impressionsList.add(new Impression(dateTime, userID, userData, cost));
@@ -480,6 +491,7 @@ public class Campaign {
 				// misc increment
 				costOfImpressions += cost;
 			}
+			System.out.println("Processing:\t" + (System.currentTimeMillis() - time) + "ms");
 			
 			// trim the ArrayList to save capacity
 			impressionsList.trimToSize();
@@ -537,8 +549,8 @@ public class Campaign {
 	}
 
 	@Override
-	public String toString() {
-		return "Campaign [campaignDirectory=" + campaignDirectory + "]";
+	public final String toString() {
+		return campaignDirectory.getName();
 	}
 
 }
