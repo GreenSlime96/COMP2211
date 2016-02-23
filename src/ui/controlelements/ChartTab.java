@@ -24,15 +24,12 @@ import core.campaigns.Campaign;
  */
 public class ChartTab extends ControlPanelBox {
 
-//	String[] campaignStrings = { "Campaign 1", "Campaign 2"};
-	String[] metricStrings = { "Number of Impressions", "Number of Clicks", "Number of Uniques", "Number of Bounces",
-			"Number of Conversions", "Total Cost", "CTR", "CPA", "CPC", "CPM","Bounce Rate"};
+	String[] metricStrings = { Metric.NUMBER_OF_IMPRESSIONS.toString(), Metric.NUMBER_OF_CLICKS.toString(), Metric.NUMBER_OF_UNIQUES.toString(),
+	Metric.NUMBER_OF_BOUNCES.toString(), Metric.NUMBER_OF_CONVERSIONS.toString(), Metric.TOTAL_COST.toString(), Metric.CLICK_THROUGH_RATE.toString(),
+	Metric.COST_PER_ACQUISITION.toString(), Metric.COST_PER_CLICK.toString(), Metric.COST_PER_THOUSAND_IMPRESSION.toString() ,Metric.BOUNCE_RATE.toString()};
 
 	JComboBox campaignComboBox = new JComboBox();
     JComboBox metricComboBox = new JComboBox(metricStrings);
-
-//	String[] arr = {"Filter 1", "Filter 2"};
-//	JList<String> filterList= new JList<>(arr);
 
 	JSpinner startTimeSpinner = new JSpinner( new SpinnerDateModel() );
 	JSpinner endTimeSpinner = new JSpinner( new SpinnerDateModel() );
@@ -41,16 +38,18 @@ public class ChartTab extends ControlPanelBox {
 	JComboBox timeGranularityComboBox = new JComboBox(granularityStrings);
 	ChartTabController chartTabController;
 
+	boolean active;
+
     public ChartTab(Model model) {
     	super(model);
 
 		JSpinner.DateEditor startTimeEditor = new JSpinner.DateEditor(startTimeSpinner, "dd-MMM-yyyy HH:mm:ss");
 		startTimeSpinner.setEditor(startTimeEditor);
-		startTimeSpinner.setValue(new Date()); // will only show the current time
+//		startTimeSpinner.setValue(new Date()); // will only show the current time
 
 		JSpinner.DateEditor endTimeEditor = new JSpinner.DateEditor(endTimeSpinner, "dd-MMM-yyyy HH:mm:ss");
 		endTimeSpinner.setEditor(endTimeEditor);
-		endTimeSpinner.setValue(new Date()); // will only show the current time
+//		endTimeSpinner.setValue(new Date()); // will only show the current time
 
 		addSetting(campaignComboBox,"Campaign","Select a campaign for your chart");
 		addSetting(metricComboBox,"Metrics","Select a metric for your chart");
@@ -62,6 +61,7 @@ public class ChartTab extends ControlPanelBox {
 		chartTabController = new ChartTabController(model);
 
 		registerWithController();
+		active = true;
     }
 
 	public void registerWithController(){
@@ -69,8 +69,6 @@ public class ChartTab extends ControlPanelBox {
 		campaignComboBox.addActionListener(chartTabController);
 		metricComboBox.addActionListener(chartTabController);
 		timeGranularityComboBox.addActionListener(chartTabController);
-
-//		filterList.addListSelectionListener(c);
 
 		startTimeSpinner.addChangeListener(chartTabController);
 		endTimeSpinner.addChangeListener(chartTabController);
@@ -80,16 +78,19 @@ public class ChartTab extends ControlPanelBox {
 	@Override
 	public void update(Observable o, Object arg) {
 
-		System.out.println("General Tab Updating");
-        if(o == model) {
+		active = false;
+
+		if(o == model) {
             ArrayList<Campaign> campaigns = (ArrayList<Campaign>) model.getListOfCampaigns();
             campaignComboBox.removeAllItems();
 
             for (Campaign c : campaigns) {
                 campaignComboBox.addItem(c.getDirectoryPath());
-            }
+			}
 
-            metricComboBox.setSelectedIndex(model.getCurrentMetric().ordinal());
+			campaignComboBox.setSelectedIndex(campaigns.indexOf(model.getCurrentCampaign()));
+
+			//metricComboBox.setSelectedItem(model.getCurrentMetric().toString());
 
             Instant startInstant = model.getStartDateTime().toInstant(ZoneOffset.UTC);
             Date startDate = Date.from(startInstant);
@@ -109,50 +110,57 @@ public class ChartTab extends ControlPanelBox {
 			}
 
         }
-		
+
+		active = false;
+
 	}
 
 	class ChartTabController implements ActionListener,
 			ChangeListener, ItemListener, ListSelectionListener {
 
-		private Model model = null;
+		private Model model;
 
 		public ChartTabController(Model model){
-			model = model;
+			this.model = model;
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if(e.getSource() == campaignComboBox){
-				model.setCurrentCampaign(model.getListOfCampaigns().get(campaignComboBox.getSelectedIndex()));
-			}else if (e.getSource() == metricComboBox){
-				model.setCurrentMetric(Metric.COST_PER_THOUSAND_IMPRESSION);
-			}else if (e.getSource() == timeGranularityComboBox){
-				int timeGranularitySeconds = 0;
-				switch (timeGranularityComboBox.getSelectedIndex()) {
-					case 0: timeGranularitySeconds = 604800; break;
-					case 1: timeGranularitySeconds = 86400; break;
-					case 2: timeGranularitySeconds = 3600; break;
+
+			if (active){
+				System.out.println("ACTION PERFORMED");
+				if(e.getSource() == campaignComboBox){
+					model.setCurrentCampaign(model.getListOfCampaigns().get(campaignComboBox.getSelectedIndex()));
+				}else if (e.getSource() == metricComboBox){
+					model.setCurrentMetric(Metric.toMetric((String) metricComboBox.getSelectedItem()));
+				}else if (e.getSource() == timeGranularityComboBox){
+					int timeGranularitySeconds = 0;
+					switch (timeGranularityComboBox.getSelectedIndex()) {
+						case 0: timeGranularitySeconds = 604800; break;
+						case 1: timeGranularitySeconds = 86400; break;
+						case 2: timeGranularitySeconds = 3600; break;
+					}
+					model.setTimeGranularityInSeconds(timeGranularitySeconds);
 				}
-				model.setTimeGranularityInSeconds(timeGranularitySeconds);
 			}
+
 		}
 
 		@Override
 		public void stateChanged(ChangeEvent e) {
-			if(e.getSource() == startTimeSpinner){
-				Date startDate = (Date) startTimeSpinner.getValue();
-				Instant startInstant = Instant.ofEpochMilli(startDate.getTime());
-				LocalDateTime startLocalDateTime = LocalDateTime.ofInstant(startInstant, ZoneOffset.UTC);
-
-				model.setStartDateTime(startLocalDateTime);
-			}else if (e.getSource() == endTimeSpinner) {
-				Date endDate = (Date) endTimeSpinner.getValue();
-				Instant endInstant = Instant.ofEpochMilli(endDate.getTime());
-				LocalDateTime endLocalDateTime = LocalDateTime.ofInstant(endInstant, ZoneOffset.UTC);
-
-				model.setEndDateTime(endLocalDateTime);
-			}
+//			if(e.getSource() == startTimeSpinner){
+//				Date startDate = (Date) startTimeSpinner.getValue();
+//				Instant startInstant = Instant.ofEpochMilli(startDate.getTime());
+//				LocalDateTime startLocalDateTime = LocalDateTime.ofInstant(startInstant, ZoneOffset.UTC);
+//
+//				model.setStartDateTime(startLocalDateTime);
+//			}else if (e.getSource() == endTimeSpinner) {
+//				Date endDate = (Date) endTimeSpinner.getValue();
+//				Instant endInstant = Instant.ofEpochMilli(endDate.getTime());
+//				LocalDateTime endLocalDateTime = LocalDateTime.ofInstant(endInstant, ZoneOffset.UTC);
+//
+//				model.setEndDateTime(endLocalDateTime);
+//			}
 		}
 
 		@Override

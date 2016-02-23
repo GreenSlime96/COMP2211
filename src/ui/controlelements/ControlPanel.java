@@ -111,13 +111,11 @@ public class ControlPanel extends JPanel implements Observer, ActionListener, Ch
 	@Override
 	public void update(Observable o, Object arg) {
 		if (o == model) {
-			// TODO What happens when Model updates the controls?
-			
-			// We would like to update the existing values in the ControlPanel to reflect
-			// the new state of the Model
-//			Campaign[] listData = new Campaign[model.getCampaigns().size()];
-//			generalTab.setCampaignListData(model.getCampaigns().toArray(listData));
-
+			if(model.getCurrentCampaign() == null){
+				System.out.println("NO MODEL AT PRESENT");
+				chartTab.setEnabled(false);
+				filterTab.setEnabled(false);
+			}
 		}
 	}
 	

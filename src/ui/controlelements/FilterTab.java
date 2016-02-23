@@ -9,11 +9,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import java.awt.*;
 import java.awt.event.*;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Observable;
 
 /**
@@ -27,6 +24,8 @@ public class FilterTab extends ControlPanelBox {
     Box contextBox = new Box(BoxLayout.Y_AXIS);
     ArrayList<JCheckBox> genderBoxes, ageBoxes, incomeBoxes, contextBoxes;
     FilterTabController filterTabController;
+
+    boolean active = false;
     public FilterTab(Model model){
         super(model);
 
@@ -80,9 +79,10 @@ public class FilterTab extends ControlPanelBox {
 
     @Override
     public void update(Observable o, Object arg) {
-        System.out.println("General Tab Updating");
 
+        active = false;
         if(o == model){
+
             genderBoxes.get(0).setSelected(model.getFieldFilteredValue(User.GENDER_MALE));
             genderBoxes.get(1).setSelected(model.getFieldFilteredValue(User.GENDER_FEMALE));
 
@@ -103,9 +103,36 @@ public class FilterTab extends ControlPanelBox {
             contextBoxes.get(4).setSelected(model.getFieldFilteredValue(User.CONTEXT_HOBBIES));
             contextBoxes.get(5).setSelected(model.getFieldFilteredValue(User.CONTEXT_TRAVEL));
 
+            verifyCheckBoxGroup(genderBoxes);
+            verifyCheckBoxGroup(ageBoxes);
+            verifyCheckBoxGroup(incomeBoxes);
+            verifyCheckBoxGroup(contextBoxes);
         }
+
+        active = true;
+
+
     }
 
+    public void verifyCheckBoxGroup(ArrayList<JCheckBox> checkBoxes){
+            if(active) {
+                boolean allfalse = true;
+                for (JCheckBox checkBox : checkBoxes) {
+                    if (checkBox.isSelected()) {
+                        allfalse = false;
+                        break;
+                    } else {
+                        allfalse = true;
+                    }
+                }
+
+                if (allfalse) {
+                    for (JCheckBox checkBox : checkBoxes) {
+                        checkBox.setSelected(true);
+                    }
+                }
+            }
+    }
 
     class FilterTabController implements ActionListener,
             ChangeListener, ItemListener, ListSelectionListener {
@@ -113,7 +140,7 @@ public class FilterTab extends ControlPanelBox {
         private Model model = null;
 
         public FilterTabController(Model model){
-            model = model;
+            this.model = model;
 
             verifyCheckBoxGroup(genderBoxes);
             verifyCheckBoxGroup(ageBoxes);
@@ -123,47 +150,60 @@ public class FilterTab extends ControlPanelBox {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if(e.getSource() instanceof JCheckBox){
-                JCheckBox checkBox = (JCheckBox) e.getSource();
-                switch (checkBox.getText()) {
-                    case "Male":
-                        model.setFieldFilteredValue(User.GENDER_MALE, checkBox.isSelected()); break;
-                    case "Female":
-                        model.setFieldFilteredValue(User.GENDER_FEMALE, checkBox.isSelected()); break;
-                    case "<25":
-                        model.setFieldFilteredValue(User.AGE_BELOW_25, checkBox.isSelected()); break;
-                    case "25-34":
-                        model.setFieldFilteredValue(User.AGE_25_TO_34, checkBox.isSelected()); break;
-                    case "35-44":
-                        model.setFieldFilteredValue(User.AGE_35_TO_44, checkBox.isSelected()); break;
-                    case "45-54":
-                        model.setFieldFilteredValue(User.AGE_45_TO_54, checkBox.isSelected()); break;
-                    case ">54":
-                        model.setFieldFilteredValue(User.AGE_ABOVE_54, checkBox.isSelected()); break;
-                    case "Low":
-                        model.setFieldFilteredValue(User.INCOME_LOW, checkBox.isSelected()); break;
-                    case "Medium":
-                        model.setFieldFilteredValue(User.INCOME_MEDIUM, checkBox.isSelected()); break;
-                    case "High":
-                        model.setFieldFilteredValue(User.INCOME_HIGH, checkBox.isSelected()); break;
-                    case "News":
-                        model.setFieldFilteredValue(User.CONTEXT_NEWS, checkBox.isSelected()); break;
-                    case "Shopping":
-                        model.setFieldFilteredValue(User.CONTEXT_SHOPPING, checkBox.isSelected()); break;
-                    case "Social Media":
-                        model.setFieldFilteredValue(User.CONTEXT_SOCIAL_MEDIA, checkBox.isSelected()); break;
-                    case "Blog":
-                        model.setFieldFilteredValue(User.CONTEXT_BLOG, checkBox.isSelected()); break;
-                    case "Hobbies":
-                        model.setFieldFilteredValue(User.CONTEXT_HOBBIES, checkBox.isSelected()); break;
-                    case "Travel":
-                        model.setFieldFilteredValue(User.CONTEXT_TRAVEL, checkBox.isSelected()); break;
+            if(active) {
+                if (e.getSource() instanceof JCheckBox) {
+                    JCheckBox checkBox = (JCheckBox) e.getSource();
+                    switch (checkBox.getText()) {
+                        case "Male":
+                            model.setFieldFilteredValue(User.GENDER_MALE, checkBox.isSelected());
+                            break;
+                        case "Female":
+                            model.setFieldFilteredValue(User.GENDER_FEMALE, checkBox.isSelected());
+                            break;
+                        case "<25":
+                            model.setFieldFilteredValue(User.AGE_BELOW_25, checkBox.isSelected());
+                            break;
+                        case "25-34":
+                            model.setFieldFilteredValue(User.AGE_25_TO_34, checkBox.isSelected());
+                            break;
+                        case "35-44":
+                            model.setFieldFilteredValue(User.AGE_35_TO_44, checkBox.isSelected());
+                            break;
+                        case "45-54":
+                            model.setFieldFilteredValue(User.AGE_45_TO_54, checkBox.isSelected());
+                            break;
+                        case ">54":
+                            model.setFieldFilteredValue(User.AGE_ABOVE_54, checkBox.isSelected());
+                            break;
+                        case "Low":
+                            model.setFieldFilteredValue(User.INCOME_LOW, checkBox.isSelected());
+                            break;
+                        case "Medium":
+                            model.setFieldFilteredValue(User.INCOME_MEDIUM, checkBox.isSelected());
+                            break;
+                        case "High":
+                            model.setFieldFilteredValue(User.INCOME_HIGH, checkBox.isSelected());
+                            break;
+                        case "News":
+                            model.setFieldFilteredValue(User.CONTEXT_NEWS, checkBox.isSelected());
+                            break;
+                        case "Shopping":
+                            model.setFieldFilteredValue(User.CONTEXT_SHOPPING, checkBox.isSelected());
+                            break;
+                        case "Social Media":
+                            model.setFieldFilteredValue(User.CONTEXT_SOCIAL_MEDIA, checkBox.isSelected());
+                            break;
+                        case "Blog":
+                            model.setFieldFilteredValue(User.CONTEXT_BLOG, checkBox.isSelected());
+                            break;
+                        case "Hobbies":
+                            model.setFieldFilteredValue(User.CONTEXT_HOBBIES, checkBox.isSelected());
+                            break;
+                        case "Travel":
+                            model.setFieldFilteredValue(User.CONTEXT_TRAVEL, checkBox.isSelected());
+                            break;
+                    }
                 }
-
-                verifyCheckBoxGroup(genderBoxes);
-                verifyCheckBoxGroup(ageBoxes);
-                verifyCheckBoxGroup(incomeBoxes);
-                verifyCheckBoxGroup(contextBoxes);
             }
         }
 
@@ -180,24 +220,6 @@ public class FilterTab extends ControlPanelBox {
         @Override
         public void valueChanged(ListSelectionEvent e) {
 
-        }
-
-        public void verifyCheckBoxGroup(ArrayList<JCheckBox> checkBoxes){
-            boolean allfalse = true;
-            for(JCheckBox checkBox : checkBoxes ) {
-                if (checkBox.isSelected()){
-                    allfalse = false;
-                    break;
-                }else {
-                    allfalse = true;
-                }
-            }
-
-            if(allfalse) {
-                for(JCheckBox checkBox : checkBoxes ) {
-                    checkBox.setSelected(true);
-                }
-            }
         }
     }
 

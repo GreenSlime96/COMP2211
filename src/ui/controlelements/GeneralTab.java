@@ -35,8 +35,8 @@ public class GeneralTab extends ControlPanelBox {
     private JButton removeCampaignButton = new JButton("-");
     private JButton addCampaignButton = new JButton("+");
 
-//    String[] arr = {"Campaign 1", "Campaign 2"};
-    private JList<String> campaignList = new JList<String>();
+    String[] arr = {};
+    private JList<String> campaignList = new JList<String>(arr);
     JLabel noImpressionsLabel = new JLabel("######");
     JLabel startDateLabel = new JLabel("######");
     JLabel endDateLabel = new JLabel("######");
@@ -47,9 +47,13 @@ public class GeneralTab extends ControlPanelBox {
     private DateTimeFormatter dateTimeFormatter =  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     GeneralTabController generalTabController;
+
+    boolean active;
+
     public GeneralTab(Model model){
     	super(model);
 
+        campaignList.setVisibleRowCount(4);
         Box addsubPanel = new Box(BoxLayout.X_AXIS);
         addsubPanel.add(addCampaignButton);
         addsubPanel.add(removeCampaignButton);
@@ -70,18 +74,27 @@ public class GeneralTab extends ControlPanelBox {
         addCampaignButton.addActionListener(generalTabController);
         removeCampaignButton.addActionListener(generalTabController);
 
+        active = true;
 
     }
 
 	@Override
 	public void update(Observable o, Object arg) {
 
-        System.out.println("General Tab Updating");
+        active = false;
+
+        campaignList.addListSelectionListener(null);
+        addCampaignButton.addActionListener(null);
+        removeCampaignButton.addActionListener(null);
+
         ArrayList<Campaign> campaigns = (ArrayList<Campaign>) model.getListOfCampaigns();
         String[] nameArray = new String[campaigns.size()];
+
         for (Campaign c : campaigns){
             nameArray[campaigns.indexOf(c)] = c.getDirectoryPath();
+//            System.out.println(nameArray[campaigns.indexOf(c)]);
         }
+
         campaignList.setListData(nameArray);
 
         Campaign c = model.getCurrentCampaign();
@@ -94,6 +107,11 @@ public class GeneralTab extends ControlPanelBox {
         totalCostLabel.setText(String.valueOf(c.getTotalCostOfCampaign()));
         campaignDirectoryLabel.setText(String.valueOf(c.getDirectoryPath()));
 
+        campaignList.addListSelectionListener(generalTabController);
+        addCampaignButton.addActionListener(generalTabController);
+        removeCampaignButton.addActionListener(generalTabController);
+
+        active = true;
 	}
 
     class GeneralTabController implements ActionListener,
@@ -105,27 +123,29 @@ public class GeneralTab extends ControlPanelBox {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if(e.getSource() == addCampaignButton){
-                JFileChooser f = new JFileChooser();
-                f.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                f.showSaveDialog(null);
+            if(active) {
+                if (e.getSource() == addCampaignButton) {
+                    JFileChooser f = new JFileChooser();
+                    f.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+                    f.showSaveDialog(null);
 
-                if (f.getSelectedFile() != null){
-                    try {
-                        model.addCampaign(f.getSelectedFile());
-                    } catch (FileNotFoundException e1) {
-                        JOptionPane.showMessageDialog(null, "Directory does not contain correct files");
-                        e1.printStackTrace();
+                    if (f.getSelectedFile() != null) {
+                        try {
+                            model.addCampaign(f.getSelectedFile());
+                        } catch (FileNotFoundException e1) {
+                            JOptionPane.showMessageDialog(null, "Directory does not contain correct files");
+                            e1.printStackTrace();
+                        }
                     }
-                }
-            }else if (e.getSource() == removeCampaignButton){
-                int selectedOption = JOptionPane.showConfirmDialog(null,
-                        "Are you sure you wish to delete Campaign " + model.getCurrentCampaign().getDirectoryPath(),
-                        "Choose",
-                        JOptionPane.YES_NO_OPTION);
-                if (selectedOption == JOptionPane.YES_OPTION) {
-                    Campaign c = model.getListOfCampaigns().get(campaignList.getSelectedIndex());
-                    model.removeCampaign(c);
+                } else if (e.getSource() == removeCampaignButton) {
+                    int selectedOption = JOptionPane.showConfirmDialog(null,
+                            "Are you sure you wish to delete Campaign " + model.getCurrentCampaign().getDirectoryPath(),
+                            "Choose",
+                            JOptionPane.YES_NO_OPTION);
+                    if (selectedOption == JOptionPane.YES_OPTION) {
+                        Campaign c = model.getListOfCampaigns().get(campaignList.getSelectedIndex());
+                        model.removeCampaign(c);
+                    }
                 }
             }
         }
@@ -142,10 +162,12 @@ public class GeneralTab extends ControlPanelBox {
 
         @Override
         public void valueChanged(ListSelectionEvent e) {
-            if(e.getSource() == campaignList){
-                //stops event firing twice.
-                if(!e.getValueIsAdjusting())
-                model.setCurrentCampaign(model.getListOfCampaigns().get(campaignList.getSelectedIndex()));
+            if (active){
+                if (e.getSource() == campaignList) {
+                    //stops event firing twice.
+                    if (!e.getValueIsAdjusting())
+                        model.setCurrentCampaign(model.getListOfCampaigns().get(campaignList.getSelectedIndex()));
+                }
             }
         }
     }
