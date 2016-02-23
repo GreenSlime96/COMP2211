@@ -16,7 +16,7 @@ import javafx.scene.chart.XYChart.Series;
 import javafx.scene.control.Tooltip;
 
 public class LineChartElement implements ChartElement {
-			
+	private int chartNumber;
 	private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, MMMM d, u, HH:mm");
 	
 	private static int TITLE_HEIGHT = 30;
@@ -95,6 +95,7 @@ public class LineChartElement implements ChartElement {
 		chart.getData().add(series);
 		addTooltips();
 	}
+
 	
 	public void resizeChart(int width, int height)
 	{

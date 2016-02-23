@@ -5,6 +5,9 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -55,26 +58,36 @@ public class GraphPanel extends JPanel {
 	public void init(){
 
 		centerPanel = new JFXPanel();
-		JLabel myLabel = new JLabel("Here goes the name of the chart");
+//		JLabel myLabel = new JLabel("Chart number: " + this.chartElement.getChartNumber());
 		centerPanel.setBackground(new java.awt.Color(140, 0, 20));
 		
 		//Creating an ugly compound border for the TextField Panel and the Fractals
 	    Border raisedbevel = BorderFactory.createRaisedBevelBorder();
 	    Border loweredbevel = BorderFactory.createLoweredBevelBorder();
 	    Border compound = BorderFactory.createCompoundBorder(raisedbevel, loweredbevel);
-		
+
 		centerPanel.addMouseListener(new MouseListener() {
 			public void mouseClicked(MouseEvent e) {
 				
 				if (e.getClickCount() == 2 && !e.isConsumed()) {
 				     e.consume();
 				     //creating a new window, adding the chart and resizing it
-				     GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");	
-				     testWindow.setScene(scene);
-				     chartElement.resizeChart(testWindow.getWidth(), testWindow.getHeight());	
+//				     GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");	
+//				     testWindow.setScene(scene);
+//				     chartElement.resizeChart(testWindow.getWidth(), testWindow.getHeight());
+				     GraphAreaView background = (GraphAreaView) centerPanel.getParent().getParent();
 				     
-				     //GraphAreaView background = (GraphAreaView) centerPanel.getParent().getParent();
-				     //background.addPanel(new GraphPanel(model, background.getNumberOfCharts()+1));
+				     GraphPanel myGraphPanel = new GraphPanel(model,background.getNumberOfCharts()+1);
+				     LineChartElement lc1 = new LineChartElement("CPA Chart "+ (background.getNumberOfCharts()+1));
+				     lc1.setTimeGranularity(60*60*24);
+				     lc1.setMetric("CPA");
+				     List<Number> data = new ArrayList<Number>();
+				     for(int i=0; i<30; i++){
+						data.add(Math.random() * i);
+				     }
+				     lc1.addSeries(data, LocalDateTime.now());
+				     myGraphPanel.setChartElement(lc1);
+				     background.addPanel(myGraphPanel);
 				}
 			}
 			public void mousePressed(MouseEvent e) {
@@ -92,7 +105,7 @@ public class GraphPanel extends JPanel {
 		});
 
 		this.add(centerPanel, BorderLayout.CENTER);
-		this.add(myLabel, BorderLayout.NORTH);
+//		this.add(myLabel, BorderLayout.NORTH);
 		this.setBorder(compound);
 		
 		chartElementPane = new GridPane();

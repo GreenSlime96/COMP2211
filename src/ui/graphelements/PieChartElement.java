@@ -7,7 +7,7 @@ public class PieChartElement implements ChartElement {
 
 	private static int TITLE_HEIGHT = 30;
 	private static int LEGEND_HEIGHT = 50;
-	
+	int chartNumber;
 	private PieChart chart;
 	
 	public PieChartElement(String chartTitle)
@@ -35,5 +35,5 @@ public class PieChartElement implements ChartElement {
 	{
 		return chart;
 	}
-	
+
 }
