@@ -235,7 +235,7 @@ public class DataProcessor {
 		long nextDate = currentDate + timeGranularityInSeconds;
 		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
 		
-		final long time = System.currentTimeMillis();	
+		long time = System.currentTimeMillis();	
 		
 		outerLoop:
 		for (Impression impression : campaign.getImpressions()) {
@@ -271,16 +271,6 @@ public class DataProcessor {
 		
 		System.out.println("Processing: \t" + (System.currentTimeMillis() - time));
 		System.out.println("Size of Query: \t" + impressionsList.size());
-		
-//		List<Integer> testList = campaign.getImpressions().
-//				parallelStream().filter(x -> dataFilter.test(x.getUserData())).
-//				mapToInt(x -> whatever(x.getEpochSeconds())).collect(groupingBy(identity(), counting()));
-
-//		for (int i : testList) {
-//			System.out.println(i);
-//		}
-		
-//		System.out.println(impressionsList.parallelStream().mapToInt(x -> x).sum());
 
 		// pack
 		impressionsList.trimToSize();
