@@ -61,7 +61,7 @@ public class Model extends Observable implements ActionListener {
 //					List<Integer> list2 = dp.numberOfConversions();
 //					System.out.println(System.currentTimeMillis() - time);
 //					System.out.println(list1.size() + "\t" + list2.size());
-					System.exit(0);
+//					System.exit(0);
 				} else
 					
 					System.out.println("No Selection");
