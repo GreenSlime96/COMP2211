@@ -135,7 +135,7 @@ public class Campaign {
 		return clicksList;
 	}
 
-	public final Collection<Server> getServer() {
+	public final Collection<Server> getServers() {
 		return serversList;
 	}
 

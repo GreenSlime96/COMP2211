@@ -1,6 +1,6 @@
 package core.records;
 
-abstract class CostRecord extends Record {
+public abstract class CostRecord extends Record {
 	
 	// ==== Properties ====
 	
