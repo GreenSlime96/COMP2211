@@ -127,7 +127,7 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		//if a 5th is added, delete chart 1 and add it in its place
 		if(numberOfCharts > 4){
 			//temporary
-//			removeAll();
+			removeAll();
 			int numberOfChartsAsIndex = numberOfCharts%4;
 			
 			if(numberOfChartsAsIndex != 0){
