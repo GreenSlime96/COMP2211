@@ -14,7 +14,7 @@ import javax.swing.Timer;
 import core.campaigns.Campaign;
 import core.data.DataFilter;
 import core.data.DataProcessor;
-import core.data.UserFields;
+import core.data.User;
 import ui.controlelements.CampaignFileChooser;
 
 public class Model extends Observable implements ActionListener {
@@ -192,11 +192,11 @@ public class Model extends Observable implements ActionListener {
 	
 	// ==== Filter Tab ====
 	
-	public final boolean getFieldFilteredValue(UserFields field) {
+	public final boolean getFieldFilteredValue(User field) {
 		return currentProcessor.getFieldFilteredValue(field);
 	}
 	
-	public final void setFieldFilteredValue(UserFields field, boolean value) {
+	public final void setFieldFilteredValue(User field, boolean value) {
 		currentProcessor.setFieldFilterValue(field, value);
 	}
 	

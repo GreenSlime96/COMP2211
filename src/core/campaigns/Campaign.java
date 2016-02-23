@@ -13,7 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import core.data.UserFields;
+import core.data.User;
 import core.records.Click;
 import core.records.Impression;
 import core.records.Server;
@@ -335,8 +335,7 @@ public class Campaign {
 			
 			// reset
 			costOfImpressions = 0;
-			numberOfUniques = 0;
-			long time = System.currentTimeMillis();
+
 			while (mbb.hasRemaining()) {				
 				int index = mbb.position();
 
@@ -376,10 +375,10 @@ public class Campaign {
 					byte temp;
 					
 					if ((temp = mbb.get()) == 'F') {
-						userData |= UserFields.GENDER_FEMALE.mask;
+						userData |= User.GENDER_FEMALE.mask;
 						mbb.position(index + 6);
 					} else if (temp == 'M') {
-						userData |= UserFields.GENDER_MALE.mask;
+						userData |= User.GENDER_MALE.mask;
 						mbb.position(index + 4);
 					} else {
 						throw new IllegalArgumentException("invalid gender " + temp);
@@ -392,19 +391,19 @@ public class Campaign {
 					index = mbb.position();
 					
 					if ((temp = mbb.get()) == '2') {
-						userData |= UserFields.AGE_25_TO_34.mask;
+						userData |= User.AGE_25_TO_34.mask;
 						mbb.position(index + 5);
 					} else if (temp == '4') {
-						userData |= UserFields.AGE_45_TO_54.mask;
+						userData |= User.AGE_45_TO_54.mask;
 						mbb.position(index + 5);
 					} else if (temp == '3') {
-						userData |= UserFields.AGE_35_TO_44.mask;
+						userData |= User.AGE_35_TO_44.mask;
 						mbb.position(index + 5);
 					} else if (temp == '>') {
-						userData |= UserFields.AGE_ABOVE_54.mask;
+						userData |= User.AGE_ABOVE_54.mask;
 						mbb.position(index + 3);
 					} else if (temp == '<') {
-						userData |= UserFields.AGE_BELOW_25.mask;
+						userData |= User.AGE_BELOW_25.mask;
 						mbb.position(index + 3);
 					} else {
 						throw new IllegalArgumentException("invalid age " + temp);
@@ -417,13 +416,13 @@ public class Campaign {
 					index = mbb.position();
 
 					if ((temp = mbb.get()) == 'H') {
-						userData |= UserFields.INCOME_HIGH.mask;
+						userData |= User.INCOME_HIGH.mask;
 						mbb.position(index + 4);
 					} else if (temp == 'M') {
-						userData |= UserFields.INCOME_MEDIUM.mask;
+						userData |= User.INCOME_MEDIUM.mask;
 						mbb.position(index + 6);						
 					} else if (temp == 'L') {
-						userData |= UserFields.INCOME_LOW.mask;
+						userData |= User.INCOME_LOW.mask;
 						mbb.position(index + 3);
 					} else {
 						throw new IllegalArgumentException("invalid income " + temp);
@@ -436,26 +435,26 @@ public class Campaign {
 					index = mbb.position();
 					
 					if ((temp = mbb.get()) == 'N') {
-						userData |= UserFields.CONTEXT_NEWS.mask;
+						userData |= User.CONTEXT_NEWS.mask;
 						mbb.position(index + 4);
 					} else if (temp == 'S') {
 						if ((temp = mbb.get()) == 'o') {
-							userData |= UserFields.CONTEXT_SOCIAL_MEDIA.mask;
+							userData |= User.CONTEXT_SOCIAL_MEDIA.mask;
 							mbb.position(index + 12);
 						} else if (temp == 'h') {
-							userData |= UserFields.CONTEXT_SHOPPING.mask;
+							userData |= User.CONTEXT_SHOPPING.mask;
 							mbb.position(index + 8);
 						} else {
 							throw new IllegalArgumentException("invalid context S" + temp);
 						}
 					} else if (temp == 'B') {
-						userData |= UserFields.CONTEXT_BLOG.mask;
+						userData |= User.CONTEXT_BLOG.mask;
 						mbb.position(index + 4);
 					} else if (temp == 'T') {
-						userData |= UserFields.CONTEXT_TRAVEL.mask;
+						userData |= User.CONTEXT_TRAVEL.mask;
 						mbb.position(index + 6);
 					} else if (temp == 'H') {
-						userData |= UserFields.CONTEXT_HOBBIES.mask;
+						userData |= User.CONTEXT_HOBBIES.mask;
 						mbb.position(index + 7);
 					} else {
 						throw new IllegalArgumentException("invalid context " + temp);
@@ -498,7 +497,6 @@ public class Campaign {
 				// misc increment
 				costOfImpressions += cost;
 			}
-			System.out.println(System.currentTimeMillis() - time);
 			
 			// trim the ArrayList to save capacity
 			impressionsList.trimToSize();

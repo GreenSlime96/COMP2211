@@ -1,6 +1,6 @@
 package core.data;
 
-public enum UserFields {
+public enum User {
 	GENDER_MALE, GENDER_FEMALE,
 	AGE_BELOW_25, AGE_25_TO_34, AGE_35_TO_44, AGE_45_TO_54, AGE_ABOVE_54,
 	INCOME_LOW, INCOME_MEDIUM, INCOME_HIGH,
@@ -13,7 +13,7 @@ public enum UserFields {
 	
 	// ==== Constructor ====
 
-	UserFields() {
+	User() {
 		mask = 1 << ordinal();
 	}
 	

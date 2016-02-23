@@ -172,10 +172,10 @@ public class DataProcessor {
 		this.bounceMinimumSecondsOnPage = bounceMinimumSecondsOnPage;
 	}
 	
-	public final boolean getFieldFilteredValue(UserFields field) {
+	public final boolean getFieldFilteredValue(User field) {
 		return dataFilter.getField(field);
 	}
-	public final void setFieldFilterValue(UserFields field, boolean value) {
+	public final void setFieldFilterValue(User field, boolean value) {
 		dataFilter.setField(field, value);
 	}
 	
