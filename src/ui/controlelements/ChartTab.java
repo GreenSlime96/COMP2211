@@ -15,6 +15,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import core.Metric;
 import core.Model;
 import core.campaigns.Campaign;
 
@@ -88,7 +89,7 @@ public class ChartTab extends ControlPanelBox {
                 campaignComboBox.addItem(c.getDirectoryPath());
             }
 
-            metricComboBox.setSelectedIndex(model.getCurrentMetric());
+            metricComboBox.setSelectedIndex(model.getCurrentMetric().ordinal());
 
             Instant startInstant = model.getStartDateTime().toInstant(ZoneOffset.UTC);
             Date startDate = Date.from(startInstant);
@@ -125,7 +126,7 @@ public class ChartTab extends ControlPanelBox {
 			if(e.getSource() == campaignComboBox){
 				model.setCurrentCampaign(model.getListOfCampaigns().get(campaignComboBox.getSelectedIndex()));
 			}else if (e.getSource() == metricComboBox){
-				model.setCurrentMetric();
+				model.setCurrentMetric(Metric.COST_PER_THOUSAND_IMPRESSION);
 			}else if (e.getSource() == timeGranularityComboBox){
 				int timeGranularitySeconds = 0;
 				switch (timeGranularityComboBox.getSelectedIndex()) {

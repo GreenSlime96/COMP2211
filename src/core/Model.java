@@ -86,8 +86,8 @@ public class Model extends Observable implements ActionListener {
 	
 	// ==== General Tab ====
 	
-    public final List<String> getListOfCampaigns() {
-        return campaigns.stream().map(x -> x.getDirectoryPath()).collect(Collectors.toList());
+    public final List<Campaign> getListOfCampaigns() {
+        return campaigns;
     }
     
     public final void addCampaign(File campaignDirectory) throws FileNotFoundException {
