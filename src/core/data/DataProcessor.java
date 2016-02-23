@@ -79,6 +79,9 @@ public class DataProcessor {
 	}
 	
 	public final void setCampaign(Campaign campaign) {
+		if (this.campaign.equals(campaign))
+			return;
+		
 		final LocalDateTime campaignStartDate = campaign.getStartDateTime();
 		final LocalDateTime campaignEndDate = campaign.getEndDateTime();		
 		
@@ -126,16 +129,16 @@ public class DataProcessor {
 			returnList = totalCost();
 			break;
 		case CLICK_THROUGH_RATE:
-			returnList = CTR();
+			returnList = clickThroughRate();
 			break;
 		case COST_PER_ACQUISITION:
-			returnList = CPA();
+			returnList = costPerAcquisition();
 			break;
 		case COST_PER_CLICK:
-			returnList = CPC();
+			returnList = costPerClick();
 			break;
-		case COST_PER_THOUSAND_IMPRESSION:
-			returnList = CPM();
+		case COST_PER_THOUSAND_IMPRESSIONS:
+			returnList = costPerThousandImpressions();
 			break;
 		case BOUNCE_RATE:
 			returnList = bounceRate();
@@ -581,7 +584,7 @@ public class DataProcessor {
 	}
 	
 	// average clicks per impression
-	private final List<Double> CTR() {
+	private final List<Double> clickThroughRate() {
 		final List<Integer> impressionsList = numberOfImpressions();
 		final List<Integer> clicksList = numberOfClicks();
 		
@@ -599,7 +602,7 @@ public class DataProcessor {
 	
 	// The average amount of money spent on an advertising campaign
 	// for each acquisition (i.e., conversion).
-	private final List<Double> CPA() {
+	private final List<Double> costPerAcquisition() {
 		final List<Integer> conversionList = numberOfConversions();
 		final List<Double> costList = totalCost();
 
@@ -615,7 +618,7 @@ public class DataProcessor {
 	}
 	
 	// The average amount of money spent on an advertising campaign for each click.
-	private final List<Double> CPC() {
+	private final List<Double> costPerClick() {
 		final List<Integer> clickList = numberOfClicks();
 		final List<Double> costList = totalCost();
 		
@@ -631,7 +634,7 @@ public class DataProcessor {
 	}
 	
 	// The average amount of money spent on an advertising campaign for every one thousand impressions.
-	private final List<Double> CPM() {
+	private final List<Double> costPerThousandImpressions() {
 		final List<Integer> impressionsList = numberOfImpressions();
 		final List<Double> costsList = totalCost();
 		

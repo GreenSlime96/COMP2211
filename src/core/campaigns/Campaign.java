@@ -78,11 +78,9 @@ public class Campaign {
 			throw new FileNotFoundException(campaignDirectory + " is not a valid campaign directory!");
 
 		this.campaignDirectory = campaignDirectory;
-
-		/*
-		 * TODO Go through Impressions Log - Compute total cost - Start date,
-		 * End date - Users map, how much memory?
-		 */
+	}
+	
+	public final void loadData() {
 		System.out.println("--------------------------------------");
 
 		System.gc();
@@ -178,10 +176,7 @@ public class Campaign {
 	public final double getCostOfClicks() {
 		return costOfClicks;
 	}
-
-	public final String getDirectoryPath() {
-		return campaignDirectory.getName();
-	}
+	
 
 	// ==== Private Helper Methods ====
 
@@ -537,8 +532,8 @@ public class Campaign {
 	}
 
 	@Override
-	public String toString() {
-		return "Campaign [campaignDirectory=" + campaignDirectory + "]";
+	public final String toString() {
+		return campaignDirectory.getName();
 	}
 
 }
