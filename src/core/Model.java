@@ -14,7 +14,7 @@ import javax.swing.Timer;
 import core.campaigns.Campaign;
 import core.data.DataFilter;
 import core.data.DataProcessor;
-import core.data.UserFields;
+import core.data.User;
 import ui.controlelements.CampaignFileChooser;
 
 public class Model extends Observable implements ActionListener {
@@ -47,20 +47,21 @@ public class Model extends Observable implements ActionListener {
 		
 		try {
 			// TODO temporary file picker
-			if (CHOOSE_FILE_ON_STARTUP) {
+			if (true) {
 				CampaignFileChooser chooser = new CampaignFileChooser();
 				if (chooser.selectionMade()) {
 					test = new Campaign(chooser.getSelectedFile());
 					addCampaign(test);
 					currentProcessor = new DataProcessor(test);
 					currentCampaign = test;
-	//				long time = System.currentTimeMillis();
-	//				List<Integer> list1 = dp.numberOfImpressions();
-	//				System.out.println(System.currentTimeMillis() - time);
-	//				time = System.currentTimeMillis();
-	//				List<Integer> list2 = dp.numberOfConversions();
-	//				System.out.println(System.currentTimeMillis() - time);
-	//				System.out.println(list1.size() + "\t" + list2.size());
+//					long time = System.currentTimeMillis();
+//					List<Integer> list1 = dp.numberOfImpressions();
+//					System.out.println(System.currentTimeMillis() - time);
+//					time = System.currentTimeMillis();
+//					List<Integer> list2 = dp.numberOfConversions();
+//					System.out.println(System.currentTimeMillis() - time);
+//					System.out.println(list1.size() + "\t" + list2.size());
+					System.exit(0);
 				} else
 					
 					System.out.println("No Selection");
@@ -191,11 +192,11 @@ public class Model extends Observable implements ActionListener {
 	
 	// ==== Filter Tab ====
 	
-	public final boolean getFieldFilteredValue(UserFields field) {
+	public final boolean getFieldFilteredValue(User field) {
 		return currentProcessor.getFieldFilteredValue(field);
 	}
 	
-	public final void setFieldFilteredValue(UserFields field, boolean value) {
+	public final void setFieldFilteredValue(User field, boolean value) {
 		currentProcessor.setFieldFilterValue(field, value);
 	}
 	

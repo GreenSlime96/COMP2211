@@ -24,11 +24,11 @@ public class DataFilter implements Predicate<Integer> {
 	// ==== Accessors ====
 	
 	
-	public boolean getField(UserFields field) {
+	public boolean getField(User field) {
 		return (1 & (flags << field.mask)) != 0;
 	}
 	
-	public void setField(UserFields field, boolean value) {
+	public void setField(User field, boolean value) {
 		if (value)
 			flags |= field.mask;
 		else
@@ -44,6 +44,6 @@ public class DataFilter implements Predicate<Integer> {
 	}
 	
 	public boolean test(int user) {
-		return (user & flags) == flags;
+		return (user & flags) == user;
 	}
 }

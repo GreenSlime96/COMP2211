@@ -1,6 +1,10 @@
 package util;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.chrono.IsoChronology;
 import java.time.format.DateTimeFormatter;
 
 public class DateProcessor {
@@ -10,6 +14,16 @@ public class DateProcessor {
 	public static final long DATE_NULL = -1;
 	
 	static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	static final ZoneOffset systemZone = ZoneOffset.UTC;
+	
+	// see LocalDate.class header
+	static final int DAYS_PER_CYCLE = 146097;
+    static final long DAYS_0000_TO_1970 = (DAYS_PER_CYCLE * 5L) - (30L * 365L + 7L);
+    
+    // see LocalTime.class header
+    static final int MINUTES_PER_HOUR = 60;
+    static final int SECONDS_PER_MINUTE = 60;
+    static final int SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
 	
 	
 	// ==== Static Methods ====
@@ -42,6 +56,46 @@ public class DateProcessor {
 		return (year << 48) | (month << 40) | (day << 32) | (hour << 24) | (minute << 16) | (second << 8);
 	}
 	
+	public static long charArrayToEpochSeconds(char[] data) {
+		if (data.length != 19)
+			if (data[0] == 'n' && data[1] == '/' && data[2] == 'a')
+				return DATE_NULL;
+			else
+				throw new IllegalArgumentException("date in incorrect format!");
+		
+		final int year = charArrayToInt(data, 0, 4);
+		final int month = charArrayToInt(data, 5, 7);
+		final int day = charArrayToInt(data, 8, 10);
+		
+		final int hour = charArrayToInt(data, 11, 13);
+		final int minute = charArrayToInt(data, 14, 16);
+		final int second = charArrayToInt(data, 17, 19);
+		
+        long total = 0;
+        total += 365 * year;
+        if (year >= 0) {
+            total += (year + 3) / 4 - (year + 99) / 100 + (year + 399) / 400;
+        } else {
+            total -= year / -4 - year / -100 + year / -400;
+        }
+        total += ((367 * month - 362) / 12);
+        total += day - 1;
+        if (month > 2) {
+            total--;
+            // if is a leap year
+            if (!((year & 3) == 0) && ((year % 100) != 0 || (year % 400) == 0)) {
+                total--;
+            }
+        }
+        
+        return (total - DAYS_0000_TO_1970) * 86400 + hour * SECONDS_PER_HOUR + minute * SECONDS_PER_MINUTE + second;
+//        return ZonedDateTime.of(year, month, day, hour, minute, second, 0, ZoneOffset.UTC).toEpochSecond();
+	}
+	
+	public static long stringToEpoch(String data) {
+		return charArrayToEpochSeconds(data.toCharArray());
+	}
+	
 	
 	/**
 	 * Converts a long back into LocalDateTime
@@ -66,6 +120,29 @@ public class DateProcessor {
 		return LocalDateTime.of(year, month, day, hour, minute, second);
 	}
 	
+	public static long longToEpoch(long dateTime) {
+		if (dateTime == DATE_NULL)
+			return DATE_NULL;
+		
+		final int year = (int) (dateTime >> 48);
+		final int month = (int) (dateTime >> 40 & 0xFF);
+		final int day = (int) (dateTime >> 32 & 0xFF);
+		
+		// process time
+		final int hour = (int) (dateTime >> 24 & 0xFF);
+		final int minute = (int) (dateTime >> 16 & 0xFF);
+		final int second = (int) (dateTime >> 8 & 0xFF);
+		
+		final ZonedDateTime zdt = ZonedDateTime.of(year, month, day, hour, minute, second, 0, systemZone);
+		
+		// create new LocalDateTime instance
+		return zdt.toEpochSecond();
+	}
+	
+	public static LocalDateTime epochSecondsToLocalDateTime(long epochSecond) {
+		return LocalDateTime.ofEpochSecond(epochSecond, 0, systemZone);
+	}
+ 	
 	
 	public static LocalDateTime stringToLocalDateTime(String date) {
 		return parseDate(date);
@@ -107,5 +184,5 @@ public class DateProcessor {
 		
 		return result;
 	}
-	
+
 }

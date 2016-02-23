@@ -15,16 +15,12 @@ public class Server extends Record {
 	
 	// ==== Constructor ====
 	
-	public Server(String string) {
-		this(string.split(","));
-	}
-	
-	public Server(String[] data) {
-		super(data, 5);
+	public Server(long dateTime, long userID, int userData, long exitDateTime, int pagesViewed, boolean conversion) {
+		super(dateTime, userID, userData);
 		
-		exitDateTime = DateProcessor.stringToLong(data[2]);
-		pagesViewed = Integer.parseInt(data[3]);
-		conversion = data[4].equals("No") ? false : true;
+		this.exitDateTime = exitDateTime;
+		this.pagesViewed = pagesViewed;
+		this.conversion = conversion;
 	}
 	
 	
