@@ -112,9 +112,9 @@ public class ControlPanel extends JPanel implements Observer, ActionListener, Ch
 	public void update(Observable o, Object arg) {
 		if (o == model) {
 			if(model.getCurrentCampaign() == null){
-				System.out.println("NO MODEL AT PRESENT");
 				chartTab.setEnabled(false);
 				filterTab.setEnabled(false);
+				controlTabbedPane.setSelectedIndex(0);
 			}
 		}
 	}

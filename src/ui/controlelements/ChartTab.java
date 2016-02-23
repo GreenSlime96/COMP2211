@@ -26,7 +26,7 @@ public class ChartTab extends ControlPanelBox {
 
 	String[] metricStrings = { Metric.NUMBER_OF_IMPRESSIONS.toString(), Metric.NUMBER_OF_CLICKS.toString(), Metric.NUMBER_OF_UNIQUES.toString(),
 	Metric.NUMBER_OF_BOUNCES.toString(), Metric.NUMBER_OF_CONVERSIONS.toString(), Metric.TOTAL_COST.toString(), Metric.CLICK_THROUGH_RATE.toString(),
-	Metric.COST_PER_ACQUISITION.toString(), Metric.COST_PER_CLICK.toString(), Metric.COST_PER_THOUSAND_IMPRESSION.toString() ,Metric.BOUNCE_RATE.toString()};
+	Metric.COST_PER_ACQUISITION.toString(), Metric.COST_PER_CLICK.toString(), Metric.COST_PER_THOUSAND_IMPRESSIONS.toString() ,Metric.BOUNCE_RATE.toString()};
 
 	JComboBox campaignComboBox = new JComboBox();
     JComboBox metricComboBox = new JComboBox(metricStrings);
@@ -80,36 +80,36 @@ public class ChartTab extends ControlPanelBox {
 
 		active = false;
 
-		if(o == model) {
-            ArrayList<Campaign> campaigns = (ArrayList<Campaign>) model.getListOfCampaigns();
-            campaignComboBox.removeAllItems();
+		if(model.getCurrentCampaign()!=null) {
+			if (o == model) {
+				ArrayList<String> campaigns = (ArrayList<String>) model.getListOfCampaigns();
+				campaignComboBox.removeAllItems();
 
-            for (Campaign c : campaigns) {
-                campaignComboBox.addItem(c.getDirectoryPath());
+				for (String campaignName : campaigns) {
+					campaignComboBox.addItem(campaignName);
+					System.out.println("CAMPAIGNNAME" + campaignName);
+				}
+
+				//TODO set current index.
+				Instant startInstant = model.getStartDateTime().toInstant(ZoneOffset.UTC);
+				Date startDate = Date.from(startInstant);
+				startTimeSpinner.setValue(startDate);
+
+				Instant endInstant = model.getEndDateTime().toInstant(ZoneOffset.UTC);
+				Date endDate = Date.from(endInstant);
+				startTimeSpinner.setValue(endDate);
+
+				int timeGranularityInSeconds = model.getTimeGranularityInSeconds();
+				if (timeGranularityInSeconds > 500000) {
+					timeGranularityComboBox.setSelectedIndex(0);
+				} else if (timeGranularityInSeconds > 70000) {
+					timeGranularityComboBox.setSelectedIndex(1);
+				} else {
+					timeGranularityComboBox.setSelectedIndex(2);
+				}
+
 			}
-
-			campaignComboBox.setSelectedIndex(campaigns.indexOf(model.getCurrentCampaign()));
-
-			//metricComboBox.setSelectedItem(model.getCurrentMetric().toString());
-
-            Instant startInstant = model.getStartDateTime().toInstant(ZoneOffset.UTC);
-            Date startDate = Date.from(startInstant);
-            startTimeSpinner.setValue(startDate);
-
-            Instant endInstant = model.getEndDateTime().toInstant(ZoneOffset.UTC);
-            Date endDate = Date.from(endInstant);
-            startTimeSpinner.setValue(endDate);
-
-			int timeGranularityInSeconds = model.getTimeGranularityInSeconds();
-			if(timeGranularityInSeconds>500000){
-				timeGranularityComboBox.setSelectedIndex(0);
-			}else if (timeGranularityInSeconds > 70000){
-				timeGranularityComboBox.setSelectedIndex(1);
-			}else{
-				timeGranularityComboBox.setSelectedIndex(2);
-			}
-
-        }
+		}
 
 		active = false;
 
@@ -129,7 +129,7 @@ public class ChartTab extends ControlPanelBox {
 			if (active){
 				System.out.println("ACTION PERFORMED");
 				if(e.getSource() == campaignComboBox){
-					model.setCurrentCampaign(model.getListOfCampaigns().get(campaignComboBox.getSelectedIndex()));
+					model.setCurrentCampaign(campaignComboBox.getSelectedIndex());
 				}else if (e.getSource() == metricComboBox){
 					model.setCurrentMetric(Metric.toMetric((String) metricComboBox.getSelectedItem()));
 				}else if (e.getSource() == timeGranularityComboBox){
