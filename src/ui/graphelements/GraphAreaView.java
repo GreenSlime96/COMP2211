@@ -169,11 +169,12 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 			}else	if(myGraphArray.size() > 3 ){
 				myGraphArray.get(0).setCenterPanelSize(minimumDimension);
 				myGraphArray.get(1).setCenterPanelSize(minimumDimension);
-				myGraphArray.get(2).setCenterPanelSize(minimumDimension);
-				if(myGraphArray.get(3)!= null ){
-					myGraphArray.get(2).getChartElement().resizeChart(maxDimensionForPanel);
-				}
+				
 				this.add(myIterator);
+				myGraphArray.get(2).setCenterPanelSize(minimumDimension);
+				myGraphArray.get(2).getChartElement().resizeChart(maxDimensionForPanel);
+
+				
 			}
 			this.add(myIterator);
 		}
