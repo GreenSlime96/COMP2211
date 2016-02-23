@@ -1,5 +1,6 @@
 package ui.graphelements;
 
+import java.awt.Dimension;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -97,9 +98,9 @@ public class LineChartElement implements ChartElement {
 	}
 
 	
-	public void resizeChart(int width, int height)
+	public void resizeChart(Dimension dimension)
 	{
-		chart.setPrefSize(width, height-yAxis.getHeight()-TITLE_HEIGHT);
+		chart.setPrefSize(dimension.getWidth(), dimension.getHeight()-yAxis.getHeight()-TITLE_HEIGHT);
 	}
 		
 	/**

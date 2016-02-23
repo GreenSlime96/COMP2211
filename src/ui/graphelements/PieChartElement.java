@@ -1,5 +1,7 @@
 package ui.graphelements;
 
+import java.awt.Dimension;
+
 import javafx.collections.ObservableList;
 import javafx.scene.chart.PieChart;
 
@@ -7,7 +9,7 @@ public class PieChartElement implements ChartElement {
 
 	private static int TITLE_HEIGHT = 30;
 	private static int LEGEND_HEIGHT = 50;
-	int chartNumber;
+
 	private PieChart chart;
 	
 	public PieChartElement(String chartTitle)
@@ -16,9 +18,9 @@ public class PieChartElement implements ChartElement {
 		chart.setTitle(chartTitle);
 	}
 	
-	public void resizeChart(int width, int height)
+	public void resizeChart(Dimension dimension)
 	{
-		chart.setPrefSize(width, height - TITLE_HEIGHT - LEGEND_HEIGHT);
+		chart.setPrefSize(dimension.getWidth(), dimension.getHeight() - TITLE_HEIGHT - LEGEND_HEIGHT);
 	}
 	
 	/**

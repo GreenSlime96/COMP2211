@@ -8,6 +8,7 @@ import java.awt.event.MouseListener;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -15,13 +16,15 @@ import javax.swing.JPanel;
 import javax.swing.border.Border;
 
 import core.Model;
+import javafx.collections.FXCollections;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.Scene;
+import javafx.scene.chart.PieChart;
 import javafx.scene.layout.GridPane;
 
 public class GraphPanel extends JPanel {
 	private final Model model;
-
+	Boolean isItAPieChart = false;
 	private JFXPanel centerPanel;
 	
 	private Scene scene;
@@ -46,8 +49,7 @@ public class GraphPanel extends JPanel {
 		//else show all 4
 		if(numberOfCharts==0){
 			centerPanel.setPreferredSize(maxDimensionForPanel);
-			System.out.println(fullViewDimension);
-			System.out.println(maxDimensionForPanel);
+
 		}else	if(numberOfCharts == 2 || numberOfCharts == 1){
 			centerPanel.setPreferredSize(secondDimension);
 		}else{
@@ -58,7 +60,7 @@ public class GraphPanel extends JPanel {
 	public void init(){
 
 		centerPanel = new JFXPanel();
-//		JLabel myLabel = new JLabel("Chart number: " + this.chartElement.getChartNumber());
+		JLabel myLabel = new JLabel("Chart name~ ");
 		centerPanel.setBackground(new java.awt.Color(140, 0, 20));
 		
 		//Creating an ugly compound border for the TextField Panel and the Fractals
@@ -76,18 +78,35 @@ public class GraphPanel extends JPanel {
 //				     testWindow.setScene(scene);
 //				     chartElement.resizeChart(testWindow.getWidth(), testWindow.getHeight());
 				     GraphAreaView background = (GraphAreaView) centerPanel.getParent().getParent();
-				     
-				     GraphPanel myGraphPanel = new GraphPanel(model,background.getNumberOfCharts()+1);
-				     LineChartElement lc1 = new LineChartElement("CPA Chart "+ (background.getNumberOfCharts()+1));
-				     lc1.setTimeGranularity(60*60*24);
-				     lc1.setMetric("CPA");
-				     List<Number> data = new ArrayList<Number>();
-				     for(int i=0; i<30; i++){
-						data.add(Math.random() * i);
+				     if(!isItAPieChart){
+				    	 isItAPieChart = true;
+				    	 GraphPanel myGraphPanel = new GraphPanel(model,background.getNumberOfCharts()+1);
+					     LineChartElement lc1 = new LineChartElement("CPA Chart "+ (background.getNumberOfCharts()+1));
+					     lc1.setTimeGranularity(60*60*24);
+					     lc1.setMetric("CPA");
+					     List<Number> data = new ArrayList<Number>();
+					     for(int i=0; i<30; i++){
+							data.add(Math.random() * i);
+					     }
+					     lc1.addSeries(data, LocalDateTime.now());
+					     myGraphPanel.setChartElement(lc1);
+					     background.addPanel(myGraphPanel);
+				     }else{
+				    	 isItAPieChart = false;
+				    	 GraphPanel myPiePanel = new GraphPanel(model,background.getNumberOfCharts()+1);
+				 		//PieChart
+				 		PieChartElement pc1 = new PieChartElement("Age Range, chart number " + (background.getNumberOfCharts()+1));
+				 		Random random = new Random();
+				 		pc1.setData(FXCollections.observableArrayList(
+				 				new PieChart.Data("<25", random.nextInt(10)),
+				 				new PieChart.Data("25-34", random.nextInt(10)),
+				 				new PieChart.Data("35-44", random.nextInt(10)),
+				 				new PieChart.Data("44-54", random.nextInt(10)),
+				 				new PieChart.Data(">45", random.nextInt(10))));
+				 		myPiePanel.setChartElement(pc1);
+				 		background.addPanel(myPiePanel);
 				     }
-				     lc1.addSeries(data, LocalDateTime.now());
-				     myGraphPanel.setChartElement(lc1);
-				     background.addPanel(myGraphPanel);
+				     
 				}
 			}
 			public void mousePressed(MouseEvent e) {
