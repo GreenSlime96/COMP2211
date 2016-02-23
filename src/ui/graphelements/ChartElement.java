@@ -1,5 +1,7 @@
 package ui.graphelements;
 
+import java.awt.Dimension;
+
 import javafx.scene.chart.Chart;
 
 public interface ChartElement {
@@ -15,6 +17,8 @@ public interface ChartElement {
 	 * @param width Width of the space the chart should occupy
 	 * @param height Height of the space the chart should occupy
 	 */
-	public void resizeChart(int width, int height);
+	public void resizeChart(Dimension dimension);
+
+
 	
 }
