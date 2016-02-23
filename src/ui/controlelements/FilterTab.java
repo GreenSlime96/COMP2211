@@ -78,9 +78,10 @@ public class FilterTab extends ControlPanelBox {
         return checkBoxes;
     }
 
-    //TODO refactor code to not require indexes
     @Override
     public void update(Observable o, Object arg) {
+        System.out.println("General Tab Updating");
+
         if(o == model){
             genderBoxes.get(0).setSelected(model.getFieldFilteredValue(UserFields.GENDER_MALE));
             genderBoxes.get(1).setSelected(model.getFieldFilteredValue(UserFields.GENDER_FEMALE));

@@ -35,8 +35,8 @@ public class GeneralTab extends ControlPanelBox {
     private JButton removeCampaignButton = new JButton("-");
     private JButton addCampaignButton = new JButton("+");
 
-    String[] arr = {"Campaign 1", "Campaign 2"};
-    private JList<String> campaignList = new JList<String>(arr);
+//    String[] arr = {"Campaign 1", "Campaign 2"};
+    private JList<String> campaignList = new JList<String>();
     JLabel noImpressionsLabel = new JLabel("######");
     JLabel startDateLabel = new JLabel("######");
     JLabel endDateLabel = new JLabel("######");
@@ -59,7 +59,7 @@ public class GeneralTab extends ControlPanelBox {
         addSetting(addsubPanel,"","");
         addSetting(noImpressionsLabel, "Impressions", " " );
         addSetting(startDateLabel, "Start Date", " " );
-        addSetting(endDateLabel, "End Date", "" );
+        addSetting(endDateLabel, "End Date", " " );
         addSetting(totalClicksLabel, "Total Clicks", " " );
         addSetting(totalCostLabel, "Total Cost", " ");
         addSetting(campaignDirectoryLabel, "Campaign Directory", " " );
@@ -76,6 +76,7 @@ public class GeneralTab extends ControlPanelBox {
 	@Override
 	public void update(Observable o, Object arg) {
 
+        System.out.println("General Tab Updating");
         ArrayList<Campaign> campaigns = (ArrayList<Campaign>) model.getListOfCampaigns();
         String[] nameArray = new String[campaigns.size()];
         for (Campaign c : campaigns){
