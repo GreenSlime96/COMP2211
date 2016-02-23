@@ -41,6 +41,12 @@ public class Model extends Observable implements ActionListener {
 
 	public Model() {
 		super();
+		try {
+			addCampaign(new File("/Users/khengboonpek/Downloads/2_month_campaign"));
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	// ==== Accessors ====
