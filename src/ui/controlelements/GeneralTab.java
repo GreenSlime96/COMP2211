@@ -53,13 +53,24 @@ public class GeneralTab extends ControlPanelBox {
     	super(model);
         String[] arr = {"Try Pressing +"};
 
-        campaignList = new JList<String>(arr);
+        JScrollPane scrollPane = new JScrollPane();
+        scrollPane.setSize(200,100);
+
+        campaignList = new JList<>(arr);
         campaignList.setVisibleRowCount(4);
+        campaignList.setFixedCellHeight(20);
+        campaignList.setFixedCellWidth(300);
+        campaignList.setSize(200,100);
+
+        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setViewportView(campaignList);
+
         Box addsubPanel = new Box(BoxLayout.X_AXIS);
         addsubPanel.add(addCampaignButton);
         addsubPanel.add(removeCampaignButton);
 
-        addSetting(campaignList,"Campaigns","");
+        addSetting(scrollPane,"Campaigns","");
         addSetting(addsubPanel,"","");
         addSetting(noImpressionsLabel, "Impressions", " " );
         addSetting(startDateLabel, "Start Date", " " );
@@ -84,7 +95,7 @@ public class GeneralTab extends ControlPanelBox {
         active = false;
 
 
-        ArrayList<String> campaignNames = (ArrayList<String>) model.getListOfCampaigns();
+        ArrayList<String> campaignNames = (ArrayList<String>) model.getListOfCampaignNames();
         DefaultListModel<String> campaignListModel = new DefaultListModel();
 
         for(String campaignName : campaignNames){
@@ -94,20 +105,27 @@ public class GeneralTab extends ControlPanelBox {
 
         campaignList.setModel(campaignListModel);
 
-        if(model.getCurrentCampaign()!=null) {
+        campaignList.setVisibleRowCount(4);
+        campaignList.setFixedCellHeight(20);
+        campaignList.setFixedCellWidth(300);
 
+        if(campaignNames.size()>0) {
+            ArrayList<Campaign> campaigns = (ArrayList<Campaign>) model.getListOfCampaigns();
 
+            if(model.getCurrentCampaign() == -1){
+                campaignList.setSelectedIndex(0);
+            }else{
+                campaignList.setSelectedIndex(model.getCurrentCampaign());
+            }
 
-            Campaign c = model.getCurrentCampaign();
-//            campaignList.setSelectedIndex(campaigns.indexOf());
+            int selectedIndex = campaignList.getSelectedIndex();
+            noImpressionsLabel.setText(String.valueOf(campaigns.get(selectedIndex).getNumberOfImpressions()));
+            startDateLabel.setText(campaigns.get(selectedIndex).getStartDateTime().toString());
+            endDateLabel.setText(campaigns.get(selectedIndex).getEndDateTime().toString());
+            totalClicksLabel.setText(String.valueOf(campaigns.get(selectedIndex).getCostOfClicks()));
+            totalCostLabel.setText(String.valueOf(campaigns.get(selectedIndex).getTotalCostOfCampaign()));
 
-            noImpressionsLabel.setText(String.valueOf(c.getNumberOfImpressions()));
-            startDateLabel.setText(c.getStartDateTime().toString());
-            endDateLabel.setText(c.getEndDateTime().toString());
-            totalClicksLabel.setText(String.valueOf(c.getCostOfClicks()));
-            totalCostLabel.setText(String.valueOf(c.getTotalCostOfCampaign()));
-
-            campaignDirectoryLabel.setText(c.toString());
+            campaignDirectoryLabel.setText(campaigns.get(selectedIndex).toString());
         }
         active = true;
 	}
@@ -125,7 +143,7 @@ public class GeneralTab extends ControlPanelBox {
                 if (e.getSource() == addCampaignButton) {
                     JFileChooser f = new JFileChooser();
                     f.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-                    f.showSaveDialog(null);
+                    f.showOpenDialog(null);
 
                     if (f.getSelectedFile() != null) {
                         try {
@@ -138,11 +156,11 @@ public class GeneralTab extends ControlPanelBox {
                 } else if (e.getSource() == removeCampaignButton) {
                     int selectedOption = JOptionPane.showConfirmDialog(null,
                             //TODO Get Current campaign
-                            "Are you sure you wish to delete Campaign " ,
+                            "Are you sure you wish to delete Campaign " + model.getListOfCampaigns().get(campaignList.getSelectedIndex()),
                             "Choose",
                             JOptionPane.YES_NO_OPTION);
                     if (selectedOption == JOptionPane.YES_OPTION) {
-                        //TODO erasd
+                        //TODO remove model
 //                        Campaign c = model.getListOfCampaigns().get(campaignList.getSelectedIndex());
 //                        model.removeCampaign(c);
                     }
@@ -166,8 +184,15 @@ public class GeneralTab extends ControlPanelBox {
                 if (e.getSource() == campaignList) {
                     //stops event firing twice.
                     if (!e.getValueIsAdjusting()) {
-                        //TODO ;kj;lk
-//                        model.setCurrentCampaign(model.getListOfCampaigns().get(campaignList.getSelectedIndex()));
+                        int selectedIndex = campaignList.getSelectedIndex();
+                        ArrayList<Campaign> campaigns = (ArrayList<Campaign>) model.getListOfCampaigns();
+                        noImpressionsLabel.setText(String.valueOf(campaigns.get(selectedIndex).getNumberOfImpressions()));
+                        startDateLabel.setText(campaigns.get(selectedIndex).getStartDateTime().toString());
+                        endDateLabel.setText(campaigns.get(selectedIndex).getEndDateTime().toString());
+                        totalClicksLabel.setText(String.valueOf(campaigns.get(selectedIndex).getCostOfClicks()));
+                        totalCostLabel.setText(String.valueOf(campaigns.get(selectedIndex).getTotalCostOfCampaign()));
+
+                        campaignDirectoryLabel.setText(campaigns.get(selectedIndex).toString());
                     }
                 }
             }
