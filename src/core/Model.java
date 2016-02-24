@@ -92,7 +92,7 @@ public class Model extends Observable implements ActionListener {
 	 */
 	public synchronized final void addCampaign(File campaignDirectory) throws FileNotFoundException {
 		final Campaign campaign = new Campaign(campaignDirectory);
-
+		
 		// skip if it already exists
 		if (campaigns.contains(campaign)) {
 			System.out.println("DEBUG: campaign exist, skipping");
@@ -110,6 +110,11 @@ public class Model extends Observable implements ActionListener {
 //		}.start();
 
 		campaign.loadData();
+		
+		currentProcessor = new DataProcessor();
+		currentProcessor.setCampaign(campaign);
+		dataProcessors.add(currentProcessor);
+		
 		setChanged();
 		notifyObservers();
 	}

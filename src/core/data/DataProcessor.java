@@ -50,7 +50,7 @@ public class DataProcessor {
 	private final DataFilter dataFilter = new DataFilter();
 	
 	// the metric that the chart is handling
-	private Metric metric;
+	private Metric metric = Metric.NUMBER_OF_IMPRESSIONS;
 	
 	// the time granularity of this dataprocessor
 	private int timeGranularityInSeconds = 60 * 60 * 24;

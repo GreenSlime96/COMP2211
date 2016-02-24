@@ -82,32 +82,32 @@ public class FilterTab extends ControlPanelBox {
 
         active = false;
         if(o == model){
-            if(model.getCurrentCampaign()!=-1) {
-                genderBoxes.get(0).setSelected(model.getFieldFilteredValue(User.GENDER_MALE));
-                genderBoxes.get(1).setSelected(model.getFieldFilteredValue(User.GENDER_FEMALE));
-
-                ageBoxes.get(0).setSelected(model.getFieldFilteredValue(User.AGE_BELOW_25));
-                ageBoxes.get(1).setSelected(model.getFieldFilteredValue(User.AGE_25_TO_34));
-                ageBoxes.get(2).setSelected(model.getFieldFilteredValue(User.AGE_35_TO_44));
-                ageBoxes.get(3).setSelected(model.getFieldFilteredValue(User.AGE_45_TO_54));
-                ageBoxes.get(4).setSelected(model.getFieldFilteredValue(User.AGE_ABOVE_54));
-
-                incomeBoxes.get(0).setSelected(model.getFieldFilteredValue(User.INCOME_LOW));
-                incomeBoxes.get(1).setSelected(model.getFieldFilteredValue(User.INCOME_MEDIUM));
-                incomeBoxes.get(2).setSelected(model.getFieldFilteredValue(User.INCOME_HIGH));
-
-                contextBoxes.get(0).setSelected(model.getFieldFilteredValue(User.CONTEXT_NEWS));
-                contextBoxes.get(1).setSelected(model.getFieldFilteredValue(User.CONTEXT_SHOPPING));
-                contextBoxes.get(2).setSelected(model.getFieldFilteredValue(User.CONTEXT_SOCIAL_MEDIA));
-                contextBoxes.get(3).setSelected(model.getFieldFilteredValue(User.CONTEXT_BLOG));
-                contextBoxes.get(4).setSelected(model.getFieldFilteredValue(User.CONTEXT_HOBBIES));
-                contextBoxes.get(5).setSelected(model.getFieldFilteredValue(User.CONTEXT_TRAVEL));
-
-                verifyCheckBoxGroup(genderBoxes);
-                verifyCheckBoxGroup(ageBoxes);
-                verifyCheckBoxGroup(incomeBoxes);
-                verifyCheckBoxGroup(contextBoxes);
-            }
+//            if(model.getCurrentCampaign()!=-1) {
+//                genderBoxes.get(0).setSelected(model.getFieldFilteredValue(User.GENDER_MALE));
+//                genderBoxes.get(1).setSelected(model.getFieldFilteredValue(User.GENDER_FEMALE));
+//
+//                ageBoxes.get(0).setSelected(model.getFieldFilteredValue(User.AGE_BELOW_25));
+//                ageBoxes.get(1).setSelected(model.getFieldFilteredValue(User.AGE_25_TO_34));
+//                ageBoxes.get(2).setSelected(model.getFieldFilteredValue(User.AGE_35_TO_44));
+//                ageBoxes.get(3).setSelected(model.getFieldFilteredValue(User.AGE_45_TO_54));
+//                ageBoxes.get(4).setSelected(model.getFieldFilteredValue(User.AGE_ABOVE_54));
+//
+//                incomeBoxes.get(0).setSelected(model.getFieldFilteredValue(User.INCOME_LOW));
+//                incomeBoxes.get(1).setSelected(model.getFieldFilteredValue(User.INCOME_MEDIUM));
+//                incomeBoxes.get(2).setSelected(model.getFieldFilteredValue(User.INCOME_HIGH));
+//
+//                contextBoxes.get(0).setSelected(model.getFieldFilteredValue(User.CONTEXT_NEWS));
+//                contextBoxes.get(1).setSelected(model.getFieldFilteredValue(User.CONTEXT_SHOPPING));
+//                contextBoxes.get(2).setSelected(model.getFieldFilteredValue(User.CONTEXT_SOCIAL_MEDIA));
+//                contextBoxes.get(3).setSelected(model.getFieldFilteredValue(User.CONTEXT_BLOG));
+//                contextBoxes.get(4).setSelected(model.getFieldFilteredValue(User.CONTEXT_HOBBIES));
+//                contextBoxes.get(5).setSelected(model.getFieldFilteredValue(User.CONTEXT_TRAVEL));
+//
+//                verifyCheckBoxGroup(genderBoxes);
+//                verifyCheckBoxGroup(ageBoxes);
+//                verifyCheckBoxGroup(incomeBoxes);
+//                verifyCheckBoxGroup(contextBoxes);
+//            }
         }
 
         active = true;
