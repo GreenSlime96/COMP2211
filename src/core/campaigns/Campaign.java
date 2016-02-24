@@ -19,6 +19,8 @@ import core.records.Click;
 import core.records.Impression;
 import core.records.Server;
 import gnu.trove.map.hash.TLongIntHashMap;
+import net.openhft.koloboke.collect.map.hash.HashLongIntMap;
+import net.openhft.koloboke.collect.map.hash.HashLongIntMaps;
 import util.DateProcessor;
 
 public class Campaign {
@@ -45,7 +47,7 @@ public class Campaign {
 	private LocalDateTime campaignEndDate;
 
 	// map users via their userID to their data, 500,000 is a safe bet
-//	private HashLongIntMap usersMap = HashLongIntMaps.newUpdatableMap();  // 8062
+//	private HashLongIntMap usersMap = HashLongIntMaps.newUpdatableMap(10000000);  // 8062
 	private TLongIntHashMap usersMap = new TLongIntHashMap(); // 6000
 
 	private List<Impression> impressionsList;
@@ -195,8 +197,8 @@ public class Campaign {
 				final String[] data = line.split(",");
 				
 				final long dateTime = DateProcessor.stringToEpoch(data[0]);
-				final long userID = Long.valueOf(data[1]);
-				final int userData = usersMap.get(userID);
+				final long userID = Long.valueOf(data[1]);				
+				final int userData = usersMap.get(userID);// clicksList.get(serversList.size()).getUserData();				
 				final long exitDateTime = DateProcessor.stringToEpoch(data[2]);
 				final int pagesViewed = Integer.valueOf(data[3]);
 				final boolean conversion = data[4].equals("No") ? false : true;
@@ -300,28 +302,20 @@ public class Campaign {
 
 			final MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
 
-			final int nullEntry = usersMap.getNoEntryValue();			
+			final int nullEntry = usersMap.getNoEntryValue();
+//			final int nullEntry = usersMap.defaultValue();
 			final byte newLine = '\n';
 			final byte comma = ',';
 			
-			long time = System.currentTimeMillis();
-			mbb.load();
-			System.out.println("Load time:\t" + (System.currentTimeMillis() - time) + "ms");
-			time = System.currentTimeMillis();
-			
-			byte[] buffer = new byte[(int) fc.size()];
-			mbb.get(buffer);
-			
-			System.out.println("To buffer:\t" + (System.currentTimeMillis() - time) + "ms");
-			time = System.currentTimeMillis();
-			
-			int index = 50;
-			
 			// reset
 			costOfImpressions = 0;
-
 			
-			while (index < buffer.length) {				
+			// skip the header -- precomputed
+			mbb.position(50);
+
+			while (mbb.hasRemaining()){		
+				int index = mbb.position();
+				
 				long dateTime = 0;
 				long userID = 0;
 				double cost = 0;
@@ -331,44 +325,47 @@ public class Campaign {
 				/*
 				 * BEGIN DATE PROCESSING SECTION
 				 */
-
-				int year = buffer[index++] & 0xF;
-				year *= 10;
-				year += buffer[index++] & 0xF;
-				year *= 10;
-				year += buffer[index++] & 0xF;
-				year *= 10;
-				year += buffer[index++] & 0xF;
 				
-				index++;
+				int year = mbb.get() & 0xF;
+				year *= 10;
+				year += mbb.get() & 0xF;
+				year *= 10;
+				year += mbb.get() & 0xF;
+				year *= 10;
+				year += mbb.get() & 0xF;
+				
+				mbb.position(index += 5);
 
-				int month = buffer[index++] & 0xF;
+				int month = mbb.get() & 0xF;
 				month *= 10;
-				month += buffer[index++] & 0xF;
+				month += mbb.get() & 0xF;
 				
-				index++;
+				mbb.position(index += 3);
 
-				int day = buffer[index++] & 0xF;
+				int day = mbb.get() & 0xF;
 				day *= 10;
-				day += buffer[index++] & 0xF;
+				day += mbb.get() & 0xF;
 				
-				index++;
+				mbb.position(index += 3);
 				
-				int hour = buffer[index++] & 0xF;
+				int hour = mbb.get() & 0xF;
 				hour *= 10;
-				hour += buffer[index++] & 0xF;
+				hour += mbb.get() & 0xF;
 				
-				index++;
+				mbb.position(index += 3);
 				
-				int minute = buffer[index++] & 0xF;
+				int minute = mbb.get() & 0xF;
 				minute *= 10;
-				minute += buffer[index++] & 0xF;
+				minute += mbb.get() & 0xF;
 				
-				index++;
+				mbb.position(index += 3);
 				
-				int second = buffer[index++] & 0xF;
+				int second = mbb.get() & 0xF;
 				second *= 10;
-				second += buffer[index++] & 0xF;
+				second += mbb.get() & 0xF;
+				
+				// skip 3 + 1 for the comma
+				mbb.position(index += 3);
 
 		        long total = 0;
 		        total += 365 * year;
@@ -384,15 +381,10 @@ public class Campaign {
 		        }
 		        
 		        dateTime = (total - 719528) * 86400 + hour * 3600 + minute * 60 + second;
-				
+		        
 				/*
 				 * END DATE PROCESSING SECTION
 				 */
-
-				// buffer
-//				if (buffer[index++] != comma)
-//					throw new IllegalArgumentException("invalid impression_log " + index);
-		        index++;
 				
 				/*
 				 * BEGIN USERID PROCESSING SECTION
@@ -400,47 +392,47 @@ public class Campaign {
 
 				// we know MIN(id).length = 12
 				// skip first multiplication by 0
-				userID += buffer[index++] & 0xF;
+				userID += mbb.get() & 0xF;
 				
 				userID *= 10;
-				userID += buffer[index++] & 0xF;
+				userID += mbb.get() & 0xF;
 				
 				userID *= 10;
-				userID += buffer[index++] & 0xF;
+				userID += mbb.get() & 0xF;
 				
 				userID *= 10;
-				userID += buffer[index++] & 0xF;
+				userID += mbb.get() & 0xF;
 				
 				userID *= 10;
-				userID += buffer[index++] & 0xF;
+				userID += mbb.get() & 0xF;
 				
 				userID *= 10;
-				userID += buffer[index++] & 0xF;
+				userID += mbb.get() & 0xF;
 				
 				userID *= 10;
-				userID += buffer[index++] & 0xF;
+				userID += mbb.get() & 0xF;
 				
 				userID *= 10;
-				userID += buffer[index++] & 0xF;
+				userID += mbb.get() & 0xF;
 				
 				userID *= 10;
-				userID += buffer[index++] & 0xF;
+				userID += mbb.get() & 0xF;
 				
 				userID *= 10;
-				userID += buffer[index++] & 0xF;
+				userID += mbb.get() & 0xF;
 				
 				userID *= 10;
-				userID += buffer[index++] & 0xF;
+				userID += mbb.get() & 0xF;
 				
 				userID *= 10;
-				userID += buffer[index++] & 0xF;
+				userID += mbb.get() & 0xF;
 				
-				while (buffer[index] != comma) {
+				while ((temp = mbb.get()) != comma) {
 					userID *= 10;
-					userID += buffer[index++] & 0xF;
-				}
+					userID += temp & 0xF;
+				}				
 				
-				index++;
+				index = mbb.position();
 				
 				/*
 				 * END USERID PROCESSING SECTION
@@ -451,111 +443,86 @@ public class Campaign {
 				 * BEGIN USERDATA PROCESSING SECTION
 				 */
 				
-				int userData = 0; //usersMap.get(userID);
+				int userData = usersMap.get(userID);
 				
-//				if (userData == nullEntry) {								
-				if ((temp = buffer[index]) == 'F') {
-					userData |= User.GENDER_FEMALE.mask;
-					index += 6;
-				} else if (temp == 'M') {
-					userData |= User.GENDER_MALE.mask;
-					index += 4;
-				} else {
-					throw new IllegalArgumentException("invalid gender " + temp);
-				}
-				
-				index++;
-				
-//					if (buffer[index++] != comma)
-//						throw new IllegalArgumentException("invalid impression_log gendah" + index);
-
-				// process age
-//					index = mbb.position();
-				
-				if ((temp = buffer[index]) == '2') {
-					userData |= User.AGE_25_TO_34.mask;
-					index += 5;
-				} else if (temp == '4') {
-					userData |= User.AGE_45_TO_54.mask;
-					index += 5;
-				} else if (temp == '3') {
-					userData |= User.AGE_35_TO_44.mask;
-					index += 5;
-				} else if (temp == '>') {
-					userData |= User.AGE_ABOVE_54.mask;
-					index += 3;
-				} else if (temp == '<') {
-					userData |= User.AGE_BELOW_25.mask;
-					index += 3;
-				} else {
-					throw new IllegalArgumentException("invalid age " + temp);
-				}
-
-				index++;
-//					if (buffer[index++] != comma)
-//						throw new IllegalArgumentException("invalid impression_log " + index);
-
-				// process income
-//					index = mbb.position();
-
-				if ((temp = buffer[index]) == 'H') {
-					userData |= User.INCOME_HIGH.mask;
-					index += 4;
-				} else if (temp == 'M') {
-					userData |= User.INCOME_MEDIUM.mask;
-					index += 6;						
-				} else if (temp == 'L') {
-					userData |= User.INCOME_LOW.mask;
-					index += 3;
-				} else {
-					throw new IllegalArgumentException("invalid income " + temp);
-				}
-
-				index++;
-//					if (buffer[index++] != comma)
-//						throw new IllegalArgumentException("invalid impression_log " + index);
-
-				// process context
-//					index = mbb.position();
-				
-				if ((temp = buffer[index]) == 'N') {
-					userData |= User.CONTEXT_NEWS.mask;
-					index += 4;
-				} else if (temp == 'S') {
-					if ((temp = buffer[index + 1]) == 'o') {
-						userData |= User.CONTEXT_SOCIAL_MEDIA.mask;
-						index += 12;
-					} else if (temp == 'h') {
-						userData |= User.CONTEXT_SHOPPING.mask;
-						index += 8;
+				if (userData == nullEntry) {
+					if ((temp = mbb.get()) == 'F') {
+						userData |= User.GENDER_FEMALE.mask;
+						mbb.position(index += 7);
+					} else if (temp == 'M') {
+						userData |= User.GENDER_MALE.mask;
+						mbb.position(index += 5);
 					} else {
-						throw new IllegalArgumentException("invalid context S" + (char) temp);
+						throw new IllegalArgumentException("invalid gender " + temp);
 					}
-				} else if (temp == 'B') {
-					userData |= User.CONTEXT_BLOG.mask;
-					index += 4;
-				} else if (temp == 'T') {
-					userData |= User.CONTEXT_TRAVEL.mask;
-					index += 6;
-				} else if (temp == 'H') {
-					userData |= User.CONTEXT_HOBBIES.mask;
-					index += 7;
-				} else {
-					throw new IllegalArgumentException("invalid context " + temp);
-				}
-
-				index++;
-//					if (buffer[index] != comma)
-//						throw new IllegalArgumentException("invalid impression_log " + index);
 					
-//					usersMap.put(userID, userData);
-//				} else {
-//					// skip by 4 commas
-//					for (int i = 0; i < 4;) {
-//						if (buffer[index++] == comma)
-//							i++;
-//					}
-//				}
+					if ((temp = mbb.get()) == '2') {
+						userData |= User.AGE_25_TO_34.mask;
+						mbb.position(index += 6);
+					} else if (temp == '4') {
+						userData |= User.AGE_45_TO_54.mask;
+						mbb.position(index += 6);
+					} else if (temp == '3') {
+						userData |= User.AGE_35_TO_44.mask;
+						mbb.position(index += 6);
+					} else if (temp == '>') {
+						userData |= User.AGE_ABOVE_54.mask;
+						mbb.position(index += 4);
+					} else if (temp == '<') {
+						userData |= User.AGE_BELOW_25.mask;
+						mbb.position(index += 4);
+					} else {
+						throw new IllegalArgumentException("invalid age " + temp);
+					}
+					
+					if ((temp = mbb.get()) == 'H') {
+						userData |= User.INCOME_HIGH.mask;
+						mbb.position(index += 5);
+					} else if (temp == 'M') {
+						userData |= User.INCOME_MEDIUM.mask;
+						mbb.position(index += 7);				
+					} else if (temp == 'L') {
+						userData |= User.INCOME_LOW.mask;
+						mbb.position(index += 4);
+					} else {
+						throw new IllegalArgumentException("invalid income " + (char) temp);
+					}
+					
+					if ((temp = mbb.get()) == 'N') {
+						userData |= User.CONTEXT_NEWS.mask;
+						mbb.position(index += 5);
+					} else if (temp == 'S') {
+						if ((temp = mbb.get()) == 'o') {
+							userData |= User.CONTEXT_SOCIAL_MEDIA.mask;
+							mbb.position(index += 13);
+						} else if (temp == 'h') {
+							userData |= User.CONTEXT_SHOPPING.mask;
+							mbb.position(index += 9);
+						} else {
+							throw new IllegalArgumentException("invalid context S" + (char) temp);
+						}
+					} else if (temp == 'B') {
+						userData |= User.CONTEXT_BLOG.mask;
+						mbb.position(index += 5);
+					} else if (temp == 'T') {
+						userData |= User.CONTEXT_TRAVEL.mask;
+						mbb.position(index += 7);
+					} else if (temp == 'H') {
+						userData |= User.CONTEXT_HOBBIES.mask;
+						mbb.position(index += 8);
+					} else {
+						throw new IllegalArgumentException("invalid context " + temp);
+					}
+					
+					usersMap.put(userID, userData);
+				} else {
+					mbb.position(index += 8);
+					
+					for (int i = 0; i < 3;) {
+						if (mbb.get() == comma)
+							i++;
+					}
+				}
 					
 				/*
 				 * END USERDATA PROCESSING SECTION
@@ -565,49 +532,46 @@ public class Campaign {
 				 * BEGIN COST PROCESSING SECTION
 				 */
 				
-				int costTemp = buffer[index++] & 0xF;
+				int costTemp = mbb.get() & 0xF;
 				
-				while (buffer[index] != '.') {
+				while ((temp = mbb.get()) != '.') {
 					costTemp *= 10;
-					costTemp += buffer[index++];
+					costTemp += temp & 0xF;
 				}
 				
-				index++;
+				costTemp *= 10;
+				costTemp += mbb.get() & 0xF;
 				
 				costTemp *= 10;
-				costTemp += buffer[index++] & 0xF;
+				costTemp += mbb.get() & 0xF;
 				
 				costTemp *= 10;
-				costTemp += buffer[index++] & 0xF;
+				costTemp += mbb.get() & 0xF;
 				
 				costTemp *= 10;
-				costTemp += buffer[index++] & 0xF;
+				costTemp += mbb.get() & 0xF;
 				
 				costTemp *= 10;
-				costTemp += buffer[index++] & 0xF;
+				costTemp += mbb.get() & 0xF;
 				
 				costTemp *= 10;
-				costTemp += buffer[index++] & 0xF;
+				costTemp += mbb.get() & 0xF;
 				
-				costTemp *= 10;
-				costTemp += buffer[index++] & 0xF;
-				
-
 				cost = costTemp * 0.000001;
 				
-//				if (buffer[index++] != newLine)
-//					throw new IllegalArgumentException("invalid impression log " + index);
-				index++;
+				/*
+				 * END COST PROCESSING SECTION
+				 */
 				
-				// add to list
-//				impressionsList.add(new Impression(dateTime, userID, userData, cost));
+				if (mbb.get() != newLine)
+					throw new IllegalArgumentException("expected newline");
+				
+				impressionsList.add(new Impression(dateTime, userID, userData, cost));
 				
 				// misc increment
 				costOfImpressions += cost;
 			}
-			System.out.println("Processing:\t" + (System.currentTimeMillis() - time) + "ms");
-			System.out.println(costOfImpressions);
-			System.exit(0);
+
 			// trim the ArrayList to save capacity
 			impressionsList.trimToSize();
 			
