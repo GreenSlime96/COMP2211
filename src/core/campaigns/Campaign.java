@@ -47,7 +47,7 @@ public class Campaign {
 	private LocalDateTime campaignEndDate;
 
 	// map users via their userID to their data, 500,000 is a safe bet
-	private HashLongIntMap usersMap = HashLongIntMaps.newUpdatableMap(10000000);  // 8062
+	private HashLongIntMap usersMap;  // 8062
 //	private TLongIntHashMap usersMap = new TLongIntHashMap(10000000); // 6000
 
 	private List<Impression> impressionsList;
@@ -86,7 +86,7 @@ public class Campaign {
 
 		long startMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 		long totalTime = 0;
-		
+		usersMap = HashLongIntMaps.newUpdatableMap(10000000);
 		long time = System.currentTimeMillis();
 		processImpressions();
 		long end = System.currentTimeMillis();
@@ -97,6 +97,7 @@ public class Campaign {
 		end = System.currentTimeMillis();
 		totalTime += end - time;
 		System.out.println("click_log:\t" + (end - time) + "ms");
+		time = System.currentTimeMillis();
 		processServers();
 		end = System.currentTimeMillis();
 		totalTime += end - time;
@@ -204,8 +205,6 @@ public class Campaign {
 				final int pagesViewed = Integer.valueOf(data[3]);
 				final boolean conversion = data[4].equals("No") ? false : true;
 				
-				final Server server = new Server(dateTime, userID, userData, exitDateTime, pagesViewed, conversion);
-
 				// update page views
 				numberOfPagesViewed += pagesViewed;
 
@@ -214,7 +213,7 @@ public class Campaign {
 					numberOfConversions++;
 
 				// add to memory
-				serversList.add(server);
+				serversList.add(new Server(dateTime, userID, userData, exitDateTime, pagesViewed, conversion));
 			}
 
 			// Trim to size
@@ -301,17 +300,20 @@ public class Campaign {
 			
 			final FileChannel fc = fis.getChannel();
 			final MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
-			final byte[] buffer = new byte[(int) fc.size()];
+
 //			final int nullEntry = usersMap.getNoEntryValue();
 			final int nullEntry =  usersMap.defaultValue();
 			final byte newLine = '\n';
 			final byte comma = ',';
+			
 			// reset
 			costOfImpressions = 0;
+			
 			long time = System.currentTimeMillis();
 //			mbb.get(buffer);
 			mbb.load();
 			System.out.println("Load time:\t" + (System.currentTimeMillis() - time) + "ms");
+			
 			time = System.currentTimeMillis();
 
 			// skip the header -- precomputed
@@ -320,11 +322,8 @@ public class Campaign {
 
 			while (mbb.hasRemaining()){		
 				int index = mbb.position();
-				
-				double cost = 0;
-				
 				byte temp;
-
+				
 				/*
 				 * BEGIN DATE PROCESSING SECTION
 				 */
@@ -583,7 +582,7 @@ public class Campaign {
 				costTemp *= 10;
 				costTemp += mbb.get() & 0xF;
 				
-				cost = costTemp * 0.000001;
+				double cost = costTemp * 0.000001;
 				
 				/*
 				 * END COST PROCESSING SECTION
@@ -611,9 +610,8 @@ public class Campaign {
 			numberOfUniques = usersMap.size();
 			
 			// compute dates
-//			campaignStartDate = impressionsList.get(0).getLocalDateTime();
-//			campaignEndDate = impressionsList.get(numberOfImpressions - 1).getLocalDateTime();
-
+			campaignStartDate = impressionsList.get(0).getLocalDateTime();
+			campaignEndDate = impressionsList.get(numberOfImpressions - 1).getLocalDateTime();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
