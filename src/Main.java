@@ -1,4 +1,6 @@
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
@@ -7,7 +9,15 @@ import javax.swing.UIManager;
 import ui.Window;
 
 public class Main {
-	public static void main(String[] args) throws FileNotFoundException {
+	public static void main(String[] args) throws IOException {
+		FileReader fr = new FileReader("/Users/kbp2g14/Downloads/2_month_campaign_2");
+		long time = System.currentTimeMillis();
+		int temp, count = 0;
+		while ((temp = fr.read()) != -1) {
+			if 
+		}
+		
+		System.out.println(System.currentTimeMillis() - time);
 		// use system look and feel
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
