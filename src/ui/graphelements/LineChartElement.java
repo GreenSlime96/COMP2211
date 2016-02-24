@@ -86,6 +86,7 @@ public class LineChartElement implements ChartElement {
 		System.out.println("Add series");
 		Series series = new Series();
 		series.setName(startDate.format(formatter) + " to " + startDate.plusSeconds(timeGranularity * data.size()).format(formatter));
+		chart.getData().add(series);
 		
 		LocalDateTime offset = null;
 		for(int i=0; i< data.size(); i++)
@@ -94,7 +95,7 @@ public class LineChartElement implements ChartElement {
 			Data d = new Data(Date.from(offset.atZone(ZoneId.systemDefault()).toInstant()), data.get(i));
 			series.getData().add(d);			
 		}
-		chart.getData().add(series);
+		
 		addTooltips();
 	}
 

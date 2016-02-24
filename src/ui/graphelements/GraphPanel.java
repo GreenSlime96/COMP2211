@@ -16,13 +16,12 @@ import javax.swing.JPanel;
 import javax.swing.border.Border;
 
 import core.Model;
-import core.data.DataProcessor;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
 import javafx.scene.layout.GridPane;
-import javafx.application.Platform;
 
 public class GraphPanel extends JPanel {
 	
@@ -42,7 +41,7 @@ public class GraphPanel extends JPanel {
 	
 	public GraphPanel(Model model, int numberOfCharts){
 		
-		this.setBackground(new java.awt.Color(0, 140, 100));
+		//this.setBackground(new java.awt.Color(0, 140, 100));
 		this.setLayout(new BorderLayout());
 		this.model = model;
 		init();
@@ -64,7 +63,7 @@ public class GraphPanel extends JPanel {
 
 		centerPanel = new JFXPanel();
 		JLabel myLabel = new JLabel("Chart name~ ");
-		centerPanel.setBackground(new java.awt.Color(140, 0, 20));
+		//centerPanel.setBackground(new java.awt.Color(140, 0, 20));
 		
 		//Creating an ugly compound border for the TextField Panel and the Fractals
 	    Border raisedbevel = BorderFactory.createRaisedBevelBorder();
