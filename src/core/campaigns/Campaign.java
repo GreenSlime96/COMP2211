@@ -86,7 +86,7 @@ public class Campaign {
 
 		long startMem = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 		long totalTime = 0;
-		usersMap = HashLongIntMaps.newUpdatableMap(10000000);
+		usersMap = HashLongIntMaps.newUpdatableMap((int) (5000000 / .75));
 		long time = System.currentTimeMillis();
 		processImpressions();
 		long end = System.currentTimeMillis();
@@ -121,7 +121,6 @@ public class Campaign {
 		System.out.println("Conversions:\t" + numberOfConversions);
 		System.out.println("Page Views:\t" + numberOfPagesViewed);
 		System.out.println("--------------------------------------");
-		System.exit(0);
 	}
 
 	// ==== Accessors ====
