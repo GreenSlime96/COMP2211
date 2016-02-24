@@ -87,10 +87,11 @@ public class ChartTab extends ControlPanelBox {
 
 				for (String campaignName : campaigns) {
 					campaignComboBox.addItem(campaignName);
-					System.out.println("CAMPAIGNNAME" + campaignName);
 				}
 
-				//TODO set current index.
+				metricComboBox.setSelectedItem(model.getCurrentMetric().toString());
+
+
 				Instant startInstant = model.getStartDateTime().toInstant(ZoneOffset.UTC);
 				Date startDate = Date.from(startInstant);
 				startTimeSpinner.setValue(startDate);
