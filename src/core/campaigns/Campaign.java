@@ -453,10 +453,7 @@ public class Campaign {
 				
 				int userData = 0; //usersMap.get(userID);
 				
-//				if (userData == nullEntry) {					
-					// process gender
-//					index = mbb.position();
-				
+//				if (userData == nullEntry) {								
 				if ((temp = buffer[index]) == 'F') {
 					userData |= User.GENDER_FEMALE.mask;
 					index += 6;
@@ -555,7 +552,7 @@ public class Campaign {
 //				} else {
 //					// skip by 4 commas
 //					for (int i = 0; i < 4;) {
-//						if (mbb.get() == comma)
+//						if (buffer[index++] == comma)
 //							i++;
 //					}
 //				}
@@ -595,34 +592,8 @@ public class Campaign {
 				costTemp *= 10;
 				costTemp += buffer[index++] & 0xF;
 				
-//				// process cost
-//				while ((temp = mbb.get()) != '.') {
-//					cost *= 10;
-//					cost += temp & 0xF;
-//				}
-//				
-//				
-//				// do this 6 times
-//				cost *= 10;
-//				cost += mbb.get() & 0xF;
-//				
-//				cost *= 10;
-//				cost += mbb.get() & 0xF;
-//				
-//				cost *= 10;
-//				cost += mbb.get() & 0xF;
-//				
-//				cost *= 10;
-//				cost += mbb.get() & 0xF;
-//				
-//				cost *= 10;
-//				cost += mbb.get() & 0xF;
-//				
-//				cost *= 10;
-//				cost += mbb.get() & 0xF;
-//								
-//				// divide by 1 million -- long arithmetic -> double is faster
-//				cost *= 0.000001;
+
+				cost = costTemp * 0.000001;
 				
 //				if (buffer[index++] != newLine)
 //					throw new IllegalArgumentException("invalid impression log " + index);
@@ -632,9 +603,10 @@ public class Campaign {
 //				impressionsList.add(new Impression(dateTime, userID, userData, cost));
 				
 				// misc increment
-//				costOfImpressions += cost;
+				costOfImpressions += cost;
 			}
 			System.out.println("Processing:\t" + (System.currentTimeMillis() - time) + "ms");
+			System.out.println(costOfImpressions);
 			System.exit(0);
 			// trim the ArrayList to save capacity
 			impressionsList.trimToSize();
