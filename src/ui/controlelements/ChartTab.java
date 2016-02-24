@@ -45,11 +45,9 @@ public class ChartTab extends ControlPanelBox {
 
 		JSpinner.DateEditor startTimeEditor = new JSpinner.DateEditor(startTimeSpinner, "dd-MMM-yyyy HH:mm:ss");
 		startTimeSpinner.setEditor(startTimeEditor);
-//		startTimeSpinner.setValue(new Date()); // will only show the current time
 
 		JSpinner.DateEditor endTimeEditor = new JSpinner.DateEditor(endTimeSpinner, "dd-MMM-yyyy HH:mm:ss");
 		endTimeSpinner.setEditor(endTimeEditor);
-//		endTimeSpinner.setValue(new Date()); // will only show the current time
 
 		addSetting(campaignComboBox,"Campaign","Select a campaign for your chart");
 		addSetting(metricComboBox,"Metrics","Select a metric for your chart");
@@ -80,17 +78,18 @@ public class ChartTab extends ControlPanelBox {
 
 		active = false;
 
-		if(model.getCurrentCampaign()!=null) {
+		ArrayList<String> campaigns = (ArrayList<String>) model.getListOfCampaignNames();
+		campaignComboBox.removeAllItems();
+
+		for (String campaignName : campaigns) {
+			campaignComboBox.addItem(campaignName);
+		}
+
+		if(model.getCurrentCampaign()!=-1) {
 			if (o == model) {
-				ArrayList<String> campaigns = (ArrayList<String>) model.getListOfCampaigns();
-				campaignComboBox.removeAllItems();
 
-				for (String campaignName : campaigns) {
-					campaignComboBox.addItem(campaignName);
-				}
-
+				campaignComboBox.setSelectedIndex(model.getCurrentCampaign());
 				metricComboBox.setSelectedItem(model.getCurrentMetric().toString());
-
 
 				Instant startInstant = model.getStartDateTime().toInstant(ZoneOffset.UTC);
 				Date startDate = Date.from(startInstant);
@@ -110,9 +109,21 @@ public class ChartTab extends ControlPanelBox {
 				}
 
 			}
+		}else{
+			if(model.getListOfCampaigns().size()>0){
+				Campaign c = model.getListOfCampaigns().get(0);
+
+				Instant startInstant = c.getStartDateTime().toInstant(ZoneOffset.UTC);
+				Date startDate = Date.from(startInstant);
+				startTimeSpinner.setValue(startDate);
+
+				Instant endInstant = c.getEndDateTime().toInstant(ZoneOffset.UTC);
+				Date endDate = Date.from(endInstant);
+				startTimeSpinner.setValue(endDate);
+			}
 		}
 
-		active = false;
+		active = true;
 
 	}
 
