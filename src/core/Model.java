@@ -92,14 +92,11 @@ public class Model extends Observable implements ActionListener {
 
 		// add and load data
 		campaigns.add(campaign);
+		campaign.loadData();
 		
-		new Thread() {
-			@Override
-			public void run() {
-				campaign.loadData();
-			}
-		}.start();
-
+		currentProcessor = new DataProcessor();
+		currentProcessor.setCampaign(campaign);
+		dataProcessors.add(currentProcessor);
 
 		setChanged();
 		notifyObservers();
@@ -171,6 +168,8 @@ public class Model extends Observable implements ActionListener {
 	}
 
 	public synchronized final Metric getCurrentMetric() {
+		if(currentProcessor == null)
+			return null;
 		return currentProcessor.getMetric();
 	}
 
@@ -224,7 +223,7 @@ public class Model extends Observable implements ActionListener {
 
 	public synchronized final void setTimeGranularityInSeconds(int timeGranularityInSeconds) {
 		currentProcessor.setTimeGranularityInSeconds(timeGranularityInSeconds);
-		
+		System.out.println("received updates");
 		setChanged();
 		notifyObservers();
 	}

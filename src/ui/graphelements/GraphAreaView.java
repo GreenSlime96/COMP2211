@@ -38,7 +38,8 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 	private final Model model;
 	public int numberOfCharts = 0;
 	
-	private ArrayList<GraphPanel> myGraphArray = new ArrayList<GraphPanel>(3);
+	private GraphPanel theGraphPanel;
+	private ArrayList<GraphPanel> panelList = new ArrayList<GraphPanel>();
 
 	// ==== Constructor ====
 
@@ -60,39 +61,12 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		timer.setRepeats(false);
 		
 
-		//creating 4 mockup graphPanel
-		GraphPanel myGraphPanel = new GraphPanel(model,numberOfCharts);
-		GraphPanel myGraphPanel1 = new GraphPanel(model,1);
+		theGraphPanel = new GraphPanel(model,numberOfCharts);
+		theGraphPanel.setCenterPanelSize(maxDimensionForPanel);
+		
+		addPanel(theGraphPanel);
 
 		
-
-		//Example Data
-		LineChartElement lc1 = new LineChartElement("CPA Chart");
-		lc1.setTimeGranularity(60*60*24);
-		lc1.setMetric("CPA");
-		List<Number> data = new ArrayList<Number>();
-		for(int i=0; i<30; i++){
-			data.add(Math.random() * i);
-		}
-		lc1.addSeries(data, LocalDateTime.now());
-		myGraphPanel.setChartElement(lc1);
-		
-		//PieChart
-		PieChartElement pc1 = new PieChartElement("Age Range");
-		Random random = new Random();
-		int p = 100;
-		pc1.setData(FXCollections.observableArrayList(
-				new PieChart.Data("<25", (p=p-(5+random.nextInt(15)))),
-				new PieChart.Data("25-34", (p=p-(5+random.nextInt(15)))),
-				new PieChart.Data("35-44", (p=p-(5+random.nextInt(15)))),
-				new PieChart.Data("44-54", (p=p-(5+random.nextInt(15)))),
-				new PieChart.Data(">45", (p=p-(5+random.nextInt(15))))));
-		myGraphPanel1.setChartElement(pc1);
-		
-		//adding panels
-
-		addPanel(myGraphPanel);
-//		addPanel(myGraphPanel1);
 		
 		// Handle Resizing
 		addComponentListener(new ComponentAdapter() {
@@ -118,9 +92,20 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 			}
 		});
 		
-		
 	}
-    
+	
+	//Refactored addPanel method
+	public boolean addPanel(GraphPanel graphPanel)
+	{
+		if(panelList.size() >= 4)
+			return false;
+		
+		panelList.add(graphPanel);
+		this.add(graphPanel);
+		revalidate();
+		return true;	
+	}
+    /*
 	public void addPanel(GraphPanel graphPanel){
 		//increase the over-all number of charts 
 		numberOfCharts++;
@@ -183,6 +168,23 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		
 		revalidate();
 	}
+	*/
+	
+	private void updateGraphPanel(int index)
+	{
+		LineChartElement lce;
+
+			System.out.println("New Chart");
+			lce = new LineChartElement(model.getCurrentMetric().toString());
+			lce.setMetric(model.getCurrentMetric().toString());
+			lce.setTimeGranularity(model.getTimeGranularityInSeconds());
+			lce.addSeries(model.getChartData(), model.getStartDateTime());
+			lce.resizeChart(maxDimensionForPanel);
+			theGraphPanel.setChartElement(lce);
+
+		
+		System.out.println("show chart");
+	}
 	
 	// ==== JComponent Overrides ====
 
@@ -194,6 +196,7 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 
 		// BufferedImage image = model.getImage();
 		// g.drawImage(image, 0, 0, null);
+//		g.dispose();
 	}
 
 	// ==== ActionListener Implementation ====
@@ -213,7 +216,7 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 	@Override
 	public void update(Observable o, Object arg) {
 		if (o == model) {
-			// TODO Update view on Model refresh
+			updateGraphPanel(0);
 			repaint();
 		}
 	}

@@ -81,8 +81,9 @@ public class LineChartElement implements ChartElement {
 	 * @param startDate LocalDateTime of first value in data list.
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void addSeries(List<Number> data, LocalDateTime startDate)
+	public void addSeries(List<? extends Number> data, LocalDateTime startDate)
 	{
+		System.out.println("Add series");
 		Series series = new Series();
 		series.setName(startDate.format(formatter) + " to " + startDate.plusSeconds(timeGranularity * data.size()).format(formatter));
 		
@@ -97,6 +98,10 @@ public class LineChartElement implements ChartElement {
 		addTooltips();
 	}
 
+	public void clearSeries()
+	{
+		chart.getData().removeAll(chart.getData().get(0));
+	}
 	
 	public void resizeChart(Dimension dimension)
 	{

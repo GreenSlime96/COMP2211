@@ -16,13 +16,16 @@ import javax.swing.JPanel;
 import javax.swing.border.Border;
 
 import core.Model;
+import core.data.DataProcessor;
 import javafx.collections.FXCollections;
 import javafx.embed.swing.JFXPanel;
 import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
 import javafx.scene.layout.GridPane;
+import javafx.application.Platform;
 
 public class GraphPanel extends JPanel {
+	
 	private final Model model;
 	Boolean isItAPieChart = false;
 	private JFXPanel centerPanel;
@@ -36,7 +39,7 @@ public class GraphPanel extends JPanel {
 	private final Dimension secondDimension = new Dimension((int)maxDimensionForPanel.getWidth(), (int)(maxDimensionForPanel.getHeight()-20)/2);
 	private final Dimension minimumDimension = new Dimension((int)secondDimension.getWidth()/2-20, (int) secondDimension.getHeight());
 	
-
+	
 	public GraphPanel(Model model, int numberOfCharts){
 		
 		this.setBackground(new java.awt.Color(0, 140, 100));
@@ -106,9 +109,9 @@ public class GraphPanel extends JPanel {
 				 		background.addPanel(myPiePanel);
 				     }
 				     //creating a new window, adding the chart and resizing it
-				     GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");
-				     testWindow.setScene(scene);
-				     chartElement.resizeChart(testWindow.fullViewDimension);
+//				     GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");
+//				     testWindow.setScene(scene);
+//				     chartElement.resizeChart(testWindow.fullViewDimension);
 				}
 			}
 			public void mousePressed(MouseEvent e) {
@@ -138,16 +141,25 @@ public class GraphPanel extends JPanel {
 	public void setCenterPanelSize(Dimension size) {
 		centerPanel.setPreferredSize(size);
 	}
+	//TODO UPDATE THIS SHIT
 	/**
 	 * Assigns a ChartElement to this panel and renders it.
 	 * ChartElement should be fully defined before assigning.
 	 * @param chartElement Element to be assigned
 	 */
-	public void setChartElement(ChartElement chartElement)
+	public boolean setChartElement(ChartElement chartElement)
 	{
+		Platform.runLater(new Runnable() {
+			  @Override public void run() {
+				  if(chartElementPane.getChildren().size() > 0)
+					  chartElementPane.getChildren().remove(0);       
+				  chartElementPane.add(chartElement.getChart(), 0, 0);
+				  centerPanel.setScene(scene);
+			  }
+			});
+		
 		this.chartElement = chartElement;
-		chartElementPane.add(chartElement.getChart(), 0, 0);
-		centerPanel.setScene(scene);
+		return true;
 	}
 	
 	public ChartElement getChartElement()

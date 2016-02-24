@@ -127,10 +127,10 @@ public class ChartTab extends ControlPanelBox {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (active){
+			if (true){
 				System.out.println("ACTION PERFORMED");
 				if(e.getSource() == campaignComboBox){
-					model.setCurrentCampaign(campaignComboBox.getSelectedIndex());
+					model.setCurrentCampaign(0);
 				}else if (e.getSource() == metricComboBox){
 					model.setCurrentMetric(Metric.toMetric((String) metricComboBox.getSelectedItem()));
 				}else if (e.getSource() == timeGranularityComboBox){
