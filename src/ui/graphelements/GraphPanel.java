@@ -2,6 +2,7 @@ package ui.graphelements;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -73,6 +74,13 @@ public class GraphPanel extends JPanel {
 			public void mouseClicked(MouseEvent e) {
 				if (e.getClickCount() == 2 && !e.isConsumed()) {
 				     e.consume();
+				     
+				     //creating a new window, adding the chart and resizing it
+//				     GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");	
+//				     testWindow.setScene(scene);
+//				     chartElement.resizeChart(testWindow.fullViewDimension); 
+				     
+				     
 				     GraphAreaView background = (GraphAreaView) centerPanel.getParent().getParent();
 				     
 				     if(!isItAPieChart){
@@ -87,10 +95,7 @@ public class GraphPanel extends JPanel {
 					     }
 					     lc1.addSeries(data, LocalDateTime.now());
 					     
-					     //creating a new window, adding the chart and resizing it
-//					     GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");	
-//					     testWindow.setScene(scene);
-//					     chartElement.resizeChart(testWindow.fullViewDimension); 
+
 					     
 					     myGraphPanel.setChartElement(lc1);
 					     background.addPanel(myGraphPanel);
@@ -162,6 +167,15 @@ public class GraphPanel extends JPanel {
 	public ChartElement getChartElement()
 	{
 		return chartElement;
+	}
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+
+//		Map<Date, Integer> impMap = model.getNumberOfImpressions();
+		
+		
+		// BufferedImage image = model.getImage();
+		// g.drawImage(image, 0, 0, null);
 	}
 }
 

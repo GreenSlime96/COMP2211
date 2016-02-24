@@ -190,7 +190,8 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		super.paintComponent(g);
 
 //		Map<Date, Integer> impMap = model.getNumberOfImpressions();
-
+		
+		g.dispose();
 		// BufferedImage image = model.getImage();
 		// g.drawImage(image, 0, 0, null);
 	}
