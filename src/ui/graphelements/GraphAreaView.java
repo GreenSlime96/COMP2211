@@ -80,12 +80,13 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		//PieChart
 		PieChartElement pc1 = new PieChartElement("Age Range");
 		Random random = new Random();
+		int p = 100;
 		pc1.setData(FXCollections.observableArrayList(
-				new PieChart.Data("<25", random.nextInt(10)),
-				new PieChart.Data("25-34", random.nextInt(10)),
-				new PieChart.Data("35-44", random.nextInt(10)),
-				new PieChart.Data("44-54", random.nextInt(10)),
-				new PieChart.Data(">45", random.nextInt(10))));
+				new PieChart.Data("<25", (p=p-(5+random.nextInt(15)))),
+				new PieChart.Data("25-34", (p=p-(5+random.nextInt(15)))),
+				new PieChart.Data("35-44", (p=p-(5+random.nextInt(15)))),
+				new PieChart.Data("44-54", (p=p-(5+random.nextInt(15)))),
+				new PieChart.Data(">45", (p=p-(5+random.nextInt(15))))));
 		myGraphPanel1.setChartElement(pc1);
 		
 		//adding panels
