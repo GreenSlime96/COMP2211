@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Observable;
 import java.util.stream.Collectors;
@@ -14,10 +13,8 @@ import java.util.stream.Collectors;
 import javax.swing.Timer;
 
 import core.campaigns.Campaign;
-import core.data.DataFilter;
 import core.data.DataProcessor;
 import core.data.User;
-import ui.controlelements.CampaignFileChooser;
 
 public class Model extends Observable implements ActionListener {
 
@@ -41,12 +38,17 @@ public class Model extends Observable implements ActionListener {
 
 	public Model() {
 		super();
-		try {
-			addCampaign(new File("/Users/khengboonpek/Downloads/2_month_campaign"));
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+
+		// FOR TESTING ONLY
+		final String username = System.getProperty("user.name");
+		
+		if (username.equals("khengboonpek") || username.equals("kbp2g14"))
+			try {
+				addCampaign(new File("/Users/khengboonpek/Downloads/2_month_campaign"));
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 	}
 
 	// ==== Accessors ====
@@ -90,7 +92,14 @@ public class Model extends Observable implements ActionListener {
 
 		// add and load data
 		campaigns.add(campaign);
-		campaign.loadData();
+		
+		new Thread() {
+			@Override
+			public void run() {
+				campaign.loadData();
+			}
+		}.start();
+
 
 		setChanged();
 		notifyObservers();

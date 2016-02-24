@@ -62,13 +62,7 @@ public class DataProcessor {
 	
 	// ==== Constructor ====
 	
-	public DataProcessor(Campaign campaign) {
-		setCampaign(campaign);
-		
-		for (Metric m : Metric.values()) {
-			metric = m;
-			getData();
-		}
+	public DataProcessor() {
 	}
 	
 
@@ -79,7 +73,8 @@ public class DataProcessor {
 	}
 	
 	public final void setCampaign(Campaign campaign) {
-		if (this.campaign.equals(campaign))
+		// thanks @csjames! :)
+		if (this.campaign != null && this.campaign.equals(campaign))
 			return;
 		
 		final LocalDateTime campaignStartDate = campaign.getStartDateTime();

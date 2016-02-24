@@ -19,9 +19,6 @@ import core.records.Click;
 import core.records.Impression;
 import core.records.Server;
 import gnu.trove.map.hash.TLongIntHashMap;
-import gnu.trove.map.hash.TLongObjectHashMap;
-import net.openhft.koloboke.collect.map.hash.HashLongIntMap;
-import net.openhft.koloboke.collect.map.hash.HashLongIntMaps;
 import util.DateProcessor;
 
 public class Campaign {

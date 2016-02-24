@@ -1,3 +1,5 @@
+import java.io.FileNotFoundException;
+
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -5,7 +7,7 @@ import javax.swing.UIManager;
 import ui.Window;
 
 public class Main {
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException {
 		// use system look and feel
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
