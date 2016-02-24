@@ -151,6 +151,9 @@ public class Model extends Observable implements ActionListener {
 	// ==== Chart Tab ====
 
 	public synchronized final Campaign getCurrentCampaign() {
+		if(currentProcessor == null){
+			return null;
+		}
 		return currentProcessor.getCampaign();
 	}
 
