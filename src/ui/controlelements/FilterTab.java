@@ -82,7 +82,7 @@ public class FilterTab extends ControlPanelBox {
 
         active = false;
         if(o == model){
-            if(model.getCurrentCampaign()!=null) {
+            if(model.getCurrentCampaign()!=-1) {
                 genderBoxes.get(0).setSelected(model.getFieldFilteredValue(User.GENDER_MALE));
                 genderBoxes.get(1).setSelected(model.getFieldFilteredValue(User.GENDER_FEMALE));
 
