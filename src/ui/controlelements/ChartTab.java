@@ -74,7 +74,7 @@ public class ChartTab extends ControlPanelBox {
 	}
 
 	@Override
-	public void update(Observable o, Object arg) {
+	public synchronized void update(Observable o, Object arg) {
 
 		active = false;
 
@@ -141,8 +141,10 @@ public class ChartTab extends ControlPanelBox {
 			if (active){
 				System.out.println("ACTION PERFORMED");
 				if(e.getSource() == campaignComboBox){
+					if(campaignComboBox.getSelectedIndex() >= 0)
 					model.setCurrentCampaign(campaignComboBox.getSelectedIndex());
 				}else if (e.getSource() == metricComboBox){
+					if(metricComboBox.getSelectedIndex() >= 0)
 					model.setCurrentMetric(Metric.toMetric((String) metricComboBox.getSelectedItem()));
 				}else if (e.getSource() == timeGranularityComboBox){
 					int timeGranularitySeconds = 0;
