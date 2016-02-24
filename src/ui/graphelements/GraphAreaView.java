@@ -200,7 +200,7 @@ public class GraphAreaView extends JComponent implements Observer, ActionListene
 		
 			
 		// g.drawImage(image, 0, 0, null);
-		g.dispose();
+//		g.dispose();
 	}
 
 	// ==== ActionListener Implementation ====

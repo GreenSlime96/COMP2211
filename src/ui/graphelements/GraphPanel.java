@@ -1,8 +1,8 @@
 package ui.graphelements;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Graphics;
 import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -27,7 +27,7 @@ public class GraphPanel extends JPanel {
 	private final Model model;
 	Boolean isItAPieChart = false;
 	private JFXPanel centerPanel;
-	
+	ArrayList<GraphPanel> myCurrentGraphs;
 	private Scene scene;
 	private GridPane chartElementPane;
 	private ChartElement chartElement;
@@ -70,59 +70,76 @@ public class GraphPanel extends JPanel {
 	    Border compound = BorderFactory.createCompoundBorder(raisedbevel, loweredbevel);
 
 		centerPanel.addMouseListener(new MouseListener() {
-			@SuppressWarnings("restriction")
 			public void mouseClicked(MouseEvent e) {
+				
 				if (e.getClickCount() == 2 && !e.isConsumed()) {
 				     e.consume();
-				     
 				     //creating a new window, adding the chart and resizing it
 //				     GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");	
 //				     testWindow.setScene(scene);
-//				     chartElement.resizeChart(testWindow.fullViewDimension); 
-				     
-				     
+//				     chartElement.resizeChart(testWindow.fullViewDimension);
+
+				     //creating an object for the background
 				     GraphAreaView background = (GraphAreaView) centerPanel.getParent().getParent();
 				     
-				     if(!isItAPieChart){
-				    	 isItAPieChart = true;
-				    	 GraphPanel myGraphPanel = new GraphPanel(model,background.getNumberOfCharts()+1);
-					     LineChartElement lc1 = new LineChartElement("CPA Chart "+ (background.getNumberOfCharts()+1));
-					     lc1.setTimeGranularity(60*60*24);
-					     lc1.setMetric("CPA");
-					     List<Number> data = new ArrayList<Number>();
-					     for(int i=0; i<30; i++){
-							data.add(Math.random() * i);
-					     }
-					     lc1.addSeries(data, LocalDateTime.now());
-					     
-
-					     
-					     myGraphPanel.setChartElement(lc1);
-					     background.addPanel(myGraphPanel);
-
-				     }else{
-				    	 isItAPieChart = false;
-				    	 GraphPanel myPiePanel = new GraphPanel(model,background.getNumberOfCharts()+1);
-				 		//PieChart
-				 		PieChartElement pc1 = new PieChartElement("Age Range, chart number " + (background.getNumberOfCharts()+1));
-				 		Random random = new Random();
-				 		pc1.setData(FXCollections.observableArrayList(
-				 				new PieChart.Data("<25", random.nextInt(10)),
-				 				new PieChart.Data("25-34", random.nextInt(10)),
-				 				new PieChart.Data("35-44", random.nextInt(10)),
-				 				new PieChart.Data("44-54", random.nextInt(10)),
-				 				new PieChart.Data(">45", random.nextInt(10))));
-					 		
-					    //creating a new window, adding the chart and resizing it
-//					    GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");	
-//					    testWindow.setScene(scene);
-//					    chartElement.resizeChart(testWindow.fullViewDimension); 
-					     
-				 		myPiePanel.setChartElement(pc1);
-				 		background.addPanel(myPiePanel);
+//				     if(!isItAPieChart){
+//			    	 isItAPieChart = true;
+			    	 GraphPanel myGraphPanel = new GraphPanel(model,background.getNumberOfCharts()+1);
+			    	 
+			    	 //Creating a Chart and populating it with random data
+				     LineChartElement lc1 = new LineChartElement("CPA Chart "+ (background.getNumberOfCharts()+1));
+				     lc1.setTimeGranularity(60*60*24);
+				     lc1.setMetric("CPA");
+				     List<Number> data = new ArrayList<Number>();
+				     for(int i=0; i<30; i++){
+						data.add(Math.random() * i);
 				     }
+				     lc1.addSeries(data, LocalDateTime.now());
+				     
+				     //setting the chart to the panel and adding the panel to the view
+				     myGraphPanel.setChartElement(lc1);
+				     background.addPanel(myGraphPanel,true);	
+				     
+				     //Creating an array to store all the graphs in the view
+				     myCurrentGraphs = new ArrayList<GraphPanel>(3);
+				     myCurrentGraphs.clear();
+				     //going over the view and adding all of the GraphPanels to the array
+				     //Doing this so I can re-add them later on T_T 
+				     int i = 0;
+				     while(i < background.getComponentCount()){
+				    	System.out.println(background.getComponent(i));
+				    	myCurrentGraphs.add((GraphPanel) background.getComponent(i));
+				    	i++;
+				     }
+				     GraphPanel testPanel = new GraphPanel(model,0);
+				     testPanel.setBackground(new Color(200,0,0));
+//				     testPanel.setPreferredSize(new Dimension((int)maxDimensionForPanel.getWidth()+10,(int) maxDimensionForPanel.getHeight()+20));
+				    
+//				     background.removeAll();
+
+//				     background.updateUI();
+//				     testPanel.setChartElement(lc1);
+//				     background.addPanel(testPanel,false);
+				     
 				     
 
+					     
+//				     }else{
+//				    	 isItAPieChart = false;
+//				    	 GraphPanel myGraphPanel = new GraphPanel(model,background.getNumberOfCharts()+1);
+//				 		//PieChart
+//				 		PieChartElement pc1 = new PieChartElement("Age Range, chart number " + (background.getNumberOfCharts()+1));
+//				 		Random random = new Random();
+//				 		pc1.setData(FXCollections.observableArrayList(
+//				 				new PieChart.Data("<25", random.nextInt(10)),
+//				 				new PieChart.Data("25-34", random.nextInt(10)),
+//				 				new PieChart.Data("35-44", random.nextInt(10)),
+//				 				new PieChart.Data("44-54", random.nextInt(10)),
+//				 				new PieChart.Data(">45", random.nextInt(10))));
+//				 		myGraphPanel.setChartElement(pc1);
+//				 		background.addPanel(myGraphPanel);
+//				     }
+				     
 				}
 			}
 			public void mousePressed(MouseEvent e) {
@@ -168,16 +185,4 @@ public class GraphPanel extends JPanel {
 	{
 		return chartElement;
 	}
-	protected void paintComponent(Graphics g) {
-		super.paintComponent(g);
-
-//		Map<Date, Integer> impMap = model.getNumberOfImpressions();
-		
-		
-		// BufferedImage image = model.getImage();
-		// g.drawImage(image, 0, 0, null);
-	}
 }
-
-
-
