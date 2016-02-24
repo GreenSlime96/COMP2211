@@ -20,6 +20,10 @@ public class DataFilter implements Predicate<Integer> {
 		flags = FLAGS_ALL;
 	}
 	
+	public DataFilter(DataFilter dataFilter) {
+		this.flags = dataFilter.flags;
+	}
+	
 	
 	// ==== Accessors ====
 	

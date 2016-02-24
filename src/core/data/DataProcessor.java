@@ -6,10 +6,12 @@ import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -89,16 +91,21 @@ public class DataProcessor {
 		this.campaign = campaign;
 	}
 	
-	
 	public final Metric getMetric() {
 		return metric;
 	}
 	
+	/**
+	 * Metric cannot be null
+	 * TODO ^
+	 * 
+	 * @param metric
+	 */
 	public final void setMetric(Metric metric) {
 		if (this.metric == metric)
 			return;
 		
-		this.metric = metric;
+		this.metric = Objects.requireNonNull(metric);;
 	}
 	
 	
@@ -119,6 +126,9 @@ public class DataProcessor {
 			break;
 		case NUMBER_OF_BOUNCES:
 			returnList = numberOfBounces();
+			break;
+		case NUMBER_OF_CONVERSIONS:
+			returnList = numberOfConversions();
 			break;
 		case TOTAL_COST:
 			returnList = totalCost();
@@ -358,8 +368,9 @@ public class DataProcessor {
 	private final List<Integer> numberOfUniques() {
 		final ArrayList<Integer> uniquesList = new ArrayList<Integer>();
 		
-//		TLongSet usersSet = new TLongHashSet();
-		HashSet<Long> usersSet = new HashSet<Long>();
+		// 330ms vs 668ms
+		TLongSet usersSet = new TLongHashSet();
+//		HashSet<Long> usersSet = new HashSet<Long>();
 		
 		// initialise current date as startDate
 		long currentDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
@@ -658,5 +669,53 @@ public class DataProcessor {
 			bounceRates.add((double) bouncesList.get(i) / (double) clicksList.get(i));
 		
 		return bounceRates;
+	}
+	
+	// gender distribution -- impressions or clicks or ?
+	// TODO: enum!
+	private final Map<String, Integer> genderDistribution() {
+		final Map<String, Integer> genderMap = new HashMap<String, Integer>();
+		
+		final DataFilter males = new DataFilter(dataFilter);
+		final DataFilter females = new DataFilter(dataFilter);
+		
+		// makes sure we enable either of male or female
+		males.setField(User.GENDER_MALE, true);
+		males.setField(User.GENDER_FEMALE, false);
+		
+		// makes sure we enable either of male or female
+		females.setField(User.GENDER_FEMALE, true);
+		females.setField(User.GENDER_MALE, false);
+		
+		// dates?
+		final long startDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
+		final long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
+		
+		// temporary variables
+		int numberOfMales = 0;
+		int numberOfFemales = 0;
+		
+		for (Impression impression : campaign.getImpressions()) {
+			final long dateTime = impression.getEpochSeconds();
+			
+			if (dateTime < startDate)
+				continue;
+			
+			if (dateTime > finalDate)
+				break;
+			
+			final int userData = impression.getUserData();
+			
+			if (males.test(userData))
+				numberOfMales++;
+			else if (females.test(userData))
+				numberOfFemales++;
+		}
+		
+		// add values to map
+		genderMap.put("Male", numberOfMales);
+		genderMap.put("Female", numberOfFemales);
+		
+		return genderMap;
 	}
 }

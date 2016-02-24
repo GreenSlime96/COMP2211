@@ -45,6 +45,10 @@ public class Model extends Observable implements ActionListener {
 		if (username.equals("khengboonpek") || username.equals("kbp2g14"))
 			try {
 				addCampaign(new File("/Users/" + username + "/Downloads/2_month_campaign"));
+				currentProcessor = new DataProcessor();
+				currentProcessor.setCampaign(campaigns.get(0));
+				currentProcessor.setMetric(Metric.NUMBER_OF_UNIQUES);
+				currentProcessor.getData();
 			} catch (FileNotFoundException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
