@@ -68,8 +68,17 @@ public class Model extends Observable implements ActionListener {
 	 * 
 	 * @return a list of campaigns loaded in the system
 	 */
-	public synchronized final List<String> getListOfCampaigns() {
+	public synchronized final List<String> getListOfCampaignNames() {
 		return campaigns.stream().map(x -> x.toString()).collect(Collectors.toList());
+	}
+
+	/**
+	 * Returns a list of Campaigns
+	 *
+	 * @return a list of campaigns loaded in the system
+	 */
+	public synchronized final List<Campaign> getListOfCampaigns() {
+		return campaigns;
 	}
 
 	/**
@@ -93,14 +102,14 @@ public class Model extends Observable implements ActionListener {
 		// add and load data
 		campaigns.add(campaign);
 		
-		new Thread() {
-			@Override
-			public void run() {
-				campaign.loadData();
-			}
-		}.start();
+//		new Thread() {
+//			@Override
+//			public void run() {
+//				campaign.loadData();
+//			}
+//		}.start();
 
-
+		campaign.loadData();
 		setChanged();
 		notifyObservers();
 	}
@@ -150,24 +159,27 @@ public class Model extends Observable implements ActionListener {
 
 	// ==== Chart Tab ====
 
-	public synchronized final Campaign getCurrentCampaign() {
+	public synchronized final int getCurrentCampaign() {
 		if(currentProcessor == null){
-			return null;
+			return -1;
 		}
-		return currentProcessor.getCampaign();
+		return campaigns.indexOf(currentProcessor.getCampaign());
 	}
 
 	public synchronized final void setCurrentCampaign(int index) {
 		final Campaign newCampaign = campaigns.get(index);
 		
 		// if campaign doesn't change just return
-		if (currentProcessor.getCampaign().equals(newCampaign))
-			return;
-		
-		currentProcessor.setCampaign(newCampaign);
-		
-		setChanged();
-		notifyObservers();
+		if(currentProcessor!=null) {
+			if (currentProcessor.getCampaign().equals(newCampaign))
+				return;
+
+			currentProcessor.setCampaign(newCampaign);
+
+			setChanged();
+			notifyObservers();
+		}
+
 	}
 
 	public synchronized final Metric getCurrentMetric() {
