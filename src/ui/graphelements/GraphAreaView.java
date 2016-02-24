@@ -1,188 +1,233 @@
 package ui.graphelements;
-
-import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Graphics;
 import java.awt.Toolkit;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.image.BufferedImage;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Random;
 
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.border.Border;
+import javax.swing.JComponent;
+import javax.swing.Timer;
 
 import core.Model;
 import javafx.collections.FXCollections;
-import javafx.embed.swing.JFXPanel;
-import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
-import javafx.scene.layout.GridPane;
 
-public class GraphPanel extends JPanel {
-	private final Model model;
-	Boolean isItAPieChart = false;
-	private JFXPanel centerPanel;
-	ArrayList<GraphPanel> myCurrentGraphs;
-	private Scene scene;
-	private GridPane chartElementPane;
-	private ChartElement chartElement;
+public class GraphAreaView extends JComponent implements Observer, ActionListener {
+
+	// ==== Constants ====
+	private static final long serialVersionUID = -3060291319561936699L;
+
 	
 	Dimension fullViewDimension = Toolkit.getDefaultToolkit().getScreenSize();
 	private final Dimension maxDimensionForPanel = new Dimension((int)fullViewDimension.getWidth()-300, (int)fullViewDimension.getHeight()-100);
 	private final Dimension secondDimension = new Dimension((int)maxDimensionForPanel.getWidth(), (int)(maxDimensionForPanel.getHeight()-20)/2);
 	private final Dimension minimumDimension = new Dimension((int)secondDimension.getWidth()/2-20, (int) secondDimension.getHeight());
+
+	// ==== Properties ====
 	
+	private final Timer timer = new Timer(250, this);
+	private final Model model;
+	public int numberOfCharts = 0;
+	
+	private ArrayList<GraphPanel> myGraphArray = new ArrayList<GraphPanel>(3);
 
-	public GraphPanel(Model model, int numberOfCharts){
+	// ==== Constructor ====
+
+	public GraphAreaView(Model model) {
+		super();
 		
-		this.setBackground(new java.awt.Color(0, 140, 100));
-		this.setLayout(new BorderLayout());
+		// Simple Default Settings...
+		this.setSize(fullViewDimension);
+		
+		setVisible(true);
+		setLayout(new FlowLayout());
+
+		// Register View with Model as an Observer
 		this.model = model;
-		init();
-		
-		//if its the first chart display it on the full view
-		//if there are 2 charts to display, split the view
-		//else show all 4
-		if(numberOfCharts==0){
-			centerPanel.setPreferredSize(maxDimensionForPanel);
+		model.addObserver(this);
 
-		}else	if(numberOfCharts == 2 || numberOfCharts == 1){
-			centerPanel.setPreferredSize(secondDimension);
-		}else{
-			centerPanel.setPreferredSize(minimumDimension);
+		// Set the Timer to nonrepeating
+		timer.setRepeats(false);
+		
+
+		//creating 4 mockup graphPanel
+		GraphPanel myGraphPanel = new GraphPanel(model,numberOfCharts);
+		GraphPanel myGraphPanel1 = new GraphPanel(model,1);
+
+		
+
+		//Example Data
+		LineChartElement lc1 = new LineChartElement("CPA Chart");
+		lc1.setTimeGranularity(60*60*24);
+		lc1.setMetric("CPA");
+		List<Number> data = new ArrayList<Number>();
+		for(int i=0; i<30; i++){
+			data.add(Math.random() * i);
+		}
+		lc1.addSeries(data, LocalDateTime.now());
+		myGraphPanel.setChartElement(lc1);
+		
+		//PieChart
+		PieChartElement pc1 = new PieChartElement("Age Range");
+		Random random = new Random();
+		pc1.setData(FXCollections.observableArrayList(
+				new PieChart.Data("<25", random.nextInt(10)),
+				new PieChart.Data("25-34", random.nextInt(10)),
+				new PieChart.Data("35-44", random.nextInt(10)),
+				new PieChart.Data("44-54", random.nextInt(10)),
+				new PieChart.Data(">45", random.nextInt(10))));
+		myGraphPanel1.setChartElement(pc1);
+		
+		//adding panels
+
+		addPanel(myGraphPanel,true);
+//		addPanel(myGraphPanel1);
+		
+		// Handle Resizing
+		addComponentListener(new ComponentAdapter() {
+
+			@Override
+			public void componentResized(ComponentEvent e) {
+				// Restart the Timer to handle resizing
+				// This way we do not overload the Model with rendering
+				timer.restart();
+			}
+
+			@Override
+			public void componentShown(ComponentEvent e) {
+				final Timer timer = new Timer(1000, new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						// model.setSize(getSize());
+//						chartFxPanel.setSize(getSize());
+					}
+				});
+				timer.setRepeats(false);
+				timer.start();
+			}
+		});
+		
+		
+	}
+    
+	public void addPanel(GraphPanel graphPanel, boolean addAsChart){
+		if(addAsChart = true){
+			//increase the over-all number of charts 
+			numberOfCharts++;
+			
+			//there can only be 4 charts at a time.
+			//if a 5th is added, delete chart 1 and add it in its place
+			if(numberOfCharts > 4){
+				//temporary
+				removeAll();
+				int numberOfChartsAsIndex = numberOfCharts%4;
+				
+				if(numberOfChartsAsIndex != 0){
+					numberOfChartsAsIndex--;
+				}else{
+					numberOfChartsAsIndex = 3;
+				}
+				myGraphArray.remove(numberOfChartsAsIndex);
+				myGraphArray.add(numberOfChartsAsIndex, graphPanel);
+			}else{
+				myGraphArray.add(graphPanel);
+			}
+				
+			//Iterating over the array of GraphPanels and adding each of them to the view
+			//if there is only one chart add it to the view
+			//if there are 2 charts, modify the size of the first so that both can fill the screen
+			// if there are 3 or more charts, resize the previous charts and add the new one
+			for(GraphPanel myIterator : myGraphArray){
+				if(myGraphArray.size() == 1){
+					this.add(myIterator);
+					myGraphArray.get(0).getChartElement().resizeChart(maxDimensionForPanel);
+					
+			}
+				if(myGraphArray.size() == 2 ){
+					myGraphArray.get(0).setCenterPanelSize(secondDimension);
+					this.add(myIterator);
+					myGraphArray.get(1).getChartElement().resizeChart(maxDimensionForPanel);
+	
+					
+				}else	if(myGraphArray.size() == 3){
+					myGraphArray.get(0).setCenterPanelSize(minimumDimension);
+					myGraphArray.get(1).setCenterPanelSize(minimumDimension);
+	
+					this.add(myIterator);
+					myGraphArray.get(2).setCenterPanelSize(secondDimension);
+					myGraphArray.get(2).getChartElement().resizeChart(maxDimensionForPanel);
+					
+					
+				}else	if(myGraphArray.size() > 3 ){
+					myGraphArray.get(0).setCenterPanelSize(minimumDimension);
+					myGraphArray.get(1).setCenterPanelSize(minimumDimension);
+					myGraphArray.get(2).setCenterPanelSize(minimumDimension);
+					if(myGraphArray.get(3)!= null ){
+						myGraphArray.get(2).getChartElement().resizeChart(maxDimensionForPanel);
+					}
+					this.add(myIterator);
+				}
+				this.add(myIterator);
+			}
+			
+			revalidate();
+		}else	if(addAsChart = false){
+			ArrayList<GraphPanel> graphArray = new ArrayList<GraphPanel>(0);
+			graphArray.add(graphPanel);
+			for (GraphPanel iterator : graphArray){
+				this.add(iterator);
+				graphArray.get(0).getChartElement().resizeChart(maxDimensionForPanel);
+				revalidate();
+			}
+			
 		}
 	}
 	
-	public void init(){
-
-		centerPanel = new JFXPanel();
-		JLabel myLabel = new JLabel("Chart name~ ");
-		centerPanel.setBackground(new java.awt.Color(140, 0, 20));
+	// ==== JComponent Overrides ====
+	protected void paintComponent(Graphics g) {
+		super.paintComponent(g);
+//		Map<Date, Integer> impMap = model.getNumberOfImpressions();
 		
-		//Creating an ugly compound border for the TextField Panel and the Fractals
-	    Border raisedbevel = BorderFactory.createRaisedBevelBorder();
-	    Border loweredbevel = BorderFactory.createLoweredBevelBorder();
-	    Border compound = BorderFactory.createCompoundBorder(raisedbevel, loweredbevel);
-
-		centerPanel.addMouseListener(new MouseListener() {
-			public void mouseClicked(MouseEvent e) {
-				
-				if (e.getClickCount() == 2 && !e.isConsumed()) {
-				     e.consume();
-				     //creating a new window, adding the chart and resizing it
-//				     GraphWindow testWindow = new GraphWindow(model, "Unique Impressions");	
-//				     testWindow.setScene(scene);
-//				     chartElement.resizeChart(testWindow.fullViewDimension);
-
-				     //creating an object for the background
-				     GraphAreaView background = (GraphAreaView) centerPanel.getParent().getParent();
-				     
-//				     if(!isItAPieChart){
-//			    	 isItAPieChart = true;
-			    	 GraphPanel myGraphPanel = new GraphPanel(model,background.getNumberOfCharts()+1);
-			    	 
-			    	 //Creating a Chart and populating it with random data
-				     LineChartElement lc1 = new LineChartElement("CPA Chart "+ (background.getNumberOfCharts()+1));
-				     lc1.setTimeGranularity(60*60*24);
-				     lc1.setMetric("CPA");
-				     List<Number> data = new ArrayList<Number>();
-				     for(int i=0; i<30; i++){
-						data.add(Math.random() * i);
-				     }
-				     lc1.addSeries(data, LocalDateTime.now());
-				     
-				     //setting the chart to the panel and adding the panel to the view
-				     myGraphPanel.setChartElement(lc1);
-				     background.addPanel(myGraphPanel,true);	
-				     
-				     //Creating an array to store all the graphs in the view
-				     myCurrentGraphs = new ArrayList<GraphPanel>(3);
-				     myCurrentGraphs.clear();
-				     //going over the view and adding all of the GraphPanels to the array
-				     //Doing this so I can re-add them later on T_T 
-				     int i = 0;
-				     while(i < background.getComponentCount()){
-				    	System.out.println(background.getComponent(i));
-				    	myCurrentGraphs.add((GraphPanel) background.getComponent(i));
-				    	i++;
-				     }
-				     GraphPanel testPanel = new GraphPanel(model,0);
-				     testPanel.setBackground(new Color(200,0,0));
-//				     testPanel.setPreferredSize(new Dimension((int)maxDimensionForPanel.getWidth()+10,(int) maxDimensionForPanel.getHeight()+20));
-				    
-//				     background.removeAll();
-
-//				     background.updateUI();
-//				     testPanel.setChartElement(lc1);
-//				     background.addPanel(testPanel,false);
-				     
-				     
-
-					     
-//				     }else{
-//				    	 isItAPieChart = false;
-//				    	 GraphPanel myGraphPanel = new GraphPanel(model,background.getNumberOfCharts()+1);
-//				 		//PieChart
-//				 		PieChartElement pc1 = new PieChartElement("Age Range, chart number " + (background.getNumberOfCharts()+1));
-//				 		Random random = new Random();
-//				 		pc1.setData(FXCollections.observableArrayList(
-//				 				new PieChart.Data("<25", random.nextInt(10)),
-//				 				new PieChart.Data("25-34", random.nextInt(10)),
-//				 				new PieChart.Data("35-44", random.nextInt(10)),
-//				 				new PieChart.Data("44-54", random.nextInt(10)),
-//				 				new PieChart.Data(">45", random.nextInt(10))));
-//				 		myGraphPanel.setChartElement(pc1);
-//				 		background.addPanel(myGraphPanel);
-//				     }
-				     
-				}
-			}
-			public void mousePressed(MouseEvent e) {
-				// TODO Auto-generated method stub	
-			}
-			public void mouseReleased(MouseEvent e) {
-				// TODO Auto-generated method stub	
-			}
-			public void mouseEntered(MouseEvent e) {
-				// TODO Auto-generated method stub
-			}
-			public void mouseExited(MouseEvent e) {
-				// TODO Auto-generated method stub
-			}
-		});
-
-		this.add(centerPanel, BorderLayout.CENTER);
-//		this.add(myLabel, BorderLayout.NORTH);
-		this.setBorder(compound);
-		
-		chartElementPane = new GridPane();
-		scene = new Scene(chartElementPane, 0, 0);	
-		scene.getStylesheets().add(getClass().getResource("chart.css").toExternalForm());
-	}	
-	
-
-	public void setCenterPanelSize(Dimension size) {
-		centerPanel.setPreferredSize(size);
+			
+		// g.drawImage(image, 0, 0, null);
+		g.dispose();
 	}
-	/**
-	 * Assigns a ChartElement to this panel and renders it.
-	 * ChartElement should be fully defined before assigning.
-	 * @param chartElement Element to be assigned
-	 */
-	public void setChartElement(ChartElement chartElement)
-	{
-		this.chartElement = chartElement;
-		chartElementPane.add(chartElement.getChart(), 0, 0);
-		centerPanel.setScene(scene);
+
+	// ==== ActionListener Implementation ====
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+
+		// Trigger the Resize when Timer fires
+		if (e.getSource() == timer) {
+			// model.setSize(getSize());
+//			chartFxPanel.setSize(getSize());
+		}
+	}
+
+	// ==== Observer Implementation ====
+
+	@Override
+	public void update(Observable o, Object arg) {
+		if (o == model) {
+			// TODO Update view on Model refresh
+			repaint();
+		}
+	}
+	public int getNumberOfCharts(){
+		return numberOfCharts;
 	}
 	
-	public ChartElement getChartElement()
-	{
-		return chartElement;
-	}
 }
+
+
