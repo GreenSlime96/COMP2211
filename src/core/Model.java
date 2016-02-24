@@ -92,14 +92,7 @@ public class Model extends Observable implements ActionListener {
 
 		// add and load data
 		campaigns.add(campaign);
-		
-		new Thread() {
-			@Override
-			public void run() {
-				campaign.loadData();
-			}
-		}.start();
-
+		campaign.loadData();
 
 		setChanged();
 		notifyObservers();
