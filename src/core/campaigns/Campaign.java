@@ -47,8 +47,8 @@ public class Campaign {
 	private LocalDateTime campaignEndDate;
 
 	// map users via their userID to their data, 500,000 is a safe bet
-//	private HashLongIntMap usersMap = HashLongIntMaps.newUpdatableMap(10000000);  // 8062
-	private TLongIntHashMap usersMap = new TLongIntHashMap(); // 6000
+	private HashLongIntMap usersMap = HashLongIntMaps.newUpdatableMap(10000000);  // 8062
+//	private TLongIntHashMap usersMap = new TLongIntHashMap(10000000); // 6000
 
 	private List<Impression> impressionsList;
 	private List<Click> clicksList;
@@ -302,8 +302,8 @@ public class Campaign {
 			final FileChannel fc = fis.getChannel();
 			final MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
 			final byte[] buffer = new byte[(int) fc.size()];
-			final int nullEntry = usersMap.getNoEntryValue();
-//			final int nullEntry = usersMap.defaultValue();
+//			final int nullEntry = usersMap.getNoEntryValue();
+			final int nullEntry =  usersMap.defaultValue();
 			final byte newLine = '\n';
 			final byte comma = ',';
 			// reset
@@ -599,7 +599,6 @@ public class Campaign {
 			}
 			
 			System.out.println("Processing:\t" + (System.currentTimeMillis() - time) + "ms");
-			System.out.println(costOfImpressions);
 
 			// trim the ArrayList to save capacity
 			impressionsList.trimToSize();
