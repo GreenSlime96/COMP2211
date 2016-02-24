@@ -36,12 +36,12 @@ public class GeneralTab extends ControlPanelBox {
     private JButton addCampaignButton = new JButton("+");
 
     private JList<String> campaignList;
-    private JLabel noImpressionsLabel = new JLabel("######");
-    private JLabel startDateLabel = new JLabel("######");
-    private JLabel endDateLabel = new JLabel("######");
-    private JLabel totalClicksLabel =  new JLabel("######");
-    private JLabel totalCostLabel = new JLabel("#####");
-    private JLabel campaignDirectoryLabel = new JLabel("######");
+    private JLabel noImpressionsLabel = new JLabel(" ");
+    private JLabel startDateLabel = new JLabel(" ");
+    private JLabel endDateLabel = new JLabel(" ");
+    private JLabel totalClicksLabel =  new JLabel(" ");
+    private JLabel totalCostLabel = new JLabel(" ");
+    private JLabel campaignDirectoryLabel = new JLabel(" ");
 
     private DateTimeFormatter dateTimeFormatter =  DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
@@ -83,21 +83,23 @@ public class GeneralTab extends ControlPanelBox {
 
         active = false;
 
+
+        ArrayList<String> campaignNames = (ArrayList<String>) model.getListOfCampaigns();
+        DefaultListModel<String> campaignListModel = new DefaultListModel();
+
+        for(String campaignName : campaignNames){
+            campaignListModel.addElement(campaignName);
+            System.out.println(campaignName);
+        }
+
+        campaignList.setModel(campaignListModel);
+
         if(model.getCurrentCampaign()!=null) {
 
 
-            ArrayList<String> campaignNames = (ArrayList<String>) model.getListOfCampaigns();
-            DefaultListModel<String> campaignListModel = new DefaultListModel();
-
-            for(String campaignName : campaignNames){
-                campaignListModel.addElement(campaignName);
-                System.out.println(campaignName);
-            }
-
-            campaignList.setModel(campaignListModel);
 
             Campaign c = model.getCurrentCampaign();
-//            campaignList.setSelectedIndex(campaigns.indexOf(c));
+//            campaignList.setSelectedIndex(campaigns.indexOf());
 
             noImpressionsLabel.setText(String.valueOf(c.getNumberOfImpressions()));
             startDateLabel.setText(c.getStartDateTime().toString());
@@ -105,8 +107,7 @@ public class GeneralTab extends ControlPanelBox {
             totalClicksLabel.setText(String.valueOf(c.getCostOfClicks()));
             totalCostLabel.setText(String.valueOf(c.getTotalCostOfCampaign()));
 
-            //TODO GET DIRECTORY
-//        campaignDirectoryLabel.setText(c.g));
+            campaignDirectoryLabel.setText(c.toString());
         }
         active = true;
 	}
