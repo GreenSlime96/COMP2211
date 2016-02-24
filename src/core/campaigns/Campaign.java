@@ -309,16 +309,17 @@ public class Campaign {
 			// reset
 			costOfImpressions = 0;
 			long time = System.currentTimeMillis();
-			mbb.get(buffer);
+//			mbb.get(buffer);
+			mbb.load();
 			System.out.println("Load time:\t" + (System.currentTimeMillis() - time) + "ms");
 			time = System.currentTimeMillis();
 
 			// skip the header -- precomputed
-//			mbb.position(50);
-			int index = 50;
+			mbb.position(50);
+//			int index = 50;
 
-			while (index < buffer.length){		
-//				int index = mbb.position();
+			while (mbb.hasRemaining()){		
+				int index = mbb.position();
 				
 				double cost = 0;
 				
@@ -331,77 +332,82 @@ public class Campaign {
 				// TODO WHY DOES THIS ADD 1 SECOND WHEN ARRAYLIST IS ENABLED
 				// BUT IS 500MS FASTER WITHOUT ARRAYLIST!? @csjames
 
-//				int year = buffer[index++] & 0xF;
-//				year *= 10;
-//				year += buffer[index++] & 0xF;
-//				year *= 10;
-//				year += buffer[index++] & 0xF;
-//				year *= 10;
-//				year += buffer[index++] & 0xF;
+				int year = mbb.get() & 0xF;
+				year *= 10;
+				year += mbb.get() & 0xF;
+				year *= 10;
+				year += mbb.get() & 0xF;
+				year *= 10;
+				year += mbb.get() & 0xF;
 				
-//				mbb.position(index += 5);
+				mbb.position(index += 5);
 //				index+=5;
 				
-//				int month = buffer[index++] & 0xF;
-//				month *= 10;
-//				month += buffer[index++] & 0xF;
+				int month = mbb.get() & 0xF;
+				month *= 10;
+				month += mbb.get() & 0xF;
 				
-//				mbb.position(index += 3);
+				mbb.position(index += 3);
 //				index+= 3;
 
-//				int day = buffer[index++] & 0xF;
-//				day *= 10;
-//				day += buffer[index++] & 0xF;
+				int day = mbb.get() & 0xF;
+				day *= 10;
+				day += mbb.get() & 0xF;
 				
-//				mbb.position(index += 3);
+				mbb.position(index += 3);
 //				index+=3;
 				
-//				int hour = buffer[index++] & 0xF;
-//				hour *= 10;
-//				hour += buffer[index++] & 0xF;
+				int hour = mbb.get() & 0xF;
+				hour *= 10;
+				hour += mbb.get() & 0xF;
 				
-//				mbb.position(index += 3);
+				mbb.position(index += 3);
 //				index+=3;
 				
-//				int minute = buffer[index++] & 0xF;
-//				minute *= 10;
-//				minute += buffer[index++] & 0xF;
+				int minute = mbb.get() & 0xF;
+				minute *= 10;
+				minute += mbb.get() & 0xF;
 				
-//				mbb.position(index += 3);
+				mbb.position(index += 3);
 //				index+= 3;
 				
-//				int second = buffer[index++] & 0xF;
-//				second *= 10;
-//				second += buffer[index++] & 0xF;
+				int second = mbb.get() & 0xF;
+				second *= 10;
+				second += mbb.get() & 0xF;
 				
-//				mbb.position(index += 3);
+				mbb.position(index += 3);
 //				index += 3;
 
-//		        long total = 0;
-//		        total += 365 * year;
-//		        total += (year + 3) / 4 - (year + 99) / 100 + (year + 399) / 400;
-//		        total += ((367 * month - 362) / 12);
-//		        total += day - 1;
-//		        if (month > 2) {
-//		            total--;
-//		            // if is a leap year
-//		            if (!((year & 3) == 0) && ((year % 100) != 0 || (year % 400) == 0)) {
-//		                total--;
-//		            }
-//		        }
-				
-				index += 19;
+		        long total = 0;
+		        total += 365 * year;
+		        total += (year + 3) / 4 - (year + 99) / 100 + (year + 399) / 400;
+		        total += ((367 * month - 362) / 12);
+		        total += day - 1;
+		        if (month > 2) {
+		            total--;
+		            // if is a leap year
+		            if (!((year & 3) == 0) && ((year % 100) != 0 || (year % 400) == 0)) {
+		                total--;
+		            }
+		        }
 		        
-//		        long dateTime = (total - 719528) * 86400 + hour * 3600 + minute * 60 + second;
+		        long dateTime = (total - 719528) * 86400 + hour * 3600 + minute * 60 + second;
+
 				
-//				final char[] ch = new char[19];
+//				index += 19;
+//				long dateTime = 0;
+//				mbb.position(index += 19);
+		        
+				
+//				final byte[] ch = new byte[19];
 //
 //				for (int i = 0; i < 19; i++)
-//					ch[i] = (char) buffer[index++];
+//					ch[i] = mbb.get();
 //
-//				long dateTime = DateProcessor.charArrayToEpochSeconds(ch);
+//				long dateTime = DateProcessor.byteArrayToEpochSeconds(ch);
 //				
-//				index++;
+//				mbb.get();
+				
 				/*
 				 * END DATE PROCESSING SECTION
 				 */
@@ -412,45 +418,47 @@ public class Campaign {
 
 				// we know MIN(id).length = 12
 				// skip first multiplication by 0
-				long userID = buffer[index++] & 0xF;
+				long userID = mbb.get() & 0xF;
 				
 				userID *= 10;
-				userID += buffer[index++] & 0xF;
+				userID += mbb.get() & 0xF;
 				
 				userID *= 10;
-				userID += buffer[index++] & 0xF;
+				userID += mbb.get() & 0xF;
 				
 				userID *= 10;
-				userID += buffer[index++] & 0xF;
+				userID += mbb.get() & 0xF;
 				
 				userID *= 10;
-				userID += buffer[index++] & 0xF;
+				userID += mbb.get() & 0xF;
 				
 				userID *= 10;
-				userID += buffer[index++] & 0xF;
+				userID += mbb.get() & 0xF;
 				
 				userID *= 10;
-				userID += buffer[index++] & 0xF;
+				userID += mbb.get() & 0xF;
 				
 				userID *= 10;
-				userID += buffer[index++] & 0xF;
+				userID += mbb.get() & 0xF;
 				
 				userID *= 10;
-				userID += buffer[index++] & 0xF;
+				userID += mbb.get() & 0xF;
 				
 				userID *= 10;
-				userID += buffer[index++] & 0xF;
+				userID += mbb.get() & 0xF;
 				
 				userID *= 10;
-				userID += buffer[index++] & 0xF;
+				userID += mbb.get() & 0xF;
 				
 				userID *= 10;
-				userID += buffer[index++] & 0xF;
+				userID += mbb.get() & 0xF;
 				
-				while ((temp = buffer[index++]) != comma) {
+				while ((temp = mbb.get()) != comma) {
 					userID *= 10;
 					userID += temp & 0xF;
 				}
+				
+				index = mbb.position();
 				
 				/*
 				 * END USERID PROCESSING SECTION
@@ -461,86 +469,86 @@ public class Campaign {
 				 * BEGIN USERDATA PROCESSING SECTION
 				 */
 				
-				int userData = 0;//usersMap.get(userID);
+				int userData = usersMap.get(userID);
 				
-//				if (userData == nullEntry) {
-					if ((temp = buffer[index++]) == 'F') {
+				if (userData == nullEntry) {
+					if ((temp = mbb.get()) == 'F') {
 						userData |= User.GENDER_FEMALE.mask;
-						index += 6;
+						mbb.position(index += 7);
 					} else if (temp == 'M') {
 						userData |= User.GENDER_MALE.mask;
-						index += 4;
+						mbb.position(index += 5);
 					} else {
 						throw new IllegalArgumentException("invalid gender " + temp);
 					}
 					
-					if ((temp = buffer[index++]) == '2') {
+					if ((temp = mbb.get()) == '2') {
 						userData |= User.AGE_25_TO_34.mask;
-						index += 5;
+						mbb.position(index += 6);
 					} else if (temp == '4') {
 						userData |= User.AGE_45_TO_54.mask;
-						index += 5;
+						mbb.position(index += 6);
 					} else if (temp == '3') {
 						userData |= User.AGE_35_TO_44.mask;
-						index += 5;
+						mbb.position(index += 6);
 					} else if (temp == '>') {
 						userData |= User.AGE_ABOVE_54.mask;
-						index += 3;
+						mbb.position(index += 4);
 					} else if (temp == '<') {
 						userData |= User.AGE_BELOW_25.mask;
-						index += 3;
+						mbb.position(index += 4);
 					} else {
 						throw new IllegalArgumentException("invalid age " + temp);
 					}
 					
-					if ((temp = buffer[index++]) == 'H') {
+					if ((temp = mbb.get()) == 'H') {
 						userData |= User.INCOME_HIGH.mask;
-						index += 4;
+						mbb.position(index += 5);
 					} else if (temp == 'M') {
 						userData |= User.INCOME_MEDIUM.mask;
-						index += 6;				
+						mbb.position(index += 7);				
 					} else if (temp == 'L') {
 						userData |= User.INCOME_LOW.mask;
-						index += 3;
+						mbb.position(index += 4);
 					} else {
 						throw new IllegalArgumentException("invalid income " + (char) temp);
 					}
 					
-					if ((temp = buffer[index++]) == 'N') {
+					if ((temp = mbb.get()) == 'N') {
 						userData |= User.CONTEXT_NEWS.mask;
-						index += 4;
+						mbb.position(index += 5);
 					} else if (temp == 'S') {
-						if ((temp = buffer[index++]) == 'o') {
+						if ((temp = mbb.get()) == 'o') {
 							userData |= User.CONTEXT_SOCIAL_MEDIA.mask;
-							index += 11;
+							mbb.position(index += 13);
 						} else if (temp == 'h') {
 							userData |= User.CONTEXT_SHOPPING.mask;
-							index += 7;
+							mbb.position(index += 9);
 						} else {
 							throw new IllegalArgumentException("invalid context S" + (char) temp);
 						}
 					} else if (temp == 'B') {
 						userData |= User.CONTEXT_BLOG.mask;
-						index += 4;
+						mbb.position(index += 5);
 					} else if (temp == 'T') {
 						userData |= User.CONTEXT_TRAVEL.mask;
-						index += 6;
+						mbb.position(index += 7);
 					} else if (temp == 'H') {
 						userData |= User.CONTEXT_HOBBIES.mask;
-						index += 7;
+						mbb.position(index += 8);
 					} else {
 						throw new IllegalArgumentException("invalid context " + temp);
 					}
 					
-//					usersMap.put(userID, userData);
-//				} else {
-//					index += 8;
-//					
-//					for (int i = 0; i < 3;) {
-//						if (buffer[index++] == comma)
-//							i++;
-//					}
-//				}
+					usersMap.put(userID, userData);
+				} else {
+					mbb.position(index += 8);
+					
+					for (int i = 0; i < 3;) {
+						if (mbb.get() == comma)
+							i++;
+					}
+				}
 					
 				/*
 				 * END USERDATA PROCESSING SECTION
@@ -550,43 +558,41 @@ public class Campaign {
 				 * BEGIN COST PROCESSING SECTION
 				 */
 				
-				int costTemp = buffer[index++] & 0xF;
+				int costTemp = mbb.get() & 0xF;
 				
-				while ((temp = buffer[index++]) != '.') {
+				while ((temp = mbb.get()) != '.') {
 					costTemp *= 10;
 					costTemp += temp & 0xF;
 				}
 				
 				costTemp *= 10;
-				costTemp += buffer[index++] & 0xF;
+				costTemp += mbb.get() & 0xF;
 				
 				costTemp *= 10;
-				costTemp += buffer[index++] & 0xF;
+				costTemp += mbb.get() & 0xF;
 				
 				costTemp *= 10;
-				costTemp += buffer[index++] & 0xF;
+				costTemp += mbb.get() & 0xF;
 				
 				costTemp *= 10;
-				costTemp += buffer[index++] & 0xF;
+				costTemp += mbb.get() & 0xF;
 				
 				costTemp *= 10;
-				costTemp += buffer[index++] & 0xF;
+				costTemp += mbb.get() & 0xF;
 				
 				costTemp *= 10;
-				costTemp += buffer[index++] & 0xF;
+				costTemp += mbb.get() & 0xF;
 				
 				cost = costTemp * 0.000001;
-				
-
 				
 				/*
 				 * END COST PROCESSING SECTION
 				 */
 				
-				if (buffer[index++] != newLine)
+				if (mbb.get() != newLine)
 					throw new IllegalArgumentException("expected newline");
 				
-//				impressionsList.add(new Impression(0, userID, userData, cost));
+				impressionsList.add(new Impression(dateTime, userID, userData, cost));
 
 				// misc increment
 				costOfImpressions += cost;

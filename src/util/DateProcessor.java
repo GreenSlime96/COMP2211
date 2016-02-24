@@ -92,6 +92,46 @@ public class DateProcessor {
 //        return ZonedDateTime.of(year, month, day, hour, minute, second, 0, ZoneOffset.UTC).toEpochSecond();
 	}
 	
+	public static long byteArrayToEpochSeconds(byte[] data) {
+		if (data.length != 19)
+			if (data[0] == 'n' && data[1] == '/' && data[2] == 'a')
+				return DATE_NULL;
+			else
+				throw new IllegalArgumentException("date in incorrect format!");
+		
+//		final int year = 1000 * (data[0] & 0xF) + 100 * (data[1] & 0xF) + 10 * (data[2] & 0xF) + (data[3] & 0xF);
+//		final int month = 10 * (data[5] & 0xF) + (data[6] & 0xF);
+//		final int day = 10 * (data[8] & 0xF) + (data[9] & 0xF);
+//		
+//		final int hour = 10 * (data[11] & 0xF) + (data[12] & 0xF);
+//		final int minute = 10 * (data[14] & 0xF) + (data[15] & 0xF);
+//		final int second = 10 * (data[17] & 0xF) + (data[18] & 0xF);
+		
+		final int year = byteArrayToInt(data, 0, 4);
+		final int month = byteArrayToInt(data, 5, 7);
+		final int day = byteArrayToInt(data, 8, 10);
+		
+		final int hour = byteArrayToInt(data, 11, 13);
+		final int minute = byteArrayToInt(data, 14, 16);
+		final int second = byteArrayToInt(data, 17, 19);
+		
+        long total = 0;
+        total += 365 * year;
+        total += (year + 3) / 4 - (year + 99) / 100 + (year + 399) / 400;
+        total += ((367 * month - 362) / 12);
+        total += day - 1;
+        if (month > 2) {
+            total--;
+            // if is a leap year
+            if (!((year & 3) == 0) && ((year % 100) != 0 || (year % 400) == 0)) {
+                total--;
+            }
+        }
+        
+        return (total - DAYS_0000_TO_1970) * 86400 + hour * SECONDS_PER_HOUR + minute * SECONDS_PER_MINUTE + second;
+//        return ZonedDateTime.of(year, month, day, hour, minute, second, 0, ZoneOffset.UTC).toEpochSecond();
+	}
+	
 	public static long stringToEpoch(String data) {
 		return charArrayToEpochSeconds(data.toCharArray());
 	}
@@ -175,6 +215,17 @@ public class DateProcessor {
 	 * @return
 	 */
 	private static int charArrayToInt(char[] data, int start, int end) {
+		int result = 0;
+		
+		for (int i = start; i < end; i++) {				
+			result *= 10;
+			result += data[i] & 0xF;
+		}
+		
+		return result;
+	}
+	
+	private static int byteArrayToInt(byte[] data, int start, int end) {
 		int result = 0;
 		
 		for (int i = start; i < end; i++) {				

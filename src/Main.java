@@ -1,7 +1,10 @@
+import java.util.ArrayList;
+
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
+import core.records.Impression;
 import ui.Window;
 
 public class Main {
