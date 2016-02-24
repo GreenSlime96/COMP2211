@@ -82,6 +82,14 @@ public class ControlPanel extends JPanel implements Observer, ActionListener, Ch
 		// Add UI Elements Here
 		add(controlTabbedPane, BorderLayout.CENTER);
 		//add(modelProgress,BorderLayout.SOUTH);
+
+		if(model.getCurrentCampaign() == null){
+			System.out.println("CAMPAIGN IS NULL");
+
+			controlTabbedPane.setSelectedIndex(0);
+			controlTabbedPane.setEnabledAt(1,false);
+			controlTabbedPane.setEnabledAt(2,false);
+		}
 	}
 
 	// ==== Private Helper Methods ====
@@ -111,7 +119,9 @@ public class ControlPanel extends JPanel implements Observer, ActionListener, Ch
 	@Override
 	public void update(Observable o, Object arg) {
 		if (o == model) {
+			System.out.println("LALALALAA");
 			if(model.getCurrentCampaign() == null){
+				System.out.println("CAMPAIGN IS NULL");
 				chartTab.setEnabled(false);
 				filterTab.setEnabled(false);
 				controlTabbedPane.setSelectedIndex(0);
