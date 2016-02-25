@@ -12,8 +12,10 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
+import core.data.DataFilter;
 import core.data.InvalidUserException;
 import core.data.User;
 import core.records.Click;
@@ -316,6 +318,7 @@ public class Campaign {
 
 		// reset
 		costOfImpressions = 0;
+		numberOfImpressions = 0;
 
 		long time = System.currentTimeMillis();
 		// mbb.get(buffer);
@@ -330,7 +333,6 @@ public class Campaign {
 		
 		while (mbb.hasRemaining()) {
 			byte temp;
-			int sindex = mbb.position();
 
 			/*
 			 * BEGIN DATE PROCESSING SECTION
@@ -388,8 +390,6 @@ public class Campaign {
 				userID += temp & 0xF;
 			}
 
-			int index = mbb.position();
-
 			/*
 			 * END USERID PROCESSING SECTION
 			 */
@@ -402,10 +402,10 @@ public class Campaign {
 
 			if (userData == nullEntry) {
 				userData = User.encodeUser(mbb);
-//				usersMap.put(userID, userData);
+				usersMap.put(userID, userData);
 				
 			} else {
-				mbb.position(index += 8);
+				mbb.position(mbb.position() + 8);
 				
 				for (int i = 0; i < 3;) {
 					if (mbb.get() == comma)
@@ -455,7 +455,7 @@ public class Campaign {
 			if (mbb.get() != newLine)
 				throw new IllegalArgumentException("expected newline");
 			
-//			impressionsList.add(new Impression(dateTime, userID, userData, cost));
+			impressionsList.add(new Impression(dateTime, userID, userData, cost));
 			bn.putLong(dateTime);
 			bn.putLong(userID);
 			bn.putInt(userData);
@@ -463,6 +463,7 @@ public class Campaign {
 
 			// misc increment
 			costOfImpressions += cost;
+			numberOfImpressions++;
 		}
 
 		System.out.println("Processing:\t" + (System.currentTimeMillis() - time) + "ms");
@@ -474,10 +475,47 @@ public class Campaign {
 		this.impressionsList = impressionsList;
 
 		// compute size of impressions
-		numberOfImpressions = impressionsList.size();
 		numberOfUniques = usersMap.size();
+		bn.position(0);
+//		while (bn.position() < numberOfImpressions * offset) {
+//			impressionsList.add(new Impression(bn.getLong(), bn.getLong(), bn.getInt(), bn.getDouble()));
+//		}
+//		
+//		System.out.println(impressionsList.size());
 		
-		System.out.println(bn.limit() / offset);
+		Iterator<Impression> iterator = new Iterator<Impression>() {
+			final int offset = 28;
+
+			@Override
+			public boolean hasNext() {
+				return (bn.position() < numberOfImpressions * 28);
+			}
+
+			@Override
+			public Impression next() {
+				return new Impression(bn.getLong(), bn.getLong(), bn.getInt(), bn.getDouble());
+			}			
+		};
+		DataFilter df = new DataFilter();
+		df.setField(User.GENDER_FEMALE, false);
+		int counter = 0;
+		long t = System.currentTimeMillis();
+		while (iterator.hasNext()) {
+			Impression i = iterator.next();
+			
+			if (df.test(i.getUserData()))
+				counter++;
+		}
+		System.out.println(System.currentTimeMillis() - t);
+		System.out.println(counter);
+		counter = 0;
+		t = System.currentTimeMillis();
+		for (Impression i : impressionsList) {			
+			if (df.test(i.getUserData()))
+				counter++;
+		}
+		System.out.println(System.currentTimeMillis() - t);
+		System.out.println(counter);
 
 		// compute dates
 		campaignStartDate = DateProcessor.epochSecondsToLocalDateTime(bn.getLong(0));
