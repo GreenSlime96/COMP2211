@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.time.LocalDateTime;
@@ -295,10 +296,14 @@ public class Campaign {
 	 */
 	private void processImpressions(TLongIntHashMap usersMap) throws IOException, InvalidUserException {
 		final ArrayList<Impression> impressionsList = new ArrayList<Impression>();
+		final int offset = 8 + 8 + 4 + 8;
 
 		final FileInputStream fis = new FileInputStream(impressionLog);			
 		final FileChannel fc = fis.getChannel();
 		final MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+		
+		// store in ByteBuffer
+		final ByteBuffer bn = ByteBuffer.allocate((int) (fc.size() / 62 * offset));	
 		
 		// close this stream
 		fis.close();
@@ -322,10 +327,10 @@ public class Campaign {
 		// skip the header -- precomputed
 		mbb.position(50);
 		// int index = 50;
-
+		
 		while (mbb.hasRemaining()) {
-			int index = mbb.position();
 			byte temp;
+			int sindex = mbb.position();
 
 			/*
 			 * BEGIN DATE PROCESSING SECTION
@@ -383,7 +388,7 @@ public class Campaign {
 				userID += temp & 0xF;
 			}
 
-			index = mbb.position();
+			int index = mbb.position();
 
 			/*
 			 * END USERID PROCESSING SECTION
@@ -397,7 +402,8 @@ public class Campaign {
 
 			if (userData == nullEntry) {
 				userData = User.encodeUser(mbb);
-				usersMap.put(userID, userData);
+//				usersMap.put(userID, userData);
+				
 			} else {
 				mbb.position(index += 8);
 				
@@ -445,11 +451,15 @@ public class Campaign {
 			/*
 			 * END COST PROCESSING SECTION
 			 */
-
+			
 			if (mbb.get() != newLine)
 				throw new IllegalArgumentException("expected newline");
-
-			impressionsList.add(new Impression(dateTime, userID, userData, cost));
+			
+//			impressionsList.add(new Impression(dateTime, userID, userData, cost));
+			bn.putLong(dateTime);
+			bn.putLong(userID);
+			bn.putInt(userData);
+			bn.putDouble(cost);
 
 			// misc increment
 			costOfImpressions += cost;
@@ -466,10 +476,12 @@ public class Campaign {
 		// compute size of impressions
 		numberOfImpressions = impressionsList.size();
 		numberOfUniques = usersMap.size();
+		
+		System.out.println(bn.limit() / offset);
 
 		// compute dates
-		campaignStartDate = impressionsList.get(0).getLocalDateTime();
-		campaignEndDate = impressionsList.get(numberOfImpressions - 1).getLocalDateTime();
+		campaignStartDate = DateProcessor.epochSecondsToLocalDateTime(bn.getLong(0));
+		campaignEndDate = DateProcessor.epochSecondsToLocalDateTime(bn.getLong(numberOfImpressions * offset));
 	}
 
 	// ==== Object Override ====
