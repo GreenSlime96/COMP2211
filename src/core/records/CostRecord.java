@@ -21,5 +21,4 @@ public abstract class CostRecord extends Record {
 	public final double getCost() {
 		return cost;
 	}
-
 }

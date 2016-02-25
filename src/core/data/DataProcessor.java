@@ -14,10 +14,10 @@ import java.util.Objects;
 
 import core.Metric;
 import core.campaigns.Campaign;
-import core.campaigns.CostTable;
 import core.records.CostRecord;
 import core.records.Impression;
 import core.records.Server;
+import core.tables.CostTable;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
 import util.DateProcessor;

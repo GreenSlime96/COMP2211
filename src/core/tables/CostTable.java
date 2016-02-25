@@ -1,12 +1,10 @@
-package core.campaigns;
+package core.tables;
 
 import java.util.Arrays;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
 
-import core.records.Impression;
+import core.records.CostRecord;
 
-public class CostTable implements Iterable<Impression> {
+public class CostTable<E extends CostRecord> {
 	
 	// ==== Constants ====
     
@@ -55,6 +53,15 @@ public class CostTable implements Iterable<Impression> {
 		size++;
 		
 		return true;
+	}
+	
+	public boolean add(E costRecord) {
+		final long dateTime = costRecord.getEpochSeconds();
+		final long userID = costRecord.getUserID();
+		final int userData = costRecord.getUserData();
+		final double cost = costRecord.getCost();
+		
+		return add(dateTime, userID, userData, cost);
 	}
 	
 	public long getDateTime(int index) {
@@ -133,34 +140,5 @@ public class CostTable implements Iterable<Impression> {
 
 	private String outOfBoundsMsg(int index) {
 		return "Index: " + index + ", Size: " + size;
-	}
-
-	@Override
-	public Iterator<Impression> iterator() {
-		return new Itr();
-	}
-	
-	// ==== Private Iterator Class ====
-	
-	private class Itr implements Iterator<Impression> {		
-		int cursor = 0;
-		
-		@Override
-		public boolean hasNext() {
-			return cursor != size();
-		}
-
-		@Override
-		public Impression next() {
-            try {
-                int i = cursor;
-                Impression next = new Impression(dateTime[i], userID[i], userData[i], cost[i]);
-                cursor = i + 1;
-                return next;
-            } catch (IndexOutOfBoundsException e) {
-                throw new NoSuchElementException();
-            }
-		}
-		
 	}
 }
