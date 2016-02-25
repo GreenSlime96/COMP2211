@@ -94,7 +94,6 @@ public class GeneralTab extends ControlPanelBox {
 
         active = false;
 
-
         ArrayList<String> campaignNames = (ArrayList<String>) model.getListOfCampaignNames();
         DefaultListModel<String> campaignListModel = new DefaultListModel();
 
@@ -120,10 +119,13 @@ public class GeneralTab extends ControlPanelBox {
 
             int selectedIndex = campaignList.getSelectedIndex();
             noImpressionsLabel.setText(String.valueOf(campaigns.get(selectedIndex).getNumberOfImpressions()));
-            startDateLabel.setText(campaigns.get(selectedIndex).getStartDateTime().toString());
-            endDateLabel.setText(campaigns.get(selectedIndex).getEndDateTime().toString());
+            startDateLabel.setText(campaigns.get(selectedIndex).getStartDateTime().format(dateTimeFormatter));
+            endDateLabel.setText(campaigns.get(selectedIndex).getEndDateTime().format(dateTimeFormatter));
             totalClicksLabel.setText(String.valueOf(campaigns.get(selectedIndex).getCostOfClicks()));
-            totalCostLabel.setText(String.valueOf(campaigns.get(selectedIndex).getTotalCostOfCampaign()));
+
+            double totalCostPennies = campaigns.get(selectedIndex).getTotalCostOfCampaign();
+
+            totalCostLabel.setText("£" + String.format("%.2f",totalCostPennies/100));
 
             campaignDirectoryLabel.setText(campaigns.get(selectedIndex).toString());
         }

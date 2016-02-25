@@ -120,6 +120,9 @@ public class ChartTab extends ControlPanelBox {
 				Instant endInstant = c.getEndDateTime().toInstant(ZoneOffset.UTC);
 				Date endDate = Date.from(endInstant);
 				startTimeSpinner.setValue(endDate);
+
+				model.setCurrentMetric(Metric.toMetric((String) metricComboBox.getItemAt(0)));
+
 			}
 		}
 
@@ -156,7 +159,6 @@ public class ChartTab extends ControlPanelBox {
 					model.setTimeGranularityInSeconds(timeGranularitySeconds);
 				}
 			}
-
 		}
 
 		@Override
