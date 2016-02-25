@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Stream;
 
 import core.data.DataFilter;
 import core.data.InvalidUserException;
@@ -49,6 +50,7 @@ public class Campaign {
 	private List<Impression> impressionsList;
 	private List<Click> clicksList;
 	private List<Server> serversList;
+	private ByteBuffer bb;
 
 	private int numberOfImpressions;
 	private int numberOfClicks;
@@ -455,7 +457,7 @@ public class Campaign {
 			if (mbb.get() != newLine)
 				throw new IllegalArgumentException("expected newline");
 			
-			impressionsList.add(new Impression(dateTime, userID, userData, cost));
+//			impressionsList.add(new Impression(dateTime, userID, userData, cost));
 			bn.putLong(dateTime);
 			bn.putLong(userID);
 			bn.putInt(userData);
@@ -473,6 +475,9 @@ public class Campaign {
 
 		// transfer references
 		this.impressionsList = impressionsList;
+		
+		this.bb = ByteBuffer.allocate(numberOfImpressions * 28);
+		bb.put(bn);
 
 		// compute size of impressions
 		numberOfUniques = usersMap.size();
@@ -482,6 +487,16 @@ public class Campaign {
 //		}
 //		
 //		System.out.println(impressionsList.size());
+		
+//		Iterable<Impression> iterable = new Iterable<Impression>() {
+//
+//			@Override
+//			public Iterator<Impression> iterator() {
+//				// TODO Auto-generated method stub
+//				return null;
+//			}
+//			
+//		}
 		
 		Iterator<Impression> iterator = new Iterator<Impression>() {
 			final int offset = 28;
