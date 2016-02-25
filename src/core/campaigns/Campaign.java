@@ -47,11 +47,9 @@ public class Campaign {
 	private LocalDateTime campaignStartDate;
 	private LocalDateTime campaignEndDate;
 
-	public List<Impression> impressionsList;
+	public CostTable impressionsList;
 	private Iterable<Click> clicksList;
 	private Iterable<Server> serversList;
-	
-	public ByteBuffer bb;
 
 	private int numberOfImpressions;
 	private int numberOfClicks;
@@ -140,7 +138,7 @@ public class Campaign {
 
 	// ==== Accessors ====
 
-	public final Iterable<Impression> getImpressions() {
+	public final CostTable getImpressions() {
 		return impressionsList;
 	}
 
@@ -311,6 +309,7 @@ public class Campaign {
 		
 		// store in ByteBuffer
 		final ByteBuffer bn = ByteBuffer.allocate((int) (fc.size() / 62 * offset));	
+		final CostTable impressionsTable = new CostTable((int) fc.size() / 70);
 		
 		// close this stream
 		fis.close();
@@ -407,8 +406,7 @@ public class Campaign {
 
 			if (userData == nullEntry) {
 				userData = User.encodeUser(mbb);
-				usersMap.put(userID, userData);
-				
+				usersMap.put(userID, userData);				
 			} else {
 				mbb.position(mbb.position() + 8);
 				
@@ -460,11 +458,13 @@ public class Campaign {
 			if (mbb.get() != newLine)
 				throw new IllegalArgumentException("expected newline");
 			
+			impressionsTable.add(dateTime, userID, userData, cost);
+			
 //			impressionsList.add(new Impression(dateTime, userID, userData, cost));
-			bn.putLong(dateTime);
-			bn.putLong(userID);
-			bn.putInt(userData);
-			bn.putDouble(cost);
+//			bn.putLong(dateTime);
+//			bn.putLong(userID);
+//			bn.putInt(userData);
+//			bn.putDouble(cost);
 
 			// misc increment
 			costOfImpressions += cost;
@@ -473,24 +473,18 @@ public class Campaign {
 		System.out.println("Processing:\t" + (System.currentTimeMillis() - time) + "ms");
 
 		// trim the ArrayList to save capacity
-		impressionsList.trimToSize();
-
-		// transfer references
-		this.impressionsList = impressionsList;
-		
-		this.bb = ByteBuffer.allocate(numberOfImpressions * 28);
-		bb.put(bn);
+		impressionsTable.trimToSize();
 
 		// compute size of impressions
 		numberOfUniques = usersMap.size();
-		numberOfImpressions = impressionsList.size();
+		numberOfImpressions = impressionsTable.size();
 		
 		// transfer reference
-		this.impressionsList = impressionsList;
+		this.impressionsList = impressionsTable;
 
 		// compute dates
-		campaignStartDate = DateProcessor.epochSecondsToLocalDateTime(bn.getLong(0));
-		campaignEndDate = DateProcessor.epochSecondsToLocalDateTime(bn.getLong((numberOfImpressions - 1) * 28));
+		campaignStartDate = DateProcessor.epochSecondsToLocalDateTime(impressionsTable.getDateTime(0));
+		campaignEndDate = DateProcessor.epochSecondsToLocalDateTime(impressionsTable.getDateTime(numberOfImpressions - 1));
 	}
 
 	// ==== Object Override ====

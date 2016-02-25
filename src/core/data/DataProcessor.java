@@ -6,6 +6,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,7 @@ import java.util.Objects;
 
 import core.Metric;
 import core.campaigns.Campaign;
+import core.campaigns.CostTable;
 import core.records.CostRecord;
 import core.records.Impression;
 import core.records.Server;
@@ -266,9 +268,10 @@ public class DataProcessor {
 		long nextDate = currentDate + timeGranularityInSeconds;
 		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
 		long time = System.currentTimeMillis();
+		final CostTable costTable = campaign.getImpressions();
 		outerLoop:
-		for (Impression impression : campaign.getImpressions()) {
-			final long dateTime = impression.getEpochSeconds();
+		for (int i = 0; i < campaign.getNumberOfImpressions(); i++) {
+			final long dateTime = costTable.getDateTime(i);
 						
 			// we ignore the impression if the date is before the current date
 			if (dateTime < currentDate)
@@ -290,7 +293,7 @@ public class DataProcessor {
 					nextDate = finalDate;
 			}
 			
-			if (dataFilter.test(impression.getUserData())) {
+			if (dataFilter.test(costTable.getUserData(i))) {
 				numberOfImpressions++;
 			}
 		}
@@ -303,55 +306,55 @@ public class DataProcessor {
 		// pack
 		impressionsList.trimToSize();
 		
-		currentDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
-		nextDate = currentDate + timeGranularityInSeconds;
-		finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
-		
-		final ArrayList<Integer> nip = new ArrayList<Integer>();
-		numberOfImpressions = 0;
-		
-		time = System.currentTimeMillis();
-//		final int max = campaign.getNumberOfImpressions() * 28;
-//		final ByteBuffer bb = campaign.bb;
-		
-		// BEGIN ByteBuffer test!
-		outerLoop:
-		for (int i = 0; i < campaign.impressionsList.size(); i ++) {
-			final Impression impression = campaign.impressionsList.get(i);
-			final long dateTime = impression.getEpochSeconds();
-			
-			// we ignore the impression if the date is before the current date
-			if (dateTime < currentDate)
-				continue;
-			
-			// add new mapping if after time granularity separator
-			while (dateTime > nextDate) {
-				if (nextDate == finalDate)
-					break outerLoop;
-				
-				impressionsList.add(numberOfImpressions);
-				
-				numberOfImpressions = 0;
-				
-				currentDate = nextDate;
-				nextDate = currentDate + timeGranularityInSeconds;
-				
-				if (nextDate > finalDate)
-					nextDate = finalDate;
-			}
-			
-			if (dataFilter.test(impression.getUserData())) {
-				numberOfImpressions++;
-			}
-		}
-		
-		nip.add(numberOfImpressions);
-		
-		System.out.println("ByteBuffer: " + (System.currentTimeMillis() - time));
-
-		
-		if (nip.equals(impressionsList))
-			System.out.println("success");
+//		currentDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
+//		nextDate = currentDate + timeGranularityInSeconds;
+//		finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
+//		
+//		final ArrayList<Integer> nip = new ArrayList<Integer>();
+//		numberOfImpressions = 0;
+//		
+//		time = System.currentTimeMillis();
+////		final int max = campaign.getNumberOfImpressions() * 28;
+////		final ByteBuffer bb = campaign.bb;
+//		
+//		// BEGIN ByteBuffer test!
+//		outerLoop:
+//		for (int i = 0; i < campaign.impressionsList.size(); i ++) {
+//			final Impression impression = campaign.impressionsList.get(i);
+//			final long dateTime = impression.getEpochSeconds();
+//			
+//			// we ignore the impression if the date is before the current date
+//			if (dateTime < currentDate)
+//				continue;
+//			
+//			// add new mapping if after time granularity separator
+//			while (dateTime > nextDate) {
+//				if (nextDate == finalDate)
+//					break outerLoop;
+//				
+//				impressionsList.add(numberOfImpressions);
+//				
+//				numberOfImpressions = 0;
+//				
+//				currentDate = nextDate;
+//				nextDate = currentDate + timeGranularityInSeconds;
+//				
+//				if (nextDate > finalDate)
+//					nextDate = finalDate;
+//			}
+//			
+//			if (dataFilter.test(impression.getUserData())) {
+//				numberOfImpressions++;
+//			}
+//		}
+//		
+//		nip.add(numberOfImpressions);
+//		
+//		System.out.println("ByteBuffer: " + (System.currentTimeMillis() - time));
+//
+//		
+//		if (nip.equals(impressionsList))
+//			System.out.println("success");
 				
 		return impressionsList;
 	}
@@ -712,7 +715,7 @@ public class DataProcessor {
 	
 	// gender distribution -- impressions or clicks or ?
 	// TODO: enum!
-	private final Map<String, Integer> genderDistribution() {
+	private final EnumMap<User, Integer> genderDistribution() {
 		final Map<String, Integer> genderMap = new HashMap<String, Integer>();
 		
 		final DataFilter males = new DataFilter(dataFilter);
@@ -755,6 +758,6 @@ public class DataProcessor {
 		genderMap.put("Male", numberOfMales);
 		genderMap.put("Female", numberOfFemales);
 		
-		return genderMap;
+		return null;
 	}
 }
