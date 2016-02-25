@@ -2,28 +2,18 @@ package core.data;
 
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import core.Metric;
 import core.campaigns.Campaign;
-import core.records.Click;
 import core.records.CostRecord;
 import core.records.Impression;
-import core.records.Record;
 import core.records.Server;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
@@ -52,7 +42,7 @@ public class DataProcessor {
 	private final DataFilter dataFilter = new DataFilter();
 	
 	// the metric that the chart is handling
-	private Metric metric;
+	private Metric metric = Metric.NUMBER_OF_IMPRESSIONS;
 	
 	// the time granularity of this dataprocessor
 	private int timeGranularityInSeconds = 60 * 60 * 24;
@@ -75,7 +65,6 @@ public class DataProcessor {
 	}
 	
 	public final void setCampaign(Campaign campaign) {
-		// thanks @csjames! :)
 		if (this.campaign != null && this.campaign.equals(campaign))
 			return;
 		
@@ -96,9 +85,6 @@ public class DataProcessor {
 	}
 	
 	/**
-	 * Metric cannot be null
-	 * TODO ^
-	 * 
 	 * @param metric
 	 */
 	public final void setMetric(Metric metric) {

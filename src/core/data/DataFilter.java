@@ -33,10 +33,11 @@ public class DataFilter implements Predicate<Integer> {
 	}
 	
 	public void setField(User field, boolean value) {
-		if (value)
+		if (value) {
 			flags |= field.mask;
-		else
+		} else {
 			flags &= ~field.mask;
+		}
 	}
 	
 	

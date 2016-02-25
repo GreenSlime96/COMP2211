@@ -3,7 +3,7 @@ package core;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import javax.swing.Timer;
 
 import core.campaigns.Campaign;
+import core.campaigns.InvalidCampaignException;
 import core.data.DataProcessor;
 import core.data.User;
 
@@ -49,7 +50,7 @@ public class Model extends Observable implements ActionListener {
 				currentProcessor.setCampaign(campaigns.get(0));
 				currentProcessor.setMetric(Metric.NUMBER_OF_UNIQUES);
 				currentProcessor.getData();
-			} catch (FileNotFoundException e) {
+			} catch (InvalidCampaignException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
@@ -72,20 +73,21 @@ public class Model extends Observable implements ActionListener {
 	 * 
 	 * @return a list of campaigns loaded in the system
 	 */
-	public synchronized final List<String> getListOfCampaigns() {
-		return campaigns.stream().map(x -> x.toString()).collect(Collectors.toList());
+	public synchronized final List<Campaign> getListOfCampaigns() {
+		return campaigns;
 	}
 
 	/**
+	 * @throws InvalidCampaignException 
+	 * @throws IOException 
 	 * adds a campaign to the list of campaigns and loads it, doesn't add if one
 	 * alredy exists
 	 * 
 	 * @param campaignDirectory
 	 *            the directory the campaign resides on
-	 * @throws FileNotFoundException
-	 *             if the Campaign Directory isn't a valid directory
+	 * @throws  
 	 */
-	public synchronized final void addCampaign(File campaignDirectory) throws FileNotFoundException {
+	public synchronized final void addCampaign(File campaignDirectory) throws InvalidCampaignException {
 		final Campaign campaign = new Campaign(campaignDirectory);
 
 		// skip if it already exists
@@ -95,8 +97,8 @@ public class Model extends Observable implements ActionListener {
 		}
 
 		// add and load data
-		campaigns.add(campaign);
 		campaign.loadData();
+		campaigns.add(campaign);
 
 		setChanged();
 		notifyObservers();
@@ -109,7 +111,6 @@ public class Model extends Observable implements ActionListener {
 	public synchronized final void removeCampaign(Campaign campaign) {
 
 		// iterate over DataProcessors to make sure there are no dependencies
-		// TODO: throw exception instead
 		for (DataProcessor dataProcessor : dataProcessors) {
 			if (dataProcessor.getCampaign().equals(campaign))
 				return;
