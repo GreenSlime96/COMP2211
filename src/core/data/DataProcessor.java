@@ -511,7 +511,7 @@ public class DataProcessor {
 		return conversionsList;
 	}
 	
-	private final <T extends CostRecord> List<Double> costOfRecord(Collection<T> records) {
+	private final <T extends CostRecord> List<Double> costOfRecord(Iterable<T> records) {
 		final ArrayList<Double> costList = new ArrayList<Double>();
 		
 		double costOfImpressions = 0;

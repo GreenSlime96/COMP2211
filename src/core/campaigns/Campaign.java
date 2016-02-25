@@ -47,7 +47,7 @@ public class Campaign {
 	private LocalDateTime campaignStartDate;
 	private LocalDateTime campaignEndDate;
 
-	private List<Impression> impressionsList;
+	private Iterable<Impression> impressionsList;
 	private List<Click> clicksList;
 	private List<Server> serversList;
 	private ByteBuffer bb;
@@ -137,7 +137,7 @@ public class Campaign {
 
 	// ==== Accessors ====
 
-	public final Collection<Impression> getImpressions() {
+	public final Iterable<Impression> getImpressions() {
 		return impressionsList;
 	}
 
@@ -457,7 +457,7 @@ public class Campaign {
 			if (mbb.get() != newLine)
 				throw new IllegalArgumentException("expected newline");
 			
-//			impressionsList.add(new Impression(dateTime, userID, userData, cost));
+			impressionsList.add(new Impression(dateTime, userID, userData, cost));
 			bn.putLong(dateTime);
 			bn.putLong(userID);
 			bn.putInt(userData);
@@ -487,37 +487,39 @@ public class Campaign {
 //		}
 //		
 //		System.out.println(impressionsList.size());
-		
-//		Iterable<Impression> iterable = new Iterable<Impression>() {
-//
-//			@Override
-//			public Iterator<Impression> iterator() {
-//				// TODO Auto-generated method stub
-//				return null;
-//			}
-//			
-//		}
-		
-		Iterator<Impression> iterator = new Iterator<Impression>() {
-			final int offset = 28;
+
+		Iterable<Impression> iterable = new Iterable<Impression>() {
+			int offset = 0;
 
 			@Override
-			public boolean hasNext() {
-				return (bn.position() < numberOfImpressions * 28);
-			}
+			public Iterator<Impression> iterator() {
+				return new Iterator<Impression>() {
+					@Override
+					public boolean hasNext() {
+						return (offset < (numberOfImpressions * 28));
+					}
 
-			@Override
-			public Impression next() {
-				return new Impression(bn.getLong(), bn.getLong(), bn.getInt(), bn.getDouble());
-			}			
+					@Override
+					public Impression next() {
+						final long dateTime = bn.getLong(offset);
+						final long userID = bn.getLong(offset += 8);
+						final int userData = bn.getInt(offset += 8);
+						final double cost = bn.getDouble(offset += 4);
+						
+						offset += 8;
+						
+						return new Impression(dateTime, userID, userData, cost);
+					}	
+				};
+			}	
 		};
+		
+		this.impressionsList = iterable;
 		DataFilter df = new DataFilter();
 		df.setField(User.GENDER_FEMALE, false);
 		int counter = 0;
 		long t = System.currentTimeMillis();
-		while (iterator.hasNext()) {
-			Impression i = iterator.next();
-			
+		for (Impression i : iterable) {
 			if (df.test(i.getUserData()))
 				counter++;
 		}
@@ -525,8 +527,19 @@ public class Campaign {
 		System.out.println(counter);
 		counter = 0;
 		t = System.currentTimeMillis();
-		for (Impression i : impressionsList) {			
+		for (Impression i : impressionsList) {
 			if (df.test(i.getUserData()))
+				counter++;
+		}
+		System.out.println(System.currentTimeMillis() - t);
+		System.out.println(counter);
+		counter = 0;
+		t = System.currentTimeMillis();
+		for (int i = 0; i < numberOfImpressions; i++) {
+			final int set = i * 28;
+			final int userData = set + 8;
+			
+			if (df.test(bn.getInt(userData)))
 				counter++;
 		}
 		System.out.println(System.currentTimeMillis() - t);
