@@ -48,7 +48,7 @@ public class Model extends Observable implements ActionListener {
 				addCampaign(new File("/Users/" + username + "/Downloads/2_month_campaign"));
 				currentProcessor = new DataProcessor();
 				currentProcessor.setCampaign(campaigns.get(0));
-				currentProcessor.setMetric(Metric.NUMBER_OF_UNIQUES);
+				currentProcessor.setMetric(Metric.NUMBER_OF_IMPRESSIONS);
 				currentProcessor.getData();
 			} catch (InvalidCampaignException e) {
 				// TODO Auto-generated catch block

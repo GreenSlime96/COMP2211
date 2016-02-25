@@ -1,5 +1,6 @@
 package core.data;
 
+import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
@@ -264,7 +265,7 @@ public class DataProcessor {
 		long currentDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
 		long nextDate = currentDate + timeGranularityInSeconds;
 		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
-		
+		long time = System.currentTimeMillis();
 		outerLoop:
 		for (Impression impression : campaign.getImpressions()) {
 			final long dateTime = impression.getEpochSeconds();
@@ -296,9 +297,61 @@ public class DataProcessor {
 		
 		// add last entry
 		impressionsList.add(numberOfImpressions);
+		
+		System.out.println("original: " + (System.currentTimeMillis() - time));
 
 		// pack
 		impressionsList.trimToSize();
+		
+		currentDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
+		nextDate = currentDate + timeGranularityInSeconds;
+		finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
+		
+		final ArrayList<Integer> nip = new ArrayList<Integer>();
+		numberOfImpressions = 0;
+		
+		time = System.currentTimeMillis();
+//		final int max = campaign.getNumberOfImpressions() * 28;
+//		final ByteBuffer bb = campaign.bb;
+		
+		// BEGIN ByteBuffer test!
+		outerLoop:
+		for (int i = 0; i < campaign.impressionsList.size(); i ++) {
+			final Impression impression = campaign.impressionsList.get(i);
+			final long dateTime = impression.getEpochSeconds();
+			
+			// we ignore the impression if the date is before the current date
+			if (dateTime < currentDate)
+				continue;
+			
+			// add new mapping if after time granularity separator
+			while (dateTime > nextDate) {
+				if (nextDate == finalDate)
+					break outerLoop;
+				
+				impressionsList.add(numberOfImpressions);
+				
+				numberOfImpressions = 0;
+				
+				currentDate = nextDate;
+				nextDate = currentDate + timeGranularityInSeconds;
+				
+				if (nextDate > finalDate)
+					nextDate = finalDate;
+			}
+			
+			if (dataFilter.test(impression.getUserData())) {
+				numberOfImpressions++;
+			}
+		}
+		
+		nip.add(numberOfImpressions);
+		
+		System.out.println("ByteBuffer: " + (System.currentTimeMillis() - time));
+
+		
+		if (nip.equals(impressionsList))
+			System.out.println("success");
 				
 		return impressionsList;
 	}
