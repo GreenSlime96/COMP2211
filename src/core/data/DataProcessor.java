@@ -120,6 +120,9 @@ public class DataProcessor {
 		case NUMBER_OF_BOUNCES:
 			returnList = numberOfBounces();
 			break;
+		case NUMBER_OF_CONVERSIONS:
+			returnList = numberOfConversions();
+			break;
 		case TOTAL_COST:
 			returnList = totalCost();
 			break;
