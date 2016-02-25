@@ -60,6 +60,8 @@ public class Campaign {
 
 	private double costOfImpressions;
 	private double costOfClicks;
+	
+//	https://www.dropbox.com/s/otrfjuqzzw923yu/2_month_campaign.zip?dl=0
 
 	// ==== Constructor ====
 
@@ -517,11 +519,11 @@ public class Campaign {
 		this.impressionsList = iterable;
 		DataFilter df = new DataFilter();
 		df.setField(User.GENDER_FEMALE, false);
-		int counter = 0;
+		double counter = 0;
 		long t = System.currentTimeMillis();
 		for (Impression i : iterable) {
 			if (df.test(i.getUserData()))
-				counter++;
+				counter+=i.getCost();
 		}
 		System.out.println(System.currentTimeMillis() - t);
 		System.out.println(counter);
@@ -529,7 +531,7 @@ public class Campaign {
 		t = System.currentTimeMillis();
 		for (Impression i : impressionsList) {
 			if (df.test(i.getUserData()))
-				counter++;
+				counter+=i.getCost();
 		}
 		System.out.println(System.currentTimeMillis() - t);
 		System.out.println(counter);
@@ -537,10 +539,8 @@ public class Campaign {
 		t = System.currentTimeMillis();
 		for (int i = 0; i < numberOfImpressions; i++) {
 			final int set = i * 28;
-			final int userData = set + 8;
-			
-			if (df.test(bn.getInt(userData)))
-				counter++;
+			if (df.test(bn.getInt(set + 16)))
+				counter+=bn.getDouble(set + 20);
 		}
 		System.out.println(System.currentTimeMillis() - t);
 		System.out.println(counter);
