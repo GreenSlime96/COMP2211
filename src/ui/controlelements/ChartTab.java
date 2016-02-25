@@ -52,8 +52,8 @@ public class ChartTab extends ControlPanelBox {
 		addSetting(campaignComboBox,"Campaign","Select a campaign for your chart");
 		addSetting(metricComboBox,"Metrics","Select a metric for your chart");
 
-		addSetting(startTimeSpinner,"Start Time","Choose Start Time for Chart");
-		addSetting(endTimeSpinner,"End Time","Choose End Time for Chart");
+		//addSetting(startTimeSpinner,"Start Time","Choose Start Time for Chart");
+		//addSetting(endTimeSpinner,"End Time","Choose End Time for Chart");
 		addSetting(timeGranularityComboBox,"Time Granularity","");
 
 		chartTabController = new ChartTabController(model);
