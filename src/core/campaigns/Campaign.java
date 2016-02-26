@@ -223,7 +223,7 @@ public class Campaign {
 	 * 
 	 */
 	private void processServers(TLongShortHashMap usersMap) throws IOException {
-		final LogTable serversTable = new LogTable();
+		serversTable = new LogTable(20000);
 		
 		BufferedReader br = new BufferedReader(new FileReader(new File(campaignDirectory, SERVERS_FILE)));
 		// Initialise variables
@@ -276,9 +276,6 @@ public class Campaign {
 
 		// Trim to size
 		serversTable.trimToSize();
-
-		// assign reference
-		this.serversTable = serversTable;
 	}
 
 	/**
@@ -287,9 +284,10 @@ public class Campaign {
 	 * of clicks in this campaign TODO: - Check that start/end dates are in-form
 	 * with Impressions
 	 * @throws IOException 
+	 * @throws InvalidCampaignException 
 	 */
-	private void processClicks(TLongShortHashMap usersMap) throws IOException {
-		final CostTable clicksTable = new CostTable(serversTable.size());
+	private void processClicks(TLongShortHashMap usersMap) throws IOException, InvalidCampaignException {
+		clicksTable = new CostTable(serversTable.size());
 		
 		BufferedReader br = new BufferedReader(new FileReader(new File(campaignDirectory, CLICKS_FILE)));
 		
@@ -316,12 +314,12 @@ public class Campaign {
 		
 		// Close the BufferedReader
 		br.close();
+		
+		if (clicksTable.size() != serversTable.size())
+			throw new InvalidCampaignException("not 1-1 mapping of server to click");
 
 		// Trim list to save memory
 		clicksTable.trimToSize();
-
-		// Set these variables
-		this.clicksTable = clicksTable;
 	}
 
 	/**
@@ -346,8 +344,7 @@ public class Campaign {
 		
 		final int expectedRecords = (int) fc.size() / 70;
 		
-		// store in ByteBuffer
-		final CostTable impressionsTable = new CostTable(expectedRecords);
+		impressionsTable = new CostTable(expectedRecords);
 		
 		// close this stream
 		fis.close();
@@ -485,7 +482,7 @@ public class Campaign {
 			impressionsTable.add(dateTime, userID, userData, cost);
 			
 			// misc increment
-			costOfImpressions += costTemp;
+			costOfImpressions += cost;
 		}
 
 		System.out.println("processing:\t" + (System.currentTimeMillis() - time) + "ms");
@@ -495,11 +492,6 @@ public class Campaign {
 
 		// compute size of impressions
 		numberOfUniques = usersMap.size();
-		
-		costOfImpressions *= 10e-6;
-		
-		// transfer reference
-		this.impressionsTable = impressionsTable;
 
 		// compute dates
 		campaignStartDate = DateProcessor.toLocalDateTime(impressionsTable.getDateTime(0));
