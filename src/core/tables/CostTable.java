@@ -2,9 +2,7 @@ package core.tables;
 
 import java.util.Arrays;
 
-import core.records.CostRecord;
-
-public class CostTable<E extends CostRecord> {
+public class CostTable {
 	
 	// ==== Constants ====
     
@@ -53,15 +51,6 @@ public class CostTable<E extends CostRecord> {
 		size++;
 		
 		return true;
-	}
-	
-	public boolean add(E costRecord) {
-		final long dateTime = costRecord.getEpochSeconds();
-		final long userID = costRecord.getUserID();
-		final int userData = costRecord.getUserData();
-		final double cost = costRecord.getCost();
-		
-		return add(dateTime, userID, userData, cost);
 	}
 	
 	public long getDateTime(int index) {

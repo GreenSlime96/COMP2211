@@ -2,7 +2,7 @@ package ui.controlelements;
 
 
 import core.Model;
-import core.data.User;
+import core.users.User;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;

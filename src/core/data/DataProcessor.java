@@ -1,25 +1,16 @@
 package core.data;
 
-import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
-import core.Metric;
 import core.campaigns.Campaign;
-import core.records.Click;
-import core.records.CostRecord;
-import core.records.Impression;
-import core.records.Server;
 import core.tables.CostTable;
 import core.tables.LogTable;
+import core.users.User;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
 import util.DateProcessor;
@@ -265,7 +256,7 @@ public class DataProcessor {
 	
 	private final List<Integer> numberOfImpressions() {
 		final ArrayList<Integer> impressionsList = new ArrayList<Integer>();
-		final CostTable<Impression> costTable = campaign.getImpressions();
+		final CostTable costTable = campaign.getImpressions();
 		
 		int numberOfImpressions = 0;
 		
@@ -314,7 +305,7 @@ public class DataProcessor {
 	
 	private final List<Integer> numberOfClicks() {
 		final ArrayList<Integer> clicksList = new ArrayList<Integer>();
-		final CostTable<Click> costTable = campaign.getClicks();
+		final CostTable costTable = campaign.getClicks();
 
 		int numberOfClicks = 0;
 
@@ -364,7 +355,7 @@ public class DataProcessor {
 	// The number of unique users that click on an ad during the course of a campaign.
 	private final List<Integer> numberOfUniques() {
 		final ArrayList<Integer> uniquesList = new ArrayList<Integer>();
-		final CostTable<Click> costTable = campaign.getClicks();
+		final CostTable costTable = campaign.getClicks();
 		
 		// 330ms vs 668ms
 		final TLongSet usersSet = new TLongHashSet();
@@ -419,7 +410,7 @@ public class DataProcessor {
 	 */
 	private final List<Integer> numberOfBounces() {
 		final ArrayList<Integer> bouncesList = new ArrayList<Integer>();
-		final LogTable<Server> logTable = campaign.getServers();
+		final LogTable logTable = campaign.getServers();
 		
 		int numberOfBounces = 0;
 		
@@ -478,7 +469,7 @@ public class DataProcessor {
 	}
 	
 	private final List<Integer> numberOfConversions() {
-		final LogTable<Server> logTable = campaign.getServers();
+		final LogTable logTable = campaign.getServers();
 		final ArrayList<Integer> conversionsList = new ArrayList<Integer>();
 		
 		int numberOfConversions = 0;
@@ -526,7 +517,7 @@ public class DataProcessor {
 		return conversionsList;
 	}
 	
-	private final <T extends CostRecord> List<Double> costOfRecord(CostTable<T> table) {
+	private final List<Double> costOfRecord(CostTable table) {
 		final ArrayList<Double> costList = new ArrayList<Double>();
 		
 		double costOfImpressions = 0;

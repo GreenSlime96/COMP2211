@@ -15,9 +15,9 @@ import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import core.Metric;
 import core.Model;
 import core.campaigns.Campaign;
+import core.data.Metric;
 
 /**
  * Created by james on 17/02/16.

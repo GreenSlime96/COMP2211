@@ -15,7 +15,8 @@ import javax.swing.Timer;
 import core.campaigns.Campaign;
 import core.campaigns.InvalidCampaignException;
 import core.data.DataProcessor;
-import core.data.User;
+import core.data.Metric;
+import core.users.User;
 
 public class Model extends Observable implements ActionListener {
 
@@ -45,7 +46,8 @@ public class Model extends Observable implements ActionListener {
 		
 		if (username.equals("khengboonpek") || username.equals("kbp2g14"))
 			try {
-				addCampaign(new File("/Users/" + username + "/Downloads/2_month_campaign"));
+				addCampaign(new File("/Users/" + username + "/Downloads/2_month_campaig"
+						+ "n"));
 				currentProcessor = new DataProcessor();
 				currentProcessor.setCampaign(campaigns.get(0));
 				currentProcessor.setMetric(Metric.NUMBER_OF_IMPRESSIONS);

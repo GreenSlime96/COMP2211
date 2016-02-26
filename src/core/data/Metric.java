@@ -1,4 +1,4 @@
-package core;
+package core.data;
 
 public enum Metric {
 	NUMBER_OF_IMPRESSIONS,

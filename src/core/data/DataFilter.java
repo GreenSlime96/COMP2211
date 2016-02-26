@@ -2,6 +2,8 @@ package core.data;
 
 import java.util.function.Predicate;
 
+import core.users.User;
+
 public class DataFilter implements Predicate<Integer> {
 	
 	// ==== Constants ====

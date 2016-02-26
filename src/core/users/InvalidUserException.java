@@ -1,4 +1,4 @@
-package core.data;
+package core.users;
 
 public class InvalidUserException extends Exception {
 

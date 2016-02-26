@@ -5,31 +5,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.stream.Stream;
 
-import core.data.DataFilter;
-import core.data.InvalidUserException;
-import core.data.User;
-import core.records.Click;
-import core.records.Impression;
-import core.records.Server;
 import core.tables.CostTable;
 import core.tables.LogTable;
+import core.users.InvalidUserException;
+import core.users.User;
 import gnu.trove.map.hash.TLongIntHashMap;
-import gnu.trove.set.hash.TLongHashSet;
-import net.openhft.koloboke.collect.set.hash.HashLongSet;
-import net.openhft.koloboke.collect.set.hash.HashLongSets;
-//import net.openhft.koloboke.collect.map.hash.HashLongIntMap;
-//import net.openhft.koloboke.collect.map.hash.HashLongIntMaps;
 import util.DateProcessor;
 
 public class Campaign {
@@ -45,16 +29,12 @@ public class Campaign {
 
 	private final File campaignDirectory;
 
-	private final File impressionLog;
-	private final File serverLog;
-	private final File clickLog;
-
 	private LocalDateTime campaignStartDate;
 	private LocalDateTime campaignEndDate;
 
-	private CostTable<Impression> impressionsTable;
-	private CostTable<Click> clicksTable;
-	private LogTable<Server> serversTable;
+	private CostTable impressionsTable;
+	private CostTable clicksTable;
+	private LogTable serversTable;
 
 	private int numberOfImpressions;
 	private int numberOfClicks;
@@ -70,10 +50,6 @@ public class Campaign {
 	// ==== Constructor ====
 
 	public Campaign(File campaignDirectory) {
-		impressionLog = new File(campaignDirectory, IMPRESSIONS_FILE);
-		serverLog = new File(campaignDirectory, SERVERS_FILE);
-		clickLog = new File(campaignDirectory, CLICKS_FILE);
-
 		this.campaignDirectory = campaignDirectory;
 	}
 	
@@ -149,15 +125,15 @@ public class Campaign {
 
 	// ==== Accessors ====
 
-	public final CostTable<Impression> getImpressions() {
+	public final CostTable getImpressions() {
 		return impressionsTable;
 	}
 
-	public final CostTable<Click> getClicks() {
+	public final CostTable getClicks() {
 		return clicksTable;
 	}
 
-	public final LogTable<Server> getServers() {
+	public final LogTable getServers() {
 		return serversTable;
 	}
 
@@ -209,9 +185,9 @@ public class Campaign {
 	 * 
 	 */
 	private void processServers(TLongIntHashMap usersMap) throws IOException {
-		final LogTable<Server> serversList = new LogTable<Server>(20000);
+		final LogTable serversList = new LogTable(20000);
 		
-		BufferedReader br = new BufferedReader(new FileReader(serverLog));
+		BufferedReader br = new BufferedReader(new FileReader(new File(campaignDirectory, SERVERS_FILE)));
 		// Initialise variables
 		String line = br.readLine();
 
@@ -222,10 +198,10 @@ public class Campaign {
 		while ((line = br.readLine()) != null) {
 			final String[] data = line.split(",");
 
-			final long dateTime = DateProcessor.stringToEpoch(data[0]);
+			final long dateTime = DateProcessor.toEpochSeconds(data[0]);
 			final long userID = Long.valueOf(data[1]);
 			final int userData = -1;
-			final long exitDateTime = DateProcessor.stringToEpoch(data[2]);
+			final long exitDateTime = DateProcessor.toEpochSeconds(data[2]);
 			final int pagesViewed = Integer.valueOf(data[3]);
 			final boolean conversion = data[4].equals("Yes");
 			
@@ -264,9 +240,9 @@ public class Campaign {
 	 * @throws IOException 
 	 */
 	private void processClicks(TLongIntHashMap usersMap) throws IOException {
-		final CostTable<Click> clicksList = new CostTable<Click>(numberOfClicks);
+		final CostTable clicksList = new CostTable(numberOfClicks);
 		
-		BufferedReader br = new BufferedReader(new FileReader(clickLog));
+		BufferedReader br = new BufferedReader(new FileReader(new File(campaignDirectory, CLICKS_FILE)));
 		
 		// Initialise variables
 		String line = br.readLine();
@@ -277,7 +253,7 @@ public class Campaign {
 		while ((line = br.readLine()) != null) {
 			final String[] data = line.split(",");
 
-			final long dateTime = DateProcessor.stringToEpoch(data[0]);
+			final long dateTime = DateProcessor.toEpochSeconds(data[0]);
 			final long userID = Long.valueOf(data[1]);
 			final int userData = usersMap.get(userID);
 			final double cost = Double.parseDouble(data[2]);
@@ -315,15 +291,14 @@ public class Campaign {
 	 * @throws  
 	 */
 	private void processImpressions(TLongIntHashMap usersMap) throws IOException, InvalidUserException {
-		final FileInputStream fis = new FileInputStream(impressionLog);			
+		final FileInputStream fis = new FileInputStream(new File(campaignDirectory, IMPRESSIONS_FILE));			
 		final FileChannel fc = fis.getChannel();
 		final MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
 		
 		final int expectedRecords = (int) fc.size() / 70;
-		final int nullEntry = usersMap.getNoEntryValue();
 		
 		// store in ByteBuffer
-		final CostTable<Impression> impressionsTable = new CostTable<Impression>(expectedRecords);
+		final CostTable impressionsTable = new CostTable(expectedRecords);
 		
 		// close this stream
 		fis.close();
@@ -479,8 +454,8 @@ public class Campaign {
 		this.impressionsTable = impressionsTable;
 
 		// compute dates
-		campaignStartDate = DateProcessor.epochSecondsToLocalDateTime(impressionsTable.getDateTime(0));
-		campaignEndDate = DateProcessor.epochSecondsToLocalDateTime(impressionsTable.getDateTime(numberOfImpressions - 1));
+		campaignStartDate = DateProcessor.toLocalDateTime(impressionsTable.getDateTime(0));
+		campaignEndDate = DateProcessor.toLocalDateTime(impressionsTable.getDateTime(numberOfImpressions - 1));
 	}
 	
 	private void updateServers(TLongIntHashMap usersMap) {

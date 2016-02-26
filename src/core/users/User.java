@@ -1,4 +1,4 @@
-package core.data;
+package core.users;
 
 import java.nio.MappedByteBuffer;
 

@@ -2,9 +2,7 @@ package core.tables;
 
 import java.util.Arrays;
 
-import core.records.Server;
-
-public class LogTable<E extends Server> {
+public class LogTable {
 	
 	// ==== Constants ====
     
@@ -58,17 +56,6 @@ public class LogTable<E extends Server> {
 		size++;
 		
 		return true;
-	}
-	
-	public boolean add(E serverRecord) {
-		final long dateTime = serverRecord.getEpochSeconds();
-		final long userID = serverRecord.getUserID();
-		final int userData = serverRecord.getUserData();
-		final long exitDateTime = serverRecord.getExitEpochSeconds();
-		final int pagesViewed = serverRecord.getPagesViewed();
-		final boolean conversion = serverRecord.getConversion();
-		
-		return add(dateTime, userID, userData, exitDateTime, pagesViewed, conversion);
 	}
 	
 	public void setUserData(int index, int userData) {
