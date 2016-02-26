@@ -8,8 +8,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
-import java.util.stream.Collectors;
-
 import javax.swing.Timer;
 
 import core.campaigns.Campaign;
@@ -46,7 +44,7 @@ public class Model extends Observable implements ActionListener {
 		
 		if (username.equals("khengboonpek") || username.equals("kbp2g14"))
 			try {
-				addCampaign(new File("/Users/" + username + "/Downloads/2_week_campaign_2"));
+				addCampaign(new File("/Users/" + username + "/Downloads/2_month_campaign"));
 				currentProcessor = new DataProcessor();
 				currentProcessor.setCampaign(campaigns.get(0));
 				currentProcessor.setMetric(Metric.NUMBER_OF_IMPRESSIONS);

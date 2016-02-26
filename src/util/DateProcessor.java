@@ -33,7 +33,7 @@ public class DateProcessor {
 		return toEpochSeconds(year, month, day, hour, minute, second);	
 	}
 	
-	public static long _toEpochSeconds(MappedByteBuffer mbb) {
+	public static int _toEpochSeconds(MappedByteBuffer mbb) {
 		int index = mbb.position();
 		
 		int year = mbb.get() & 0xF;

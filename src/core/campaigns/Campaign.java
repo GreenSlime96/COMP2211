@@ -255,8 +255,9 @@ public class Campaign {
 			final String[] data = line.split(",");
 
 			final int dateTime = DateProcessor.toEpochSeconds(data[0]);
-			final long userID = Long.valueOf(data[1]);
+			final long userID = Long.parseLong(data[1]);
 			final short userData = usersMap.get(userID);
+//			final int cost = Integer.parseInt(data[2].replace(".", ""));
 			final double cost = Double.parseDouble(data[2]);
 
 			// increment these values
@@ -274,6 +275,8 @@ public class Campaign {
 
 		// Set these variables
 		this.clicksTable = clicksList;
+		
+		costOfClicks *= 10e-6;
 	}
 
 	/**
@@ -438,7 +441,7 @@ public class Campaign {
 			impressionsTable.add(dateTime, userID, userData, cost);
 			
 			// misc increment
-			costOfImpressions += cost;
+			costOfImpressions += costTemp;
 		}
 
 		System.out.println("processing:\t" + (System.currentTimeMillis() - time) + "ms");
@@ -449,6 +452,8 @@ public class Campaign {
 		// compute size of impressions
 		numberOfUniques = usersMap.size();
 		numberOfImpressions = impressionsTable.size();
+		
+		costOfImpressions *= 10e-6;
 		
 		// transfer reference
 		this.impressionsTable = impressionsTable;
