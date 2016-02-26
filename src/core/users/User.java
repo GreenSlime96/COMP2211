@@ -3,10 +3,24 @@ package core.users;
 import java.nio.MappedByteBuffer;
 
 public enum User {
-	GENDER_MALE("Male"), GENDER_FEMALE("Female"),
-	AGE_BELOW_25("<25"), AGE_25_TO_34("25-34"), AGE_35_TO_44("35-44"), AGE_45_TO_54("45-54"), AGE_ABOVE_54(">54"),
-	INCOME_LOW("Low"), INCOME_MEDIUM("Medium"), INCOME_HIGH("High"),
-	CONTEXT_NEWS("News"), CONTEXT_SHOPPING("Shopping"), CONTEXT_SOCIAL_MEDIA("Social Media"), CONTEXT_BLOG("Blog"), CONTEXT_HOBBIES("Hobbies"), CONTEXT_TRAVEL("Travel");
+	GENDER_MALE("Male"), 
+	GENDER_FEMALE("Female"),
+	
+	AGE_BELOW_25("<25"),
+	AGE_25_TO_34("25-34"),
+	AGE_35_TO_44("35-44"),
+	AGE_45_TO_54("45-54"),
+	AGE_ABOVE_54(">54"),
+	
+	INCOME_LOW("Low"),
+	INCOME_MEDIUM("Medium"),
+	INCOME_HIGH("High"),
+	CONTEXT_NEWS("News"),
+	CONTEXT_SHOPPING("Shopping"),
+	CONTEXT_SOCIAL_MEDIA("Social Media"),
+	CONTEXT_BLOG("Blog"),
+	CONTEXT_HOBBIES("Hobbies"),
+	CONTEXT_TRAVEL("Travel");
 
 	// ==== Constants ====
 	
@@ -62,7 +76,7 @@ public enum User {
 	// ==== Properties ====
 
 	public final int mask;
-	public final String name;
+	public final String title;
 	public final int length;
 
 	
@@ -71,7 +85,7 @@ public enum User {
 	User(String string) {
 		mask = 1 << ordinal();
 		
-		name = string;
+		title = string;
 		length = string.length();
 	}
 	
@@ -186,84 +200,8 @@ public enum User {
 		
 		return userData;
 	}
-
-	public static short encodeUser(String user) throws InvalidUserException {
-		final String[] data = user.split(",");
-
-		// TODO handle exceptions
-		if (data.length != 4)
-			throw new InvalidUserException("wrong number of parameters");
-
-		short mask = 0;
-
-		switch (data[0]) {
-		case "Male":
-			mask |= GENDER_MALE.mask;
-			break;
-		case "Female":
-			mask |= GENDER_FEMALE.mask;
-			break;
-		default:
-			throw new InvalidUserException("invalid gender");
-		}
-
-		switch (data[1]) {
-		case "<25":
-			mask |= AGE_BELOW_25.mask;
-			break;
-		case "25-34":
-			mask |= AGE_25_TO_34.mask;
-			break;
-		case "35-44":
-			mask |= AGE_35_TO_44.mask;
-			break;
-		case "45-54":
-			mask |= AGE_45_TO_54.mask;
-			break;
-		case ">54":
-			mask |= AGE_ABOVE_54.mask;
-			break;
-		default:
-			throw new InvalidUserException("invalid age");
-		}
-
-		switch (data[2]) {
-		case "Low":
-			mask |= INCOME_LOW.mask;
-			break;
-		case "Medium":
-			mask |= INCOME_MEDIUM.mask;
-			break;
-		case "High":
-			mask |= INCOME_HIGH.mask;
-			break;
-		default:
-			throw new InvalidUserException("invalid income");
-		}
-
-		switch (data[3]) {
-		case "News":
-			mask |= CONTEXT_NEWS.mask;
-			break;
-		case "Shopping":
-			mask |= CONTEXT_SHOPPING.mask;
-			break;
-		case "Social Media":
-			mask |= CONTEXT_SOCIAL_MEDIA.mask;
-			break;
-		case "Blog":
-			mask |= CONTEXT_BLOG.mask;
-			break;
-		case "Hobbies":
-			mask |= CONTEXT_HOBBIES.mask;
-			break;
-		case "Travel":
-			mask |= CONTEXT_TRAVEL.mask;
-			break;
-		default:
-			throw new InvalidUserException("invalid context");
-		}
-
-		return mask;
+	
+	public static boolean checkFlag(int userData, User field) {
+		return (1 & (userData << field.mask)) != 0;
 	}
 }

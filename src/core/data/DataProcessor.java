@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -623,5 +624,26 @@ public class DataProcessor {
 			bounceRates.add((double) bouncesList.get(i) / (double) clicksList.get(i));
 		
 		return bounceRates;
+	}
+	
+	// TODO: visits or clicks?
+	public final EnumMap<User, Integer> test() {
+		final EnumMap<User, Integer> enumMap = new EnumMap<User, Integer>(User.class);
+		final CostTable costTable = campaign.getImpressions();
+		
+		User[] fields = User.values();
+		DataFilter[] filters = new DataFilter[fields.length];
+		int[] values = new int[fields.length];
+		
+		User previousEnum = null;
+		
+
+
+		
+		for (int i = 0; i < costTable.size(); i++) {
+			final short userData = costTable.getUserData(i);
+		}
+		
+		return enumMap;
 	}
 }

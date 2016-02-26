@@ -253,24 +253,14 @@ public class Campaign {
 			// increment conversions if Yes
 			if (conversion) {
 				numberOfConversions++;
-			} else {
-				if (pagesViewed > 1)
-					continue;
-				
-				if (exitDateTime == DateProcessor.DATE_NULL)
-					continue;
-				
-				// TODO: 
-				if (exitDateTime - dateTime > 30)
-					continue;
-				
+			} else if (pagesViewed <= 1 && exitDateTime != DateProcessor.DATE_NULL && exitDateTime - dateTime <= 30) {
 				numberOfBounces++;
-			}			
+			}
 
 			// add to memory
 			serversTable.add(dateTime, userID, userData, exitDateTime, pagesViewed, conversion);
 		}
-		
+
 		// Close the BufferedReader
 		br.close();
 
@@ -315,8 +305,10 @@ public class Campaign {
 		// Close the BufferedReader
 		br.close();
 		
-		if (clicksTable.size() != serversTable.size())
+		if (clicksTable.size() != serversTable.size()) {
+			System.out.println(clicksTable.size() + "\t" + serversTable.size());
 			throw new InvalidCampaignException("not 1-1 mapping of server to click");
+		}
 
 		// Trim list to save memory
 		clicksTable.trimToSize();
@@ -386,38 +378,38 @@ public class Campaign {
 			// skip first multiplication by 0
 			long userID = mbb.get() & 0xF;
 			
-			userID *= 10;
-			userID += mbb.get() & 0xF;
-			
-			userID *= 10;
-			userID += mbb.get() & 0xF;
-			
-			userID *= 10;
-			userID += mbb.get() & 0xF;
-			
-			userID *= 10;
-			userID += mbb.get() & 0xF;
-			
-			userID *= 10;
-			userID += mbb.get() & 0xF;
-			
-			userID *= 10;
-			userID += mbb.get() & 0xF;
-			
-			userID *= 10;
-			userID += mbb.get() & 0xF;
-			
-			userID *= 10;
-			userID += mbb.get() & 0xF;
-			
-			userID *= 10;
-			userID += mbb.get() & 0xF;
-			
-			userID *= 10;
-			userID += mbb.get() & 0xF;
-			
-			userID *= 10;
-			userID += mbb.get() & 0xF;
+//			userID *= 10;
+//			userID += mbb.get() & 0xF;
+//			
+//			userID *= 10;
+//			userID += mbb.get() & 0xF;
+//			
+//			userID *= 10;
+//			userID += mbb.get() & 0xF;
+//			
+//			userID *= 10;
+//			userID += mbb.get() & 0xF;
+//			
+//			userID *= 10;
+//			userID += mbb.get() & 0xF;
+//			
+//			userID *= 10;
+//			userID += mbb.get() & 0xF;
+//			
+//			userID *= 10;
+//			userID += mbb.get() & 0xF;
+//			
+//			userID *= 10;
+//			userID += mbb.get() & 0xF;
+//			
+//			userID *= 10;
+//			userID += mbb.get() & 0xF;
+//			
+//			userID *= 10;
+//			userID += mbb.get() & 0xF;
+//			
+//			userID *= 10;
+//			userID += mbb.get() & 0xF;
 
 			while ((temp = mbb.get()) != comma) {
 				userID *= 10;
