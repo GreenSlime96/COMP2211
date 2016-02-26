@@ -9,7 +9,6 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.time.LocalDateTime;
 
-import core.data.DataFilter;
 import core.tables.CostTable;
 import core.tables.LogTable;
 import core.users.InvalidUserException;
@@ -37,11 +36,10 @@ public class Campaign {
 	private CostTable clicksTable;
 	private LogTable serversTable;
 
-	private int numberOfImpressions;
-	private int numberOfClicks;
 	private int numberOfConversions;
 	private int numberOfPagesViewed;
 	private int numberOfUniques;
+	private int numberOfBounces;
 
 	private double costOfImpressions;
 	private double costOfClicks;
@@ -109,12 +107,13 @@ public class Campaign {
 			System.out.println("Processed:\t" + getNumberOfRecords() + " records");
 			System.out.println("Start Date:\t" + campaignStartDate);
 			System.out.println("End Date:\t" + campaignEndDate);
-			System.out.println("Impressions:\t" + numberOfImpressions);
+			System.out.println("Impressions:\t" + getNumberOfImpressions());
 			System.out.println("Uniques:\t" + numberOfUniques);
 			System.out.println("Cost(I):\t" + costOfImpressions);
 			System.out.println("Cost(C):\t" + costOfClicks);
 			System.out.println("Cost(T):\t" + (costOfImpressions + costOfClicks));
 			System.out.println("Conversions:\t" + numberOfConversions);
+			System.out.println("Bounces:\t" + numberOfBounces);
 			System.out.println("Page Views:\t" + numberOfPagesViewed);
 			System.out.println("--------------------------------------");		
 		} catch (InvalidUserException e) {
@@ -126,6 +125,8 @@ public class Campaign {
 
 	// ==== Accessors ====
 
+	// === DataProcessor Hooks ====
+	
 	public final CostTable getImpressions() {
 		return impressionsTable;
 	}
@@ -137,6 +138,9 @@ public class Campaign {
 	public final LogTable getServers() {
 		return serversTable;
 	}
+	
+	
+	// ==== Model Hooks ====	
 
 	public final LocalDateTime getStartDateTime() {
 		return campaignStartDate;
@@ -145,29 +149,62 @@ public class Campaign {
 	public final LocalDateTime getEndDateTime() {
 		return campaignEndDate;
 	}
-
+	
+	// ==== Metric Implementations =====
+	
 	public final int getNumberOfImpressions() {
-		return numberOfImpressions;
+		return impressionsTable.size();
 	}
 
 	public final int getNumberOfClicks() {
-		return numberOfClicks;
+		return clicksTable.size();
+	}
+	
+	public final int getNumberOfUniques() {
+		return numberOfUniques;
+	}
+	
+	// TODO: bounces
+	public final int getNumberOfBounces() {
+		return -1;
 	}
 
 	public final int getNumberOfConversions() {
 		return numberOfConversions;
 	}
+	
+	public final double getTotalCostOfCampaign() {
+		return getCostOfImpressions() + getCostOfClicks();
+	}
+	
+	public final double getClickThroughRate() {
+		return (double) getNumberOfClicks() / (double) getNumberOfImpressions();
+	}
+	
+	public final double getCostPerAcquision() {
+		return getTotalCostOfCampaign() / getNumberOfConversions();
+	}
+	
+	public final double getCostPerClick() {
+		return getTotalCostOfCampaign() / getNumberOfClicks();
+	}
+	
+	public final double getCostPerThousandImpressions() {
+		return 1000d * getTotalCostOfCampaign() / getNumberOfImpressions();
+	}
+	
+	public final double getBounceRate() {
+		return getNumberOfBounces() / getNumberOfClicks();
+	}
+	
+	// ==== Miscellaneous Metrics ====
 
 	public final int getNumberOfPagesViewed() {
 		return numberOfPagesViewed;
 	}
 
 	public final int getNumberOfRecords() {
-		return numberOfImpressions + 2 * numberOfClicks;
-	}
-
-	public final double getTotalCostOfCampaign() {
-		return costOfImpressions + costOfClicks;
+		return getNumberOfImpressions() + 2 * getNumberOfClicks();
 	}
 
 	public final double getCostOfImpressions() {
@@ -186,7 +223,7 @@ public class Campaign {
 	 * 
 	 */
 	private void processServers(TLongShortHashMap usersMap) throws IOException {
-		final LogTable serversList = new LogTable();
+		final LogTable serversTable = new LogTable();
 		
 		BufferedReader br = new BufferedReader(new FileReader(new File(campaignDirectory, SERVERS_FILE)));
 		// Initialise variables
@@ -195,6 +232,7 @@ public class Campaign {
 		// Reset variables
 		numberOfPagesViewed = 0;
 		numberOfConversions = 0;
+		numberOfBounces = 0;
 
 		while ((line = br.readLine()) != null) {
 			final String[] data = line.split(",");
@@ -213,24 +251,34 @@ public class Campaign {
 			numberOfPagesViewed += pagesViewed;
 
 			// increment conversions if Yes
-			if (conversion)
+			if (conversion) {
 				numberOfConversions++;
+			} else {
+				if (pagesViewed > 1)
+					continue;
+				
+				if (exitDateTime == DateProcessor.DATE_NULL)
+					continue;
+				
+				// TODO: 
+				if (exitDateTime - dateTime > 30)
+					continue;
+				
+				numberOfBounces++;
+			}			
 
 			// add to memory
-			serversList.add(dateTime, userID, userData, exitDateTime, pagesViewed, conversion);
+			serversTable.add(dateTime, userID, userData, exitDateTime, pagesViewed, conversion);
 		}
 		
 		// Close the BufferedReader
 		br.close();
 
 		// Trim to size
-		serversList.trimToSize();
-		
-		// Assign this, they should be analogous
-		numberOfClicks = serversList.size();
+		serversTable.trimToSize();
 
 		// assign reference
-		this.serversTable = serversList;
+		this.serversTable = serversTable;
 	}
 
 	/**
@@ -241,7 +289,7 @@ public class Campaign {
 	 * @throws IOException 
 	 */
 	private void processClicks(TLongShortHashMap usersMap) throws IOException {
-		final CostTable clicksList = new CostTable(numberOfClicks);
+		final CostTable clicksTable = new CostTable(serversTable.size());
 		
 		BufferedReader br = new BufferedReader(new FileReader(new File(campaignDirectory, CLICKS_FILE)));
 		
@@ -257,26 +305,23 @@ public class Campaign {
 			final int dateTime = DateProcessor.toEpochSeconds(data[0]);
 			final long userID = Long.parseLong(data[1]);
 			final short userData = usersMap.get(userID);
-//			final int cost = Integer.parseInt(data[2].replace(".", ""));
 			final double cost = Double.parseDouble(data[2]);
 
 			// increment these values
 			costOfClicks += cost;
 
 			// add to memory
-			clicksList.add(dateTime, userID, userData, cost);
+			clicksTable.add(dateTime, userID, userData, cost);
 		}
 		
 		// Close the BufferedReader
 		br.close();
 
 		// Trim list to save memory
-		clicksList.trimToSize();
+		clicksTable.trimToSize();
 
 		// Set these variables
-		this.clicksTable = clicksList;
-		
-		costOfClicks *= 10e-6;
+		this.clicksTable = clicksTable;
 	}
 
 	/**
@@ -312,13 +357,12 @@ public class Campaign {
 
 		// reset
 		costOfImpressions = 0;
-		numberOfImpressions = 0;
 
 		long time = System.currentTimeMillis();
-//		mbb.load();
-//		System.out.println("loading:\t" + (System.currentTimeMillis() - time) + "ms");
-//
-//		time = System.currentTimeMillis();
+		mbb.load();
+		System.out.println("loading:\t" + (System.currentTimeMillis() - time) + "ms");
+
+		time = System.currentTimeMillis();
 
 		// skip the header -- precomputed
 		mbb.position(50);
@@ -451,7 +495,6 @@ public class Campaign {
 
 		// compute size of impressions
 		numberOfUniques = usersMap.size();
-		numberOfImpressions = impressionsTable.size();
 		
 		costOfImpressions *= 10e-6;
 		
@@ -460,7 +503,7 @@ public class Campaign {
 
 		// compute dates
 		campaignStartDate = DateProcessor.toLocalDateTime(impressionsTable.getDateTime(0));
-		campaignEndDate = DateProcessor.toLocalDateTime(impressionsTable.getDateTime(numberOfImpressions - 1));
+		campaignEndDate = DateProcessor.toLocalDateTime(impressionsTable.getDateTime(impressionsTable.size() - 1));
 	}
 	
 	private void updateServers(TLongShortHashMap usersMap) {
