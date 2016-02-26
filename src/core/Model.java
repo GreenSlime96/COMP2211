@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Observable;
+import java.util.stream.Collectors;
+
 import javax.swing.Timer;
 
 import core.campaigns.Campaign;
@@ -32,7 +34,6 @@ public class Model extends Observable implements ActionListener {
 	private final List<DataProcessor> dataProcessors = new ArrayList<DataProcessor>();
 
 	private DataProcessor currentProcessor = null;
-	private Campaign currentCampaign = null;
 
 	// ==== Constructor ====
 
@@ -62,21 +63,48 @@ public class Model extends Observable implements ActionListener {
 
 	// ==== Chart Stuff ====
 	
-//	public synchronized final void 
+	/**
+	 * index charts so that we are modular
+	 * @return
+	 */
 
 	public synchronized final List<? extends Number> getChartData() {
 		return currentProcessor.getData();
+	}
+	
+	/**
+	 * gets the index of the current dataProcessor
+	 * 
+	 * @return
+	 */
+	public synchronized final int getChart() {
+		return dataProcessors.indexOf(currentProcessor);
+	}
+	
+	public synchronized final void setChart(int index) {
+		currentProcessor = dataProcessors.get(index);
+	}
+	
+	/**
+	 * adds a new chart to the system and returns the index to
+	 * that chart reference
+	 * 
+	 * @return
+	 */
+	public synchronized final int addChart() {
+		return -1;
 	}
 
 	// ==== General Tab ====
 
 	/**
 	 * Returns a list of Strings representing the campaigns in memory
+	 * This feels unsafe as the VC can modify the list
 	 * 
 	 * @return a list of campaigns loaded in the system
 	 */
-	public synchronized final List<Campaign> getListOfCampaigns() {
-		return campaigns;
+	public synchronized final List<String> getListOfCampaigns() {
+		return campaigns.stream().map(x -> x.toString()).collect(Collectors.toList());
 	}
 
 	/**
@@ -107,45 +135,38 @@ public class Model extends Observable implements ActionListener {
 	}
 
 	/**
+	 * TODO: throw exception, need to notify user
 	 * 
 	 * @param campaign
 	 */
+	public synchronized final void removeCampaign(int index) {
+		removeCampaign(campaigns.get(index));
+	}
+	
 	public synchronized final void removeCampaign(Campaign campaign) {
-
 		// iterate over DataProcessors to make sure there are no dependencies
 		for (DataProcessor dataProcessor : dataProcessors) {
-			if (dataProcessor.getCampaign().equals(campaign))
+			if (dataProcessor.getCampaign().equals(campaign)) {
+				System.out.println("DEBUG: campaign in use, skipping");
 				return;
+			}
 		}
 
+		// remove if naked
 		campaigns.remove(campaign);
 
 		setChanged();
 		notifyObservers();
 	}
-
-	public synchronized final int getNumberOfImpressions() {
-		return currentCampaign.getNumberOfImpressions();
-	}
-
-	public synchronized final int getNumberOfClicks() {
-		return currentCampaign.getNumberOfClicks();
-	}
-
-	public synchronized final int getNumberOfPagesViewed() {
-		return currentCampaign.getNumberOfPagesViewed();
-	}
-
-	public synchronized final int getNumberOfConversions() {
-		return currentCampaign.getNumberOfConversions();
-	}
-
-	public synchronized final LocalDateTime getCampaignStartDateTime() {
-		return currentCampaign.getStartDateTime();
-	}
-
-	public synchronized final LocalDateTime getCampaignEndDateTime() {
-		return currentCampaign.getEndDateTime();
+	
+	/**
+	 * returns the campaign at that particular index
+	 * 
+	 * @param index - index of Campaign reference
+	 * @return - campaign corresponding to the index
+	 */
+	public synchronized final Campaign getCampaign(int index) {
+		return campaigns.get(index);
 	}
 
 	// ==== Chart Tab ====
