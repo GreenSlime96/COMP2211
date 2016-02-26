@@ -53,6 +53,8 @@ public class Model extends Observable implements ActionListener {
 					currentProcessor.setMetric(m);
 					currentProcessor.getData();
 				}
+				
+				currentProcessor.test();
 			} catch (InvalidCampaignException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

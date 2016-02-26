@@ -632,17 +632,38 @@ public class DataProcessor {
 		final CostTable costTable = campaign.getImpressions();
 		
 		User[] fields = User.values();
-		DataFilter[] filters = new DataFilter[fields.length];
+//		DataFilter[] filters = new DataFilter[fields.length];
 		int[] values = new int[fields.length];
+//		
+//		User previousEnum = null;
+//		String oldPrefix = "";
+//		
+//		for (User u : fields) {
+//			final String prefix = u.name().substring(0, u.name().indexOf('_'));
+//			
+//			if (oldPrefix.equals(prefix)) {
+//				
+//			}
+//		}
 		
-		User previousEnum = null;
-		
+		int counter = 0;
+//		
 
-
-		
+		long time = System.currentTimeMillis();
+		// iterate over the costTable
 		for (int i = 0; i < costTable.size(); i++) {
 			final short userData = costTable.getUserData(i);
+			
+//			for (User u : User.values()) {
+			if (User.checkFlag(userData, User.GENDER_MALE))
+				counter++;
+//			}
 		}
+		System.out.println(System.currentTimeMillis() - time);
+		System.out.println(counter);
+//		for (User u : User.values()) {
+//			System.out.println(u.title + "\t" + values[u.ordinal()]);
+//		}
 		
 		return enumMap;
 	}

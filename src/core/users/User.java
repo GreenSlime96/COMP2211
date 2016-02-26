@@ -201,7 +201,7 @@ public enum User {
 		return userData;
 	}
 	
-	public static boolean checkFlag(int userData, User field) {
-		return (1 & (userData << field.mask)) != 0;
+	public static boolean checkFlag(short userData, User field) {
+		return (1 & (userData << field.ordinal())) != 0;
 	}
 }

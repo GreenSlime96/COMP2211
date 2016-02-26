@@ -9,6 +9,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.time.LocalDateTime;
 
+import core.data.DataFilter;
 import core.tables.CostTable;
 import core.tables.LogTable;
 import core.users.InvalidUserException;
