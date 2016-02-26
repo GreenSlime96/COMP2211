@@ -14,10 +14,12 @@ import java.util.Objects;
 
 import core.Metric;
 import core.campaigns.Campaign;
+import core.records.Click;
 import core.records.CostRecord;
 import core.records.Impression;
 import core.records.Server;
 import core.tables.CostTable;
+import core.tables.LogTable;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
 import util.DateProcessor;
@@ -40,6 +42,9 @@ public class DataProcessor {
 	// the start and end dates of this dataprocessor
 	private LocalDateTime dataStartDate;
 	private LocalDateTime dataEndDate;
+	
+	private long dataStartEpoch;
+	private long dataEndEpoch;
 	
 	// the filter to filter the metrics by
 	private final DataFilter dataFilter = new DataFilter();
@@ -260,6 +265,7 @@ public class DataProcessor {
 	
 	private final List<Integer> numberOfImpressions() {
 		final ArrayList<Integer> impressionsList = new ArrayList<Integer>();
+		final CostTable<Impression> costTable = campaign.getImpressions();
 		
 		int numberOfImpressions = 0;
 		
@@ -267,10 +273,9 @@ public class DataProcessor {
 		long currentDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
 		long nextDate = currentDate + timeGranularityInSeconds;
 		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
-		long time = System.currentTimeMillis();
-		final CostTable costTable = campaign.getImpressions();
+		
 		outerLoop:
-		for (int i = 0; i < campaign.getNumberOfImpressions(); i++) {
+		for (int i = 0; i < costTable.size(); i++) {
 			final long dateTime = costTable.getDateTime(i);
 						
 			// we ignore the impression if the date is before the current date
@@ -300,119 +305,69 @@ public class DataProcessor {
 		
 		// add last entry
 		impressionsList.add(numberOfImpressions);
-		
-		System.out.println("original: " + (System.currentTimeMillis() - time));
 
 		// pack
 		impressionsList.trimToSize();
-		
-//		currentDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
-//		nextDate = currentDate + timeGranularityInSeconds;
-//		finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
-//		
-//		final ArrayList<Integer> nip = new ArrayList<Integer>();
-//		numberOfImpressions = 0;
-//		
-//		time = System.currentTimeMillis();
-////		final int max = campaign.getNumberOfImpressions() * 28;
-////		final ByteBuffer bb = campaign.bb;
-//		
-//		// BEGIN ByteBuffer test!
-//		outerLoop:
-//		for (int i = 0; i < campaign.impressionsList.size(); i ++) {
-//			final Impression impression = campaign.impressionsList.get(i);
-//			final long dateTime = impression.getEpochSeconds();
-//			
-//			// we ignore the impression if the date is before the current date
-//			if (dateTime < currentDate)
-//				continue;
-//			
-//			// add new mapping if after time granularity separator
-//			while (dateTime > nextDate) {
-//				if (nextDate == finalDate)
-//					break outerLoop;
-//				
-//				impressionsList.add(numberOfImpressions);
-//				
-//				numberOfImpressions = 0;
-//				
-//				currentDate = nextDate;
-//				nextDate = currentDate + timeGranularityInSeconds;
-//				
-//				if (nextDate > finalDate)
-//					nextDate = finalDate;
-//			}
-//			
-//			if (dataFilter.test(impression.getUserData())) {
-//				numberOfImpressions++;
-//			}
-//		}
-//		
-//		nip.add(numberOfImpressions);
-//		
-//		System.out.println("ByteBuffer: " + (System.currentTimeMillis() - time));
-//
-//		
-//		if (nip.equals(impressionsList))
-//			System.out.println("success");
 				
 		return impressionsList;
 	}
 	
-	private final List<Integer> numberOfClicks() {		
+	private final List<Integer> numberOfClicks() {
 		final ArrayList<Integer> clicksList = new ArrayList<Integer>();
-		
+		final CostTable<Click> costTable = campaign.getClicks();
+
 		int numberOfClicks = 0;
-		
+
 		// initialise current date as startDate
 		long currentDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
 		long nextDate = currentDate + timeGranularityInSeconds;
 		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
-		
+
 		outerLoop:
-		for (Impression impression : campaign.getImpressions()) {
-			final long dateTime = impression.getEpochSeconds();
-			
+		for (int i = 0; i < costTable.size(); i++) {
+			final long dateTime = costTable.getDateTime(i);
+
 			// we ignore the impression if the date is before the current date
 			if (dateTime < currentDate)
 				continue;
-			
+
 			// add new mapping if after time granularity separator
 			while (dateTime > nextDate) {
 				if (nextDate == finalDate)
 					break outerLoop;
-				
+
 				clicksList.add(numberOfClicks);
-				
+
 				numberOfClicks = 0;
-				
+
 				currentDate = nextDate;
 				nextDate = currentDate + timeGranularityInSeconds;
-				
+
 				if (nextDate > finalDate)
 					nextDate = finalDate;
 			}
-			
-			if (dataFilter.test(impression.getUserData()))
+
+			if (dataFilter.test(costTable.getUserData(i))) {
 				numberOfClicks++;
+			}
 		}
-		
+
 		// add last entry
 		clicksList.add(numberOfClicks);
-		
+
 		// pack
 		clicksList.trimToSize();
-		
+
 		return clicksList;
 	}
 	
 	// The number of unique users that click on an ad during the course of a campaign.
 	private final List<Integer> numberOfUniques() {
 		final ArrayList<Integer> uniquesList = new ArrayList<Integer>();
+		final CostTable<Click> costTable = campaign.getClicks();
 		
 		// 330ms vs 668ms
-		TLongSet usersSet = new TLongHashSet();
-//		HashSet<Long> usersSet = new HashSet<Long>();
+		final TLongSet usersSet = new TLongHashSet();
 		
 		// initialise current date as startDate
 		long currentDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
@@ -420,31 +375,32 @@ public class DataProcessor {
 		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
 				
 		outerLoop:
-		for (Impression impression : campaign.getImpressions()) {
-			final long dateTime = impression.getEpochSeconds();
-						
+		for (int i = 0; i < costTable.size(); i++) {
+			final long dateTime = costTable.getDateTime(i);
+
 			// we ignore the impression if the date is before the current date
 			if (dateTime < currentDate)
 				continue;
-			
+
 			// add new mapping if after time granularity separator
 			while (dateTime > nextDate) {
 				if (nextDate == finalDate)
 					break outerLoop;
-				
+
 				uniquesList.add(usersSet.size());
-				
+
 				usersSet.clear();
-				
+
 				currentDate = nextDate;
 				nextDate = currentDate + timeGranularityInSeconds;
-				
+
 				if (nextDate > finalDate)
 					nextDate = finalDate;
 			}
-			
-			if (dataFilter.test(impression.getUserData()))
-				usersSet.add(impression.getUserID());
+
+			if (dataFilter.test(costTable.getUserData(i))) {
+				usersSet.add(costTable.getUserID(i));
+			}
 		}
 		
 		// add last entry
@@ -463,6 +419,7 @@ public class DataProcessor {
 	 */
 	private final List<Integer> numberOfBounces() {
 		final ArrayList<Integer> bouncesList = new ArrayList<Integer>();
+		final LogTable<Server> logTable = campaign.getServers();
 		
 		int numberOfBounces = 0;
 		
@@ -472,8 +429,8 @@ public class DataProcessor {
 		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
 				
 		outerLoop:
-		for (Server server : campaign.getServers()) {
-			final long dateTime = server.getEpochSeconds();
+		for (int i = 0; i < logTable.size(); i++) {
+			final long dateTime = logTable.getDateTime(i);
 						
 			// we ignore the impression if the date is before the current date
 			if (dateTime < currentDate)
@@ -495,14 +452,16 @@ public class DataProcessor {
 					nextDate = finalDate;
 			}
 			
-			if (dataFilter.test(server.getUserData())) {				
-				if (server.getPagesViewed() > bounceMinimumPagesViewed)
+			if (dataFilter.test(logTable.getUserData(i))) {				
+				if (logTable.getPagesViewed(i) > bounceMinimumPagesViewed)
 					continue;
 				
-				if (server.getExitEpochSeconds() == DateProcessor.DATE_NULL)
+				final long exitDateTime = logTable.getExitDateTime(i);
+				
+				if (exitDateTime == DateProcessor.DATE_NULL)
 					continue;
 				
-				if (server.getExitEpochSeconds() - server.getEpochSeconds() > bounceMinimumSecondsOnPage)
+				if (exitDateTime - logTable.getDateTime(i) > bounceMinimumSecondsOnPage)
 					continue;
 				
 				numberOfBounces++;
@@ -519,6 +478,7 @@ public class DataProcessor {
 	}
 	
 	private final List<Integer> numberOfConversions() {
+		final LogTable<Server> logTable = campaign.getServers();
 		final ArrayList<Integer> conversionsList = new ArrayList<Integer>();
 		
 		int numberOfConversions = 0;
@@ -529,8 +489,8 @@ public class DataProcessor {
 		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
 				
 		outerLoop:
-		for (Server server : campaign.getServers()) {
-			final long dateTime = server.getEpochSeconds();
+		for (int i = 0; i < logTable.size(); i++) {
+			final long dateTime = logTable.getDateTime(i);
 						
 			// we ignore the impression if the date is before the current date
 			if (dateTime < currentDate)
@@ -552,9 +512,8 @@ public class DataProcessor {
 					nextDate = finalDate;
 			}
 			
-			if (dataFilter.test(server.getUserData())) {
-				if (server.getConversion())
-					numberOfConversions++;
+			if (logTable.getConversion(i) && dataFilter.test(logTable.getUserData(i))) {
+				numberOfConversions++;
 			}
 		}
 		
@@ -567,7 +526,7 @@ public class DataProcessor {
 		return conversionsList;
 	}
 	
-	private final <T extends CostRecord> List<Double> costOfRecord(Iterable<T> records) {
+	private final <T extends CostRecord> List<Double> costOfRecord(CostTable<T> table) {
 		final ArrayList<Double> costList = new ArrayList<Double>();
 		
 		double costOfImpressions = 0;
@@ -578,9 +537,9 @@ public class DataProcessor {
 		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
 		
 		outerLoop:
-		for (CostRecord costRecord : records) {
-			final long dateTime = costRecord.getEpochSeconds();
-						
+		for (int i = 0; i < table.size(); i++) {
+			final long dateTime = table.getDateTime(i);
+			
 			// we ignore the impression if the date is before the current date
 			if (dateTime < currentDate)
 				continue;
@@ -601,8 +560,8 @@ public class DataProcessor {
 					nextDate = finalDate;
 			}
 			
-			if (dataFilter.test(costRecord.getUserData())) {
-				costOfImpressions += costRecord.getCost();
+			if (dataFilter.test(table.getUserData(i))) {
+				costOfImpressions += table.getCost(i);
 			}
 		}
 		
@@ -713,51 +672,51 @@ public class DataProcessor {
 		return bounceRates;
 	}
 	
-	// gender distribution -- impressions or clicks or ?
-	// TODO: enum!
-	private final EnumMap<User, Integer> genderDistribution() {
-		final Map<String, Integer> genderMap = new HashMap<String, Integer>();
-		
-		final DataFilter males = new DataFilter(dataFilter);
-		final DataFilter females = new DataFilter(dataFilter);
-		
-		// makes sure we enable either of male or female
-		males.setField(User.GENDER_MALE, true);
-		males.setField(User.GENDER_FEMALE, false);
-		
-		// makes sure we enable either of male or female
-		females.setField(User.GENDER_FEMALE, true);
-		females.setField(User.GENDER_MALE, false);
-		
-		// dates?
-		final long startDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
-		final long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
-		
-		// temporary variables
-		int numberOfMales = 0;
-		int numberOfFemales = 0;
-		
-		for (Impression impression : campaign.getImpressions()) {
-			final long dateTime = impression.getEpochSeconds();
-			
-			if (dateTime < startDate)
-				continue;
-			
-			if (dateTime > finalDate)
-				break;
-			
-			final int userData = impression.getUserData();
-			
-			if (males.test(userData))
-				numberOfMales++;
-			else if (females.test(userData))
-				numberOfFemales++;
-		}
-		
-		// add values to map
-		genderMap.put("Male", numberOfMales);
-		genderMap.put("Female", numberOfFemales);
-		
-		return null;
-	}
+//	// gender distribution -- impressions or clicks or ?
+//	// TODO: enum!
+//	private final EnumMap<User, Integer> genderDistribution() {
+//		final Map<String, Integer> genderMap = new HashMap<String, Integer>();
+//		
+//		final DataFilter males = new DataFilter(dataFilter);
+//		final DataFilter females = new DataFilter(dataFilter);
+//		
+//		// makes sure we enable either of male or female
+//		males.setField(User.GENDER_MALE, true);
+//		males.setField(User.GENDER_FEMALE, false);
+//		
+//		// makes sure we enable either of male or female
+//		females.setField(User.GENDER_FEMALE, true);
+//		females.setField(User.GENDER_MALE, false);
+//		
+//		// dates?
+//		final long startDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
+//		final long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
+//		
+//		// temporary variables
+//		int numberOfMales = 0;
+//		int numberOfFemales = 0;
+//		
+//		for (Impression impression : campaign.getImpressions()) {
+//			final long dateTime = impression.getEpochSeconds();
+//			
+//			if (dateTime < startDate)
+//				continue;
+//			
+//			if (dateTime > finalDate)
+//				break;
+//			
+//			final int userData = impression.getUserData();
+//			
+//			if (males.test(userData))
+//				numberOfMales++;
+//			else if (females.test(userData))
+//				numberOfFemales++;
+//		}
+//		
+//		// add values to map
+//		genderMap.put("Male", numberOfMales);
+//		genderMap.put("Female", numberOfFemales);
+//		
+//		return null;
+//	}
 }

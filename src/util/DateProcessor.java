@@ -100,7 +100,7 @@ public class DateProcessor {
 		return toEpochSeconds(year, month, day, hour, minute, second);	
 	}
 	
-	public static long toEpochSeconds(MappedByteBuffer mbb) {
+	public static long _toEpochSeconds(MappedByteBuffer mbb) {
 		int index = mbb.position();
 		
 		int year = mbb.get() & 0xF;
@@ -143,6 +143,50 @@ public class DateProcessor {
 
 		mbb.position(index += 3);
 
+		return toEpochSeconds(year, month, day, hour, minute, second);	
+	}
+	
+	public static long toEpochSeconds(MappedByteBuffer mbb) {
+		int year = mbb.get() & 0xF;
+		year *= 10;
+		year += mbb.get() & 0xF;
+		year *= 10;
+		year += mbb.get() & 0xF;
+		year *= 10;
+		year += mbb.get() & 0xF;
+
+		mbb.position(mbb.position() + 1);
+
+		int month = mbb.get() & 0xF;
+		month *= 10;
+		month += mbb.get() & 0xF;
+
+		mbb.position(mbb.position() + 1);
+		
+		int day = mbb.get() & 0xF;
+		day *= 10;
+		day += mbb.get() & 0xF;
+
+		mbb.position(mbb.position() + 1);
+		
+		int hour = mbb.get() & 0xF;
+		hour *= 10;
+		hour += mbb.get() & 0xF;
+
+		mbb.position(mbb.position() + 1);
+		
+		int minute = mbb.get() & 0xF;
+		minute *= 10;
+		minute += mbb.get() & 0xF;
+
+		mbb.position(mbb.position() + 1);
+		
+		int second = mbb.get() & 0xF;
+		second *= 10;
+		second += mbb.get() & 0xF;
+
+		mbb.position(mbb.position() + 1);
+		
 		return toEpochSeconds(year, month, day, hour, minute, second);	
 	}
 	

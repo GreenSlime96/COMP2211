@@ -312,6 +312,7 @@ public class Campaign {
 	 * of Enum v.s. String.intern()
 	 * @throws IOException 
 	 * @throws InvalidUserException 
+	 * @throws  
 	 */
 	private void processImpressions(TLongIntHashMap usersMap) throws IOException, InvalidUserException {
 		final FileInputStream fis = new FileInputStream(impressionLog);			
@@ -335,10 +336,10 @@ public class Campaign {
 		numberOfImpressions = 0;
 
 		long time = System.currentTimeMillis();
-		mbb.load();
-		System.out.println("loading:\t" + (System.currentTimeMillis() - time) + "ms");
-
-		time = System.currentTimeMillis();
+//		mbb.load();
+//		System.out.println("loading:\t" + (System.currentTimeMillis() - time) + "ms");
+//
+//		time = System.currentTimeMillis();
 
 		// skip the header -- precomputed
 		mbb.position(50);
@@ -364,6 +365,39 @@ public class Campaign {
 			// we know MIN(id).length = 12
 			// skip first multiplication by 0
 			long userID = mbb.get() & 0xF;
+			
+			userID *= 10;
+			userID += mbb.get() & 0xF;
+			
+			userID *= 10;
+			userID += mbb.get() & 0xF;
+			
+			userID *= 10;
+			userID += mbb.get() & 0xF;
+			
+			userID *= 10;
+			userID += mbb.get() & 0xF;
+			
+			userID *= 10;
+			userID += mbb.get() & 0xF;
+			
+			userID *= 10;
+			userID += mbb.get() & 0xF;
+			
+			userID *= 10;
+			userID += mbb.get() & 0xF;
+			
+			userID *= 10;
+			userID += mbb.get() & 0xF;
+			
+			userID *= 10;
+			userID += mbb.get() & 0xF;
+			
+			userID *= 10;
+			userID += mbb.get() & 0xF;
+			
+			userID *= 10;
+			userID += mbb.get() & 0xF;
 
 			while ((temp = mbb.get()) != comma) {
 				userID *= 10;
@@ -378,28 +412,11 @@ public class Campaign {
 			 * BEGIN USERDATA PROCESSING SECTION
 			 */
 
-//			int userData = User.encodeUser(mbb);
-//			
-//			if (usersMap.get(userID) == -1)
-//				usersMap.put(userID, userData);
+			int userData = User.encodeUser(mbb);
 			
-			int userData = usersMap.get(userID);
+			if (usersMap.get(userID) == -1)
+				usersMap.put(userID, userData);
 
-			if (userData == nullEntry || userData == -1) {
-				int tempFlag = userData;
-				
-				userData = User.encodeUser(mbb);
-				
-				if (tempFlag == -1)
-					usersMap.put(userID, userData);
-			} else {
-				mbb.position(mbb.position() + 8);
-				
-				for (int i = 0; i < 3;) {
-					if (mbb.get() == comma)
-						i++;
-				}
-			}
 
 			/*
 			 * END USERDATA PROCESSING SECTION
@@ -441,7 +458,7 @@ public class Campaign {
 			 */
 			
 			if (mbb.get() != newLine)
-				throw new IllegalArgumentException("expected newline");
+				throw new InvalidUserException("invalid entry: " + impressionsTable.size());
 			
 			impressionsTable.add(dateTime, userID, userData, cost);
 			
