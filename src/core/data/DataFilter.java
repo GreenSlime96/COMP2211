@@ -4,16 +4,16 @@ import java.util.function.Predicate;
 
 import core.users.User;
 
-public class DataFilter implements Predicate<Integer> {
+public class DataFilter implements Predicate<Short> {
 	
 	// ==== Constants ====
 	
-	public static final int FLAGS_ALL = -1;
+	public static final short FLAGS_ALL = -1;
 	
 	
 	// ==== Properties ====
 		
-	private int flags;
+	private short flags;
 	
 	
 	// ==== Constructor ====
@@ -46,11 +46,11 @@ public class DataFilter implements Predicate<Integer> {
 	// ==== Predicate Implementation ====
 
 	@Override
-	public boolean test(Integer t) {
+	public boolean test(Short t) {
 		return test(t);
 	}
 	
-	public boolean test(int user) {
+	public boolean test(short user) {
 		return (user & flags) == user;
 	}
 }

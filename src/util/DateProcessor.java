@@ -8,14 +8,14 @@ public class DateProcessor {
 	
 	// ==== Constants ====
 	
-	public static final long DATE_NULL = -1;
+	public static final int DATE_NULL = -1;
 	
 	static final ZoneOffset DEFAULT_ZONE = ZoneOffset.UTC;
 	
 	
 	// ==== Static Methods ====
 	
-	public static long toEpochSeconds(char[] data) {
+	public static int toEpochSeconds(char[] data) {
 		if (data.length != 19)
 			if (data[0] == 'n' && data[1] == '/' && data[2] == 'a')
 				return DATE_NULL;
@@ -79,7 +79,7 @@ public class DateProcessor {
 		return toEpochSeconds(year, month, day, hour, minute, second);	
 	}
 	
-	public static long toEpochSeconds(MappedByteBuffer mbb) {
+	public static int toEpochSeconds(MappedByteBuffer mbb) {
 		int year = mbb.get() & 0xF;
 		year *= 10;
 		year += mbb.get() & 0xF;
@@ -127,7 +127,7 @@ public class DateProcessor {
 		return dateTime.toEpochSecond(DEFAULT_ZONE);
 	}
 	
-	public static long toEpochSeconds(String data) {
+	public static int toEpochSeconds(String data) {
 		return toEpochSeconds(data.toCharArray());
 	}
 	
@@ -137,8 +137,8 @@ public class DateProcessor {
 	
 	// ==== Private Helper Methods ====
 	
-	private static long toEpochSeconds(int year, int month, int day, int hour, int minute, int second) {
-		long total = 0;
+	private static int toEpochSeconds(int year, int month, int day, int hour, int minute, int second) {
+		int total = 0;
 		
 		total += 365 * year;
 		total += (year + 3) / 4 - (year + 99) / 100 + (year + 399) / 400;

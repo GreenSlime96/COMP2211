@@ -14,9 +14,9 @@ public class CostTable {
 	
 	int size;
 	
-	long[] dateTime;	
+	int[] dateTime;	
 	long[] userID;	
-	int[] userData;
+	short[] userData;
 	double[] cost;
 	
 	
@@ -24,9 +24,9 @@ public class CostTable {
 	
 	public CostTable(int initialCapacity) {
 		if (initialCapacity >= 0) {
-			dateTime = new long[initialCapacity];
+			dateTime = new int[initialCapacity];
 			userID = new long[initialCapacity];
-			userData = new int[initialCapacity];
+			userData = new short[initialCapacity];
 			cost = new double[initialCapacity];
 		} else {
 			throw new IllegalArgumentException("Illegal Capacity: " + initialCapacity);
@@ -40,7 +40,7 @@ public class CostTable {
 	
 	// ==== Accessors ====
 	
-	public boolean add(long dateTime, long userID, int userData, double cost) {
+	public boolean add(int dateTime, long userID, short userData, double cost) {
 		ensureCapacityInternal(size + 1);
 			
 		this.dateTime[size] = dateTime;
@@ -53,7 +53,7 @@ public class CostTable {
 		return true;
 	}
 	
-	public long getDateTime(int index) {
+	public int getDateTime(int index) {
 		rangeCheck(index);
 		
 		return dateTime[index];
@@ -65,7 +65,7 @@ public class CostTable {
 		return userID[index];
 	}
 	
-	public int getUserData(int index) {
+	public short getUserData(int index) {
 		rangeCheck(index);
 		
 		return userData[index];

@@ -9,11 +9,12 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.time.LocalDateTime;
 
+import core.data.DataFilter;
 import core.tables.CostTable;
 import core.tables.LogTable;
 import core.users.InvalidUserException;
 import core.users.User;
-import gnu.trove.map.hash.TLongIntHashMap;
+import gnu.trove.map.hash.TLongShortHashMap;
 import util.DateProcessor;
 
 public class Campaign {
@@ -63,7 +64,7 @@ public class Campaign {
 			long totalTime = 0;
 			
 			// usersMap = HashLongIntMaps.newUpdatableMap((int) (5000000 / .75));
-			TLongIntHashMap usersMap = new TLongIntHashMap((int) (20000 / .75));
+			TLongShortHashMap usersMap = new TLongShortHashMap((int) (25000 / .75));
 			
 			long time = System.currentTimeMillis();
 			processServers(usersMap);
@@ -115,7 +116,7 @@ public class Campaign {
 			System.out.println("Cost(T):\t" + (costOfImpressions + costOfClicks));
 			System.out.println("Conversions:\t" + numberOfConversions);
 			System.out.println("Page Views:\t" + numberOfPagesViewed);
-			System.out.println("--------------------------------------");			
+			System.out.println("--------------------------------------");		
 		} catch (InvalidUserException e) {
 			throw new InvalidCampaignException("invalid user data in impression_log");
 		} catch (IOException e) {
@@ -184,8 +185,8 @@ public class Campaign {
 	 * @throws IOException 
 	 * 
 	 */
-	private void processServers(TLongIntHashMap usersMap) throws IOException {
-		final LogTable serversList = new LogTable(20000);
+	private void processServers(TLongShortHashMap usersMap) throws IOException {
+		final LogTable serversList = new LogTable();
 		
 		BufferedReader br = new BufferedReader(new FileReader(new File(campaignDirectory, SERVERS_FILE)));
 		// Initialise variables
@@ -198,15 +199,15 @@ public class Campaign {
 		while ((line = br.readLine()) != null) {
 			final String[] data = line.split(",");
 
-			final long dateTime = DateProcessor.toEpochSeconds(data[0]);
-			final long userID = Long.valueOf(data[1]);
-			final int userData = -1;
-			final long exitDateTime = DateProcessor.toEpochSeconds(data[2]);
-			final int pagesViewed = Integer.valueOf(data[3]);
+			final int dateTime = DateProcessor.toEpochSeconds(data[0]);
+			final long userID = Long.parseLong(data[1]);
+			final short userData = -1;
+			final int exitDateTime = DateProcessor.toEpochSeconds(data[2]);
+			final byte pagesViewed = Byte.parseByte(data[3]);
 			final boolean conversion = data[4].equals("Yes");
 			
 			// say to them that this user exists
-			usersMap.put(userID, -1);
+			usersMap.put(userID, userData);
 
 			// update page views
 			numberOfPagesViewed += pagesViewed;
@@ -239,7 +240,7 @@ public class Campaign {
 	 * with Impressions
 	 * @throws IOException 
 	 */
-	private void processClicks(TLongIntHashMap usersMap) throws IOException {
+	private void processClicks(TLongShortHashMap usersMap) throws IOException {
 		final CostTable clicksList = new CostTable(numberOfClicks);
 		
 		BufferedReader br = new BufferedReader(new FileReader(new File(campaignDirectory, CLICKS_FILE)));
@@ -253,9 +254,9 @@ public class Campaign {
 		while ((line = br.readLine()) != null) {
 			final String[] data = line.split(",");
 
-			final long dateTime = DateProcessor.toEpochSeconds(data[0]);
+			final int dateTime = DateProcessor.toEpochSeconds(data[0]);
 			final long userID = Long.valueOf(data[1]);
-			final int userData = usersMap.get(userID);
+			final short userData = usersMap.get(userID);
 			final double cost = Double.parseDouble(data[2]);
 
 			// increment these values
@@ -290,7 +291,7 @@ public class Campaign {
 	 * @throws InvalidUserException 
 	 * @throws  
 	 */
-	private void processImpressions(TLongIntHashMap usersMap) throws IOException, InvalidUserException {
+	private void processImpressions(TLongShortHashMap usersMap) throws IOException, InvalidUserException {
 		final FileInputStream fis = new FileInputStream(new File(campaignDirectory, IMPRESSIONS_FILE));			
 		final FileChannel fc = fis.getChannel();
 		final MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
@@ -327,7 +328,7 @@ public class Campaign {
 			 * BEGIN DATE PROCESSING SECTION
 			 */
 
-			long dateTime = DateProcessor.toEpochSeconds(mbb);
+			int dateTime = DateProcessor.toEpochSeconds(mbb);
 
 			/*
 			 * END DATE PROCESSING SECTION
@@ -387,12 +388,11 @@ public class Campaign {
 			 * BEGIN USERDATA PROCESSING SECTION
 			 */
 
-			int userData = User.encodeUser(mbb);
+			short userData = User.encodeUser(mbb);
 			
 			if (usersMap.get(userID) == -1)
 				usersMap.put(userID, userData);
-
-
+			
 			/*
 			 * END USERDATA PROCESSING SECTION
 			 */
@@ -458,7 +458,7 @@ public class Campaign {
 		campaignEndDate = DateProcessor.toLocalDateTime(impressionsTable.getDateTime(numberOfImpressions - 1));
 	}
 	
-	private void updateServers(TLongIntHashMap usersMap) {
+	private void updateServers(TLongShortHashMap usersMap) {
 		for (int i = 0; i < serversTable.size(); i++) {
 			serversTable.setUserData(i, usersMap.get(serversTable.getUserID(i)));
 		}

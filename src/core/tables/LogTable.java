@@ -14,22 +14,22 @@ public class LogTable {
 	
 	int size;
 	
-	long[] dateTime;	
+	int[] dateTime;	
 	long[] userID;	
-	int[] userData;
-	long[] exitDateTime;
-	int[] pagesViewed;
+	short[] userData;
+	int[] exitDateTime;
+	byte[] pagesViewed;
 	boolean[] conversion;
 	
 	// ==== Constructor ====
 	
 	public LogTable(int initialCapacity) {
 		if (initialCapacity >= 0) {
-			dateTime = new long[initialCapacity];
+			dateTime = new int[initialCapacity];
 			userID = new long[initialCapacity];
-			userData = new int[initialCapacity];
-			exitDateTime = new long[initialCapacity];
-			pagesViewed = new int[initialCapacity];
+			userData = new short[initialCapacity];
+			exitDateTime = new int[initialCapacity];
+			pagesViewed = new byte[initialCapacity];
 			conversion = new boolean[initialCapacity];
 		} else {
 			throw new IllegalArgumentException("Illegal Capacity: " + initialCapacity);
@@ -43,14 +43,14 @@ public class LogTable {
 	
 	// ==== Accessors ====
 	
-	public boolean add(long dateTime, long userID, int userData, long exitDateTime, int pagesViewed, boolean conversion) {
+	public boolean add(int dateTime, long userID, short userData, int exitDateTime, byte pagesViewed, boolean conversion) {
 		ensureCapacityInternal(size + 1);
 			
 		this.dateTime[size] = dateTime;
 		this.userID[size] = userID;
 		this.userData[size] = userData;
 		this.exitDateTime[size] = exitDateTime;
-		this.pagesViewed[size] = pagesViewed;
+		this.pagesViewed[size] =  pagesViewed;
 		this.conversion[size] = conversion;
 		
 		size++;
@@ -58,13 +58,13 @@ public class LogTable {
 		return true;
 	}
 	
-	public void setUserData(int index, int userData) {
+	public void setUserData(int index, short userData) {
 		rangeCheck(index);
 		
 		this.userData[index] = userData;
 	}
 	
-	public long getDateTime(int index) {
+	public int getDateTime(int index) {
 		rangeCheck(index);
 		
 		return dateTime[index];
@@ -76,19 +76,19 @@ public class LogTable {
 		return userID[index];
 	}
 	
-	public int getUserData(int index) {
+	public short getUserData(int index) {
 		rangeCheck(index);
 		
 		return userData[index];
 	}
 	
-	public long getExitDateTime(int index) {
+	public int getExitDateTime(int index) {
 		rangeCheck(index);
 		
 		return exitDateTime[index];
 	}
 	
-	public int getPagesViewed(int index) {
+	public byte getPagesViewed(int index) {
 		rangeCheck(index);
 		
 		return pagesViewed[index];
@@ -137,9 +137,9 @@ public class LogTable {
         dateTime = Arrays.copyOf(dateTime, newCapacity);
         userID = Arrays.copyOf(userID, newCapacity);
         userData = Arrays.copyOf(userData, newCapacity);
-        exitDateTime = Arrays.copyOf(exitDateTime, size);
-        pagesViewed = Arrays.copyOf(pagesViewed, size);
-        conversion = Arrays.copyOf(conversion, size);
+        exitDateTime = Arrays.copyOf(exitDateTime, newCapacity);
+        pagesViewed = Arrays.copyOf(pagesViewed, newCapacity);
+        conversion = Arrays.copyOf(conversion, newCapacity);
     }
     
 	private static int hugeCapacity(int minCapacity) {

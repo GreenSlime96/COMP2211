@@ -46,8 +46,7 @@ public class Model extends Observable implements ActionListener {
 		
 		if (username.equals("khengboonpek") || username.equals("kbp2g14"))
 			try {
-				addCampaign(new File("/Users/" + username + "/Downloads/2_month_campaig"
-						+ "n"));
+				addCampaign(new File("/Users/" + username + "/Downloads/2_week_campaign_2"));
 				currentProcessor = new DataProcessor();
 				currentProcessor.setCampaign(campaigns.get(0));
 				currentProcessor.setMetric(Metric.NUMBER_OF_IMPRESSIONS);

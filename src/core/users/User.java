@@ -78,10 +78,10 @@ public enum User {
 
 	// ==== Static Helper Methods ====
 	
-	public static int encodeUser(MappedByteBuffer mbb) throws InvalidUserException {
+	public static short encodeUser(MappedByteBuffer mbb) throws InvalidUserException {
 		byte temp;
 		
-		int userData = 0;
+		short userData = 0;
 		
 		if ((temp = mbb.get()) == 'F') {
 			userData |= User.GENDER_FEMALE.mask;
@@ -187,14 +187,14 @@ public enum User {
 		return userData;
 	}
 
-	public static int encodeUser(String user) throws InvalidUserException {
+	public static short encodeUser(String user) throws InvalidUserException {
 		final String[] data = user.split(",");
 
 		// TODO handle exceptions
 		if (data.length != 4)
 			throw new InvalidUserException("wrong number of parameters");
 
-		int mask = 0;
+		short mask = 0;
 
 		switch (data[0]) {
 		case "Male":
