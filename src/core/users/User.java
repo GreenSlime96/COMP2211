@@ -64,12 +64,12 @@ public enum User {
 		skip_map['H'] = INCOME_HIGH.length + 3;
 		
 		// 4th character of context
-		skip_map['s'] = CONTEXT_NEWS.length - 3;
-		skip_map['p'] = CONTEXT_SHOPPING.length- 3;
-		skip_map['i'] = CONTEXT_SOCIAL_MEDIA.length- 3;
-		skip_map['g'] = CONTEXT_BLOG.length- 3;
-		skip_map['b'] = CONTEXT_HOBBIES.length- 3;
-		skip_map['v'] = CONTEXT_TRAVEL.length- 3;
+		skip_map['s'] = CONTEXT_NEWS.length - 4;
+		skip_map['p'] = CONTEXT_SHOPPING.length- 4;
+		skip_map['i'] = CONTEXT_SOCIAL_MEDIA.length- 4;
+		skip_map['g'] = CONTEXT_BLOG.length- 4;
+		skip_map['b'] = CONTEXT_HOBBIES.length- 4;
+		skip_map['v'] = CONTEXT_TRAVEL.length- 4;
 	}
 	
 	
@@ -87,6 +87,14 @@ public enum User {
 		
 		title = string;
 		length = string.length();
+	}
+	
+	
+	// ==== Object Overrides ====
+	
+	@Override
+	public String toString() {
+		return title;
 	}
 	
 
@@ -121,6 +129,9 @@ public enum User {
 		temp = mbb.get();
 		userData |= info_map[temp];
 		mbb.position(mbb.position() + skip_map[temp]);
+		
+		if (mbb.get() != ',')
+			throw new InvalidUserException("invalid user: " + Integer.toBinaryString(userData));
 				
 		return userData;
 	}
@@ -202,6 +213,6 @@ public enum User {
 	}
 	
 	public static boolean checkFlag(short userData, User field) {
-		return (1 & (userData << field.ordinal())) != 0;
+		return (userData & field.mask) != 0;
 	}
 }

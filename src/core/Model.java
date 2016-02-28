@@ -46,15 +46,14 @@ public class Model extends Observable implements ActionListener {
 		if (username.equals("khengboonpek") || username.equals("kbp2g14"))
 			try {
 				addCampaign(new File("/Users/" + username + "/Downloads/2_month_campaign"));
-				currentProcessor = new DataProcessor();
-				currentProcessor.setCampaign(campaigns.get(0));
+				currentProcessor = new DataProcessor(campaigns.get(0));
 				
 				for (Metric m : Metric.values()) {
 					currentProcessor.setMetric(m);
 					currentProcessor.getData();
 				}
 				
-				currentProcessor.test();
+				currentProcessor.getContextData();
 			} catch (InvalidCampaignException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -274,11 +273,11 @@ public class Model extends Observable implements ActionListener {
 	// ==== Filter Tab ====
 
 	public synchronized final boolean getFieldFilteredValue(User field) {
-		return currentProcessor.getFieldFilteredValue(field);
+		return currentProcessor.getFilterValue(field);
 	}
 
 	public synchronized final void setFieldFilteredValue(User field, boolean value) {
-		currentProcessor.setFieldFilterValue(field, value);
+		currentProcessor.setFilterValue(field, value);
 		
 		setChanged();
 		notifyObservers();

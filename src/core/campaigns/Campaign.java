@@ -9,7 +9,6 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.time.LocalDateTime;
 
-import core.data.DataFilter;
 import core.tables.CostTable;
 import core.tables.LogTable;
 import core.users.InvalidUserException;
@@ -272,8 +271,7 @@ public class Campaign {
 	/**
 	 * This method processes the click log It checks that User IDs in the clicks
 	 * file matches with the User IDs in the impressions Computes the total cost
-	 * of clicks in this campaign TODO: - Check that start/end dates are in-form
-	 * with Impressions
+	 * of clicks in this campaign
 	 * @throws IOException 
 	 * @throws InvalidCampaignException 
 	 */
@@ -316,21 +314,17 @@ public class Campaign {
 	}
 
 	/**
+	 * @throws InvalidCampaignException 
 	 * This method is called when to process the impressions log file It checks
 	 * that the impressions file is valid and counts the number of impressions
 	 * It is also responsible for the handling of unique users in the campaign
 	 * We compute the cost of impressions here too, as well as start and end
 	 * dates
-	 * 
-	 * TODO: - find a way to record start and end dates - make exceptions more
-	 * understandable v.s. stacktrace e.g. FileNotFound, NumberFormatException Chr
-	 * (print out line number for easy debug), IOException - consider User, use
-	 * of Enum v.s. String.intern()
 	 * @throws IOException 
 	 * @throws InvalidUserException 
 	 * @throws  
 	 */
-	private void processImpressions(TLongShortHashMap usersMap) throws IOException, InvalidUserException {
+	private void processImpressions(TLongShortHashMap usersMap) throws IOException, InvalidUserException, InvalidCampaignException {
 		final FileInputStream fis = new FileInputStream(new File(campaignDirectory, IMPRESSIONS_FILE));			
 		final FileChannel fc = fis.getChannel();
 		final MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
@@ -341,9 +335,6 @@ public class Campaign {
 		
 		// close this stream
 		fis.close();
-		
-		final byte newLine = '\n';
-		final byte comma = ',';
 
 		// reset
 		costOfImpressions = 0;
@@ -378,41 +369,13 @@ public class Campaign {
 			// we know MIN(id).length = 12
 			// skip first multiplication by 0
 			long userID = mbb.get() & 0xF;
-			
-//			userID *= 10;
-//			userID += mbb.get() & 0xF;
-//			
-//			userID *= 10;
-//			userID += mbb.get() & 0xF;
-//			
-//			userID *= 10;
-//			userID += mbb.get() & 0xF;
-//			
-//			userID *= 10;
-//			userID += mbb.get() & 0xF;
-//			
-//			userID *= 10;
-//			userID += mbb.get() & 0xF;
-//			
-//			userID *= 10;
-//			userID += mbb.get() & 0xF;
-//			
-//			userID *= 10;
-//			userID += mbb.get() & 0xF;
-//			
-//			userID *= 10;
-//			userID += mbb.get() & 0xF;
-//			
-//			userID *= 10;
-//			userID += mbb.get() & 0xF;
-//			
-//			userID *= 10;
-//			userID += mbb.get() & 0xF;
-//			
-//			userID *= 10;
-//			userID += mbb.get() & 0xF;
 
-			while ((temp = mbb.get()) != comma) {
+			while ((temp = mbb.get()) != ',') {
+//				int digit = Character.digit(temp, 10);
+//				
+//				if (digit < 0)
+//					throw new InvalidCampaignException("invalid userID: " + temp);
+				
 				userID *= 10;
 				userID += temp & 0xF;
 			}
@@ -469,7 +432,7 @@ public class Campaign {
 			 * END COST PROCESSING SECTION
 			 */
 			
-			if (mbb.get() != newLine)
+			if (mbb.get() != '\n')
 				throw new InvalidUserException("invalid entry: " + impressionsTable.size());
 			
 			impressionsTable.add(dateTime, userID, userData, cost);
@@ -491,6 +454,11 @@ public class Campaign {
 		campaignEndDate = DateProcessor.toLocalDateTime(impressionsTable.getDateTime(impressionsTable.size() - 1));
 	}
 	
+	/**
+	 * post-processes the server logs and updates unfilled userDatas
+	 * 
+	 * @param usersMap
+	 */
 	private void updateServers(TLongShortHashMap usersMap) {
 		for (int i = 0; i < serversTable.size(); i++) {
 			serversTable.setUserData(i, usersMap.get(serversTable.getUserID(i)));

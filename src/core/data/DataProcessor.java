@@ -32,29 +32,73 @@ public class DataProcessor {
 	private Campaign campaign;
 	
 	// the start and end dates of this dataprocessor
-	private LocalDateTime dataStartDate;
-	private LocalDateTime dataEndDate;
-	
-	private long dataStartEpoch;
-	private long dataEndEpoch;
+	private long dataStartDate;
+	private long dataEndDate;
 	
 	// the filter to filter the metrics by
-	private final DataFilter dataFilter = new DataFilter();
+	private final DataFilter dataFilter;
 	
 	// the metric that the chart is handling
-	private Metric metric = Metric.NUMBER_OF_IMPRESSIONS;
+	private Metric metric;
 	
 	// the time granularity of this dataprocessor
-	private int timeGranularityInSeconds = 60 * 60;
+	private int timeGranularityInSeconds;
 	
 	// bounce logic
-	private int bounceMinimumPagesViewed = 1;
-	private int bounceMinimumSecondsOnPage = 30;
+	private int bounceMinimumPagesViewed;
+	private int bounceMinimumSecondsOnPage;
+	
+	// misc stats (useful for checks)
+	private int dataReturnSize;
 	
 	
 	// ==== Constructor ====
 	
-	public DataProcessor() {
+	/**
+	 * Constructor taking another DataProcessor, this will clone
+	 * the properties of the DataProcessor
+	 * 
+	 * @param dataProcessor - the DataProcessor to clone by
+	 */
+	public DataProcessor(DataProcessor dataProcessor) {
+		// sets the campaign
+		campaign = dataProcessor.campaign;
+		
+		// assume validated dates
+		dataStartDate = dataProcessor.dataStartDate;
+		dataEndDate = dataProcessor.dataEndDate;
+		
+		// new DataFilter with same parameters, different objects
+		// as user can modify this filter
+		dataFilter = new DataFilter(dataProcessor.dataFilter);
+		
+		// same metrics
+		metric = dataProcessor.metric;
+		
+		// time granularity
+		timeGranularityInSeconds = dataProcessor.timeGranularityInSeconds;
+		
+		// bounce criteria
+		bounceMinimumPagesViewed = dataProcessor.bounceMinimumPagesViewed;
+		bounceMinimumSecondsOnPage = dataProcessor.bounceMinimumSecondsOnPage;		
+	}
+	
+	public DataProcessor(Campaign campaign) {
+		// set campaign SHOULD compute start and end dates
+		setCampaign(campaign);	
+		
+		// create a new DataFilter (all enabled)
+		dataFilter = new DataFilter();
+		
+		// set default metric
+		metric = Metric.NUMBER_OF_IMPRESSIONS;
+		
+		// default time granularity - daily
+		timeGranularityInSeconds = 60 * 60 * 24;
+		
+		// set bounce criteria
+		bounceMinimumPagesViewed = 1;
+		bounceMinimumSecondsOnPage = 30;	
 	}
 	
 
@@ -64,20 +108,20 @@ public class DataProcessor {
 		return campaign;
 	}
 	
+	// TODO: adjust for time granularity here as well
 	public final void setCampaign(Campaign campaign) {
-		if (this.campaign != null && this.campaign.equals(campaign))
-			return;
+		this.campaign = Objects.requireNonNull(campaign);
 		
-		final LocalDateTime campaignStartDate = campaign.getStartDateTime();
-		final LocalDateTime campaignEndDate = campaign.getEndDateTime();		
+		final long campaignStartDate = DateProcessor.toEpochSeconds(campaign.getStartDateTime());
+		final long campaignEndDate = DateProcessor.toEpochSeconds(campaign.getEndDateTime());
 		
-		if (dataStartDate == null || dataStartDate.isBefore(campaignStartDate) || !dataStartDate.isBefore(campaignEndDate))
+		if (dataStartDate < campaignStartDate || dataStartDate > campaignEndDate)
 			dataStartDate = campaignStartDate;
 		
-		if (dataEndDate == null || dataEndDate.isAfter(campaignEndDate))
+		if (dataEndDate < campaignStartDate || dataEndDate > campaignEndDate)
 			dataEndDate = campaignEndDate;
 		
-		this.campaign = campaign;
+		System.out.println(DateProcessor.toLocalDateTime(dataStartDate));
 	}
 	
 	public final Metric getMetric() {
@@ -85,16 +129,20 @@ public class DataProcessor {
 	}
 	
 	/**
-	 * @param metric
+	 * sets the current dataProcessor's metric
+	 * 
+	 * @param metric - the metric to process on
 	 */
 	public final void setMetric(Metric metric) {
-		if (this.metric == metric)
-			return;
-		
-		this.metric = Objects.requireNonNull(metric);;
+		this.metric = Objects.requireNonNull(metric);
 	}
 	
-	
+	/**
+	 * method to get DataProcessor's Data depending on
+	 * the metric selected
+	 * 
+	 * @return a list of numbers with data
+	 */
 	public final List<? extends Number> getData() {
 		List<? extends Number> returnList;
 
@@ -150,48 +198,50 @@ public class DataProcessor {
 	
 	
 	public final LocalDateTime getDataStartDateTime() {
-		return dataStartDate;
+		return DateProcessor.toLocalDateTime(dataStartDate);
 	}
 	
-	public final void setDataStartDate(LocalDateTime dataStartDate) {
-		// check if the input start date happens before the campaign start date
-		if (dataStartDate.isBefore(campaign.getStartDateTime()))
-			throw new IllegalArgumentException("cannot set data start date before campaign starts");
+	public final void setDataStartDate(LocalDateTime dateTime) {
+		final long campaignStartDate = DateProcessor.toEpochSeconds(campaign.getStartDateTime());
+		final long campaignEndDate = DateProcessor.toEpochSeconds(campaign.getEndDateTime());
 		
-		// check input happens before the campaign ends
-		if (!dataStartDate.isBefore(campaign.getEndDateTime()))
-			throw new IllegalArgumentException("cannot set data start date to after campaign ends");
+		final long newDateTime = DateProcessor.toEpochSeconds(dateTime);
 		
-		// start date must be before end date
-		if (!dataStartDate.isBefore(dataEndDate))
-			throw new IllegalArgumentException("cannot set data start date to after the end date");
+		if (newDateTime < campaignStartDate)
+			return;
+
+		if (newDateTime >= campaignEndDate)
+			return;
+		
+		if (newDateTime >= dataEndDate)
+			return;
 		
 		// update the values if is valid
-		this.dataStartDate = dataStartDate;
-		this.dataStartEpoch = DateProcessor.toEpochSeconds(dataStartDate);
+		dataStartDate = newDateTime;
 	}
 	
 	
 	public final LocalDateTime getDataEndDate() {
-		return dataEndDate;
+		return DateProcessor.toLocalDateTime(dataEndDate);
 	}
 	
-	public final void setDataEndDate(LocalDateTime dataEndDate) {
-		// check input is not after campaign end date
-		if (dataEndDate.isAfter(campaign.getEndDateTime()))
-			throw new IllegalArgumentException("cannot set data end date to after campaign ends");
+	public final void setDataEndDate(LocalDateTime dateTime) {
+		final long campaignStartDate = DateProcessor.toEpochSeconds(campaign.getStartDateTime());
+		final long campaignEndDate = DateProcessor.toEpochSeconds(campaign.getEndDateTime());
 		
-		// end date must be after the start date
-		if (!dataEndDate.isAfter(campaign.getStartDateTime()))
-			throw new IllegalArgumentException("cannot set data end date to before campaign starts");
+		final long newDateTime = DateProcessor.toEpochSeconds(dateTime);
 		
-		// end date must be after start date
-		if (!dataEndDate.isAfter(dataStartDate))
-			throw new IllegalArgumentException("cannot set data end date to before the start date");
+		if (newDateTime > campaignEndDate)
+			return;
+		
+		if (newDateTime <= campaignStartDate)
+			return;
+		
+		if (newDateTime <= dataStartDate)
+			return;
 		
 		// update if valid
-		this.dataEndDate = dataEndDate;
-		this.dataEndEpoch = DateProcessor.toEpochSeconds(dataEndDate);
+		dataEndDate = newDateTime;
 	}
 	
 	
@@ -205,7 +255,7 @@ public class DataProcessor {
 			throw new IllegalArgumentException("cannot have time granularity below 1 second");
 		
 		// store the time difference to compute min/max bounds
-		final long timeDifference = ChronoUnit.SECONDS.between(dataStartDate, dataEndDate);
+		final long timeDifference = dataEndDate - dataStartDate;
 		
 		// we want a minimum number of data points
 		// if time granularity is larger than this number, then we won't have enough nodes
@@ -247,10 +297,10 @@ public class DataProcessor {
 		this.bounceMinimumSecondsOnPage = bounceMinimumSecondsOnPage;
 	}
 	
-	public final boolean getFieldFilteredValue(User field) {
+	public final boolean getFilterValue(User field) {
 		return dataFilter.getField(field);
 	}
-	public final void setFieldFilterValue(User field, boolean value) {
+	public final void setFilterValue(User field, boolean value) {
 		dataFilter.setField(field, value);
 	}
 	
@@ -269,9 +319,8 @@ public class DataProcessor {
 		final ArrayList<Integer> recordList = new ArrayList<Integer>();
 		
 		// initialise current date as startDate
-		long currentDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
+		long currentDate = dataStartDate;
 		long nextDate = currentDate + timeGranularityInSeconds;
-		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
 		
 		// reset counter
 		int counter = 0;
@@ -286,7 +335,7 @@ public class DataProcessor {
 			
 			// add new mapping if after time granularity separator
 			while (dateTime > nextDate) {
-				if (nextDate == finalDate)
+				if (nextDate == dataEndDate)
 					break outerLoop;
 				
 				recordList.add(counter);
@@ -296,8 +345,8 @@ public class DataProcessor {
 				currentDate = nextDate;
 				nextDate = currentDate + timeGranularityInSeconds;
 				
-				if (nextDate > finalDate)
-					nextDate = finalDate;
+				if (nextDate > dataEndDate)
+					nextDate = dataEndDate;
 			}
 			
 			if (dataFilter.test(costTable.getUserData(i))) {
@@ -323,9 +372,8 @@ public class DataProcessor {
 		final TLongSet usersSet = new TLongHashSet();
 		
 		// initialise current date as startDate
-		long currentDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
+		long currentDate = dataStartDate;
 		long nextDate = currentDate + timeGranularityInSeconds;
-		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
 				
 		outerLoop:
 		for (int i = 0; i < costTable.size(); i++) {
@@ -337,7 +385,7 @@ public class DataProcessor {
 
 			// add new mapping if after time granularity separator
 			while (dateTime > nextDate) {
-				if (nextDate == finalDate)
+				if (nextDate == dataEndDate)
 					break outerLoop;
 
 				uniquesList.add(usersSet.size());
@@ -347,8 +395,8 @@ public class DataProcessor {
 				currentDate = nextDate;
 				nextDate = currentDate + timeGranularityInSeconds;
 
-				if (nextDate > finalDate)
-					nextDate = finalDate;
+				if (nextDate > dataEndDate)
+					nextDate = dataEndDate;
 			}
 
 			if (dataFilter.test(costTable.getUserData(i))) {
@@ -377,9 +425,8 @@ public class DataProcessor {
 		int numberOfBounces = 0;
 		
 		// initialise current date as startDate
-		long currentDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
+		long currentDate = dataStartDate;
 		long nextDate = currentDate + timeGranularityInSeconds;
-		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
 				
 		outerLoop:
 		for (int i = 0; i < logTable.size(); i++) {
@@ -391,7 +438,7 @@ public class DataProcessor {
 			
 			// add new mapping if after time granularity separator
 			while (dateTime > nextDate) {
-				if (nextDate == finalDate)
+				if (nextDate == dataEndDate)
 					break outerLoop;
 				
 				bouncesList.add(numberOfBounces);
@@ -401,8 +448,8 @@ public class DataProcessor {
 				currentDate = nextDate;
 				nextDate = currentDate + timeGranularityInSeconds;
 				
-				if (nextDate > finalDate)
-					nextDate = finalDate;
+				if (nextDate > dataEndDate)
+					nextDate = dataEndDate;
 			}
 			
 			if (dataFilter.test(logTable.getUserData(i))) {				
@@ -437,9 +484,8 @@ public class DataProcessor {
 		int numberOfConversions = 0;
 		
 		// initialise current date as startDate
-		long currentDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
+		long currentDate = dataStartDate;
 		long nextDate = currentDate + timeGranularityInSeconds;
-		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
 				
 		outerLoop:
 		for (int i = 0; i < logTable.size(); i++) {
@@ -451,7 +497,7 @@ public class DataProcessor {
 			
 			// add new mapping if after time granularity separator
 			while (dateTime > nextDate) {
-				if (nextDate == finalDate)
+				if (nextDate == dataEndDate)
 					break outerLoop;
 				
 				conversionsList.add(numberOfConversions);
@@ -461,8 +507,8 @@ public class DataProcessor {
 				currentDate = nextDate;
 				nextDate = currentDate + timeGranularityInSeconds;
 				
-				if (nextDate > finalDate)
-					nextDate = finalDate;
+				if (nextDate > dataEndDate)
+					nextDate = dataEndDate;
 			}
 			
 			// try to short circuit as expr1 is a direct boolean evaluation
@@ -486,9 +532,8 @@ public class DataProcessor {
 		double costOfImpressions = 0;
 		
 		// initialise current date as startDate
-		long currentDate = dataStartDate.toEpochSecond(ZoneOffset.UTC);
+		long currentDate = dataStartDate;
 		long nextDate = currentDate + timeGranularityInSeconds;
-		long finalDate = dataEndDate.toEpochSecond(ZoneOffset.UTC);
 		
 		outerLoop:
 		for (int i = 0; i < table.size(); i++) {
@@ -500,7 +545,7 @@ public class DataProcessor {
 			
 			// add new mapping if after time granularity separator
 			while (dateTime > nextDate) {
-				if (nextDate == finalDate)
+				if (nextDate == dataEndDate)
 					break outerLoop;
 				
 				costList.add(costOfImpressions);
@@ -510,8 +555,8 @@ public class DataProcessor {
 				currentDate = nextDate;
 				nextDate = currentDate + timeGranularityInSeconds;
 				
-				if (nextDate > finalDate)
-					nextDate = finalDate;
+				if (nextDate > dataEndDate)
+					nextDate = dataEndDate;
 			}
 			
 			if (dataFilter.test(table.getUserData(i))) {
@@ -532,10 +577,7 @@ public class DataProcessor {
 	private final List<Double> totalCost() {
 		final List<Double> impressionsCost = costOfRecord(campaign.getImpressions());
 		final List<Double> clicksCost = costOfRecord(campaign.getClicks());
-		
-		if (impressionsCost.size() != clicksCost.size())
-			throw new IllegalArgumentException("totalCost: impressions and clicks not equal");
-		
+				
 		final ArrayList<Double> costList = new ArrayList<Double>(impressionsCost.size());
 		
 		for (int i = 0; i < impressionsCost.size(); i++)
@@ -548,9 +590,6 @@ public class DataProcessor {
 	private final List<Double> clickThroughRate() {
 		final List<Integer> impressionsList = numberOfImpressions();
 		final List<Integer> clicksList = numberOfClicks();
-		
-		if (impressionsList.size() != clicksList.size())
-			System.err.println("CTR: this shouldn't happen");
 		
 		final ArrayList<Double> clickThroughRate = new ArrayList<Double>(impressionsList.size());
 		
@@ -566,9 +605,6 @@ public class DataProcessor {
 	private final List<Double> costPerAcquisition() {
 		final List<Integer> conversionList = numberOfConversions();
 		final List<Double> costList = totalCost();
-
-		if (conversionList.size() != costList.size())
-			System.err.println("CPA: this shouldn't happen");
 		
 		final ArrayList<Double> costPerAcquisition = new ArrayList<Double>(conversionList.size());
 		
@@ -582,10 +618,7 @@ public class DataProcessor {
 	private final List<Double> costPerClick() {
 		final List<Integer> clickList = numberOfClicks();
 		final List<Double> costList = totalCost();
-		
-		if (clickList.size() != costList.size())
-			System.err.println("CPC: this shouldn't happen");
-		
+				
 		final ArrayList<Double> costPerAcquisition = new ArrayList<Double>(clickList.size());
 		
 		for (int i = 0; i < clickList.size(); i++)
@@ -598,9 +631,6 @@ public class DataProcessor {
 	private final List<Double> costPerThousandImpressions() {
 		final List<Integer> impressionsList = numberOfImpressions();
 		final List<Double> costsList = totalCost();
-		
-		if (impressionsList.size() != costsList.size())
-			System.err.println("CPM: this shouldn't happen");
 		
 		final ArrayList<Double> costPerThousandImpressions = new ArrayList<Double>(impressionsList.size());
 		
@@ -615,9 +645,6 @@ public class DataProcessor {
 		final List<Integer> bouncesList = numberOfBounces();
 		final List<Integer> clicksList = numberOfClicks();
 		
-		if (bouncesList.size() != clicksList.size())
-			System.err.println("Bounce Rate: this shoudn't happen");
-		
 		final ArrayList<Double> bounceRates = new ArrayList<Double>(bouncesList.size());
 		
 		for (int i = 0; i < bouncesList.size(); i++)
@@ -626,44 +653,25 @@ public class DataProcessor {
 		return bounceRates;
 	}
 	
-	// TODO: visits or clicks?
-	public final EnumMap<User, Integer> test() {
+	// Clicks are more valuable than impressions, always
+	public final EnumMap<User, Integer> getContextData() {
 		final EnumMap<User, Integer> enumMap = new EnumMap<User, Integer>(User.class);
-		final CostTable costTable = campaign.getImpressions();
+		final CostTable costTable = campaign.getClicks();
 		
-		User[] fields = User.values();
-//		DataFilter[] filters = new DataFilter[fields.length];
-		int[] values = new int[fields.length];
-//		
-//		User previousEnum = null;
-//		String oldPrefix = "";
-//		
-//		for (User u : fields) {
-//			final String prefix = u.name().substring(0, u.name().indexOf('_'));
-//			
-//			if (oldPrefix.equals(prefix)) {
-//				
-//			}
-//		}
+		final int[] values = new int[User.values().length];
 		
-		int counter = 0;
-//		
-
-		long time = System.currentTimeMillis();
-		// iterate over the costTable
 		for (int i = 0; i < costTable.size(); i++) {
 			final short userData = costTable.getUserData(i);
 			
-//			for (User u : User.values()) {
-			if (User.checkFlag(userData, User.GENDER_MALE))
-				counter++;
-//			}
+			if (!dataFilter.test(userData))
+				continue;
+			
+			for (User u : User.values()) {
+				if (User.checkFlag(userData, u)) {
+					values[u.ordinal()]++;
+				}
+			}
 		}
-		System.out.println(System.currentTimeMillis() - time);
-		System.out.println(counter);
-//		for (User u : User.values()) {
-//			System.out.println(u.title + "\t" + values[u.ordinal()]);
-//		}
 		
 		return enumMap;
 	}
