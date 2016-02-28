@@ -1,16 +1,12 @@
 package core;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Observable;
 import java.util.stream.Collectors;
-
-import javax.swing.Timer;
 
 import core.campaigns.Campaign;
 import core.campaigns.InvalidCampaignException;
@@ -18,14 +14,9 @@ import core.data.DataProcessor;
 import core.data.Metric;
 import core.users.User;
 
-public class Model extends Observable implements ActionListener {
+public class Model extends Observable {
 
 	// ==== Properties ====
-
-	// We may use this Timer to fire events as they occur
-	// Use this Timer to update the Controller/View about the current query
-	// status
-	private final Timer timer = new Timer(1000, this);
 
 	// The list of Campaigns registered with this model
 	private final List<Campaign> campaigns = new ArrayList<Campaign>();
@@ -68,9 +59,27 @@ public class Model extends Observable implements ActionListener {
 	 * index charts so that we are modular
 	 * @return
 	 */
-
+	
+	
+	public synchronized final List<? extends Number> getChartData(int index) {
+		return dataProcessors.get(index).getData();
+	}
+	
 	public synchronized final List<? extends Number> getChartData() {
 		return currentProcessor.getData();
+	}
+	
+	/**
+	 * Retrieves the distribution of Users in the currently selected DataProcessor
+	 * 
+	 * @return
+	 */
+	public synchronized final EnumMap<User, Integer> getDistribution(int index) {
+		return dataProcessors.get(index).getContextData();
+	}
+	
+	public synchronized final EnumMap<User, Integer> getDistribution() {
+		return currentProcessor.getContextData();
 	}
 	
 	/**
@@ -92,8 +101,34 @@ public class Model extends Observable implements ActionListener {
 	 * 
 	 * @return
 	 */
-	public synchronized final int addChart() {
-		return -1;
+	public synchronized final int addChart(Campaign campaign) {
+		final DataProcessor newProcessor = new DataProcessor(campaign);
+
+		dataProcessors.add(newProcessor);		
+		
+		return dataProcessors.size() - 1;
+	}
+	
+	/**
+	 * adds a new chart to the sysmtem and returns the index to 
+	 * that chart reference
+	 * 
+	 * @param index - the index of the chart to duplicate
+	 * @return integer reference to the dataprocessor
+	 */
+	public synchronized final int addChart(int index) {
+		// clone DataProcessors by creating a new one
+		final DataProcessor oldProcessor = dataProcessors.get(index);
+		final DataProcessor newProcessor = new DataProcessor(oldProcessor);
+		
+		dataProcessors.add(newProcessor);
+		
+		return dataProcessors.size() - 1;
+	}
+	
+	// TODO: remove chart
+	public synchronized final void removeChart(int index) {
+		dataProcessors.remove(index);
 	}
 
 	// ==== General Tab ====
@@ -282,22 +317,4 @@ public class Model extends Observable implements ActionListener {
 		setChanged();
 		notifyObservers();
 	}
-
-	// ==== Private Helper Methods ====
-
-	private void update() {
-		setChanged();
-		notifyObservers();
-	}
-
-	// ==== ActionListener Implementation ====
-
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == timer) {
-			setChanged();
-			notifyObservers();
-		}
-	}
-
 }

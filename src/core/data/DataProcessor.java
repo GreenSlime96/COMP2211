@@ -1,8 +1,6 @@
 package core.data;
 
 import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
@@ -48,8 +46,8 @@ public class DataProcessor {
 	private int bounceMinimumPagesViewed;
 	private int bounceMinimumSecondsOnPage;
 	
-	// misc stats (useful for checks)
-	private int dataReturnSize;
+//	// TODO: misc stats (useful for checks)
+//	private int dataReturnSize;
 	
 	
 	// ==== Constructor ====
@@ -120,8 +118,6 @@ public class DataProcessor {
 		
 		if (dataEndDate < campaignStartDate || dataEndDate > campaignEndDate)
 			dataEndDate = campaignEndDate;
-		
-		System.out.println(DateProcessor.toLocalDateTime(dataStartDate));
 	}
 	
 	public final Metric getMetric() {
@@ -254,21 +250,21 @@ public class DataProcessor {
 		if (timeGranularityInSeconds < 1)
 			throw new IllegalArgumentException("cannot have time granularity below 1 second");
 		
-		// store the time difference to compute min/max bounds
-		final long timeDifference = dataEndDate - dataStartDate;
-		
-		// we want a minimum number of data points
-		// if time granularity is larger than this number, then we won't have enough nodes
-		if (timeGranularityInSeconds  > timeDifference / MINIMUM_NUMBER_OF_NODES)
-			timeGranularityInSeconds = (int) (timeDifference / MINIMUM_NUMBER_OF_NODES);
-		
-		// converse to above logic
-		if (timeGranularityInSeconds < timeDifference / MAXIMUM_NUMBER_OF_NODES)
-			timeGranularityInSeconds = (int) (timeDifference / MAXIMUM_NUMBER_OF_NODES);
-		
-		// TODO remove, just throwing error if we reach this unreachable state
-		if (timeGranularityInSeconds < 1 || timeGranularityInSeconds >=  timeDifference)
-			throw new IllegalArgumentException("something happened in DataProcessor setTimeG...");
+//		// store the time difference to compute min/max bounds
+//		final long timeDifference = dataEndDate - dataStartDate;
+//		
+//		// we want a minimum number of data points
+//		// if time granularity is larger than this number, then we won't have enough nodes
+//		if (timeGranularityInSeconds  > timeDifference / MINIMUM_NUMBER_OF_NODES)
+//			timeGranularityInSeconds = (int) (timeDifference / MINIMUM_NUMBER_OF_NODES);
+//		
+//		// converse to above logic
+//		if (timeGranularityInSeconds < timeDifference / MAXIMUM_NUMBER_OF_NODES)
+//			timeGranularityInSeconds = (int) (timeDifference / MAXIMUM_NUMBER_OF_NODES);
+//		
+//		// TODO remove, just throwing error if we reach this unreachable state
+//		if (timeGranularityInSeconds < 1 || timeGranularityInSeconds >=  timeDifference)
+//			throw new IllegalArgumentException("something happened in DataProcessor setTimeG...");
 		
 		// time granularity 		
 		this.timeGranularityInSeconds = timeGranularityInSeconds;

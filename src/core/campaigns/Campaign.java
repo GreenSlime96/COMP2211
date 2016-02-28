@@ -340,14 +340,13 @@ public class Campaign {
 		costOfImpressions = 0;
 
 		long time = System.currentTimeMillis();
-		mbb.load();
+//		mbb.load();
 		System.out.println("loading:\t" + (System.currentTimeMillis() - time) + "ms");
 
 		time = System.currentTimeMillis();
 
 		// skip the header -- precomputed
 		mbb.position(50);
-		// int index = 50;
 		
 		while (mbb.hasRemaining()) {
 			byte temp;
@@ -370,12 +369,7 @@ public class Campaign {
 			// skip first multiplication by 0
 			long userID = mbb.get() & 0xF;
 
-			while ((temp = mbb.get()) != ',') {
-//				int digit = Character.digit(temp, 10);
-//				
-//				if (digit < 0)
-//					throw new InvalidCampaignException("invalid userID: " + temp);
-				
+			while ((temp = mbb.get()) != ',') {				
 				userID *= 10;
 				userID += temp & 0xF;
 			}
