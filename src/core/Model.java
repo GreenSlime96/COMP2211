@@ -13,16 +13,18 @@ import core.campaigns.InvalidCampaignException;
 import core.data.DataProcessor;
 import core.data.Metric;
 import core.users.User;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 public class Model extends Observable {
 
 	// ==== Properties ====
 
 	// The list of Campaigns registered with this model
-	private final List<Campaign> campaigns = new ArrayList<Campaign>();
+	public final ObservableList<Campaign> campaigns = FXCollections.observableArrayList();
 
 	// The list of Charts stored in this model
-	private final List<DataProcessor> dataProcessors = new ArrayList<DataProcessor>();
+	public final ObservableList<DataProcessor> dataProcessors = FXCollections.observableArrayList();
 
 	private DataProcessor currentProcessor = null;
 
@@ -31,24 +33,24 @@ public class Model extends Observable {
 	public Model() {
 		super();
 
-		// FOR TESTING ONLY
-		final String username = System.getProperty("user.name");
-		
-		if (username.equals("khengboonpek") || username.equals("kbp2g14"))
-			try {
-				addCampaign(new File("/Users/" + username + "/Downloads/2_month_campaign"));
-				currentProcessor = new DataProcessor(campaigns.get(0));
-				
-				for (Metric m : Metric.values()) {
-					currentProcessor.setMetric(m);
-					currentProcessor.getData();
-				}
-				
-				currentProcessor.getContextData();
-			} catch (InvalidCampaignException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+//		// FOR TESTING ONLY
+//		final String username = System.getProperty("user.name");
+//		
+//		if (username.equals("khengboonpek") || username.equals("kbp2g14"))
+//			try {
+//				addCampaign(new File("/Users/" + username + "/Downloads/2_month_campaign"));
+//				currentProcessor = new DataProcessor(campaigns.get(0));
+//				
+//				for (Metric m : Metric.values()) {
+//					currentProcessor.setMetric(m);
+//					currentProcessor.getData();
+//				}
+//				
+//				currentProcessor.getContextData();
+//			} catch (InvalidCampaignException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 	}
 
 	// ==== Accessors ====

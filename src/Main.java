@@ -1,26 +1,74 @@
-import javax.swing.JFrame;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
+import java.io.IOException;
 
-import ui.Window;
+import core.Model;
+import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.Stage;
+import view.DashboardOverviewController;
 
-public class Main {
-	public static void main(String[] args) {
-		// use system look and feel
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		} catch (Exception e) {
-			System.err.println("unable to use system look and feel");
-		}
+public class Main extends Application {
+	
+	private Stage primaryStage;
+	private BorderPane rootLayout;
+	
+	private Model model;
 
-		// start the program within the UI thread
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				final Window window = new Window();
-				window.setVisible(true);
-				window.setExtendedState(window.getExtendedState() | JFrame.MAXIMIZED_BOTH);
-			}
-		});
+	@Override
+	public void start(Stage primaryStage) throws Exception {
+		this.primaryStage = primaryStage;
+		
+		model = new Model();
+
+		initRootLayout();
+		
+		showDashboard();
+		
+		Scene scene = new Scene(rootLayout);
+		primaryStage.setScene(scene);
+		primaryStage.show();
 	}
+	
+	/**
+	 * Initialise Root Layout
+	 */
+    public void initRootLayout() {
+        try {
+            // Load root layout from fxml file.
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(Main.class.getResource("view/RootLayout.fxml"));
+            rootLayout = (BorderPane) loader.load();
+            
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public void showDashboard() {
+        try {
+            // Load person overview.
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(Main.class.getResource("view/DashboardOverview.fxml"));
+            AnchorPane dashboardOverview = (AnchorPane) loader.load();
+            
+            // Set person overview into the center of root layout.
+            rootLayout.setCenter(dashboardOverview);
+
+            DashboardOverviewController controller = loader.getController();
+            
+            controller.setStageAndModel(primaryStage, model);
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    
+	public static void main(String[] args) {
+		launch(args);
+	}
+
 }
