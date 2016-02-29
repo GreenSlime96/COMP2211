@@ -669,6 +669,10 @@ public class DataProcessor {
 			}
 		}
 		
+		for (User u : User.values()) {
+			System.out.println(u.title + "\t" + values[u.ordinal()]);
+		}
+		
 		return enumMap;
 	}
 }
