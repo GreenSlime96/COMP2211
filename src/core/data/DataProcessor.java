@@ -247,7 +247,7 @@ public class DataProcessor {
 	
 	public final void setDataPoints(int dataPoints) {
 		final long timeDifference = dataEndDate - dataStartDate;		
-		timeGranularityInSeconds = (int) (timeDifference / dataPoints);
+		timeGranularityInSeconds = (int) (timeDifference / (dataPoints + 1));
 	}
 	
 	public final void setTimeGranularityInSeconds(int timeGranularityInSeconds) {

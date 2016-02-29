@@ -31,7 +31,7 @@ public class DataFilter implements Predicate<Short> {
 	
 	
 	public boolean getField(User field) {
-		return (1 & field.mask) != 0;
+		return (flags & field.mask) == field.mask;
 	}
 	
 	public void setField(User field, boolean value) {

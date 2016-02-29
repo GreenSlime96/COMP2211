@@ -2,10 +2,12 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.AreaChart?>
-<?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -36,13 +38,36 @@
          <children>
             <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
                <children>
-                  <ChoiceBox fx:id="metricsBox" prefWidth="150.0" />
+                  <ChoiceBox fx:id="metricsBox" HBox.hgrow="ALWAYS" />
+                  <MenuButton mnemonicParsing="false" text="Filters">
+                    <items>
+                        <CheckMenuItem fx:id="filterMale" mnemonicParsing="false" onAction="#handleFilter" text="Male" />
+                        <CheckMenuItem fx:id="filterFemale" mnemonicParsing="false" onAction="#handleFilter" text="Female" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <CheckMenuItem fx:id="filterBelow25" mnemonicParsing="false" onAction="#handleFilter" text="&lt;25" />
+                        <CheckMenuItem fx:id="filter25to34" mnemonicParsing="false" onAction="#handleFilter" text="25-34" />
+                        <CheckMenuItem fx:id="filter35to44" mnemonicParsing="false" onAction="#handleFilter" text="35-44" />
+                        <CheckMenuItem fx:id="filter45to54" mnemonicParsing="false" onAction="#handleFilter" text="45-54" />
+                        <CheckMenuItem fx:id="filterAbove54" mnemonicParsing="false" onAction="#handleFilter" text="&gt;54" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <CheckMenuItem fx:id="filterLow" mnemonicParsing="false" onAction="#handleFilter" text="Low" />
+                        <CheckMenuItem fx:id="filterMedium" mnemonicParsing="false" onAction="#handleFilter" text="Medium" />
+                        <CheckMenuItem fx:id="filterHigh" mnemonicParsing="false" onAction="#handleFilter" text="High" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <CheckMenuItem fx:id="filterNews" mnemonicParsing="false" onAction="#handleFilter" text="News" />
+                        <CheckMenuItem fx:id="filterShopping" mnemonicParsing="false" onAction="#handleFilter" text="Shopping" />
+                        <CheckMenuItem fx:id="filterSocialMedia" mnemonicParsing="false" onAction="#handleFilter" text="Social Media" />
+                        <CheckMenuItem fx:id="filterBlog" mnemonicParsing="false" onAction="#handleFilter" text="Blog" />
+                        <CheckMenuItem fx:id="filterHobbies" mnemonicParsing="false" onAction="#handleFilter" text="Hobbies" />
+                        <CheckMenuItem fx:id="filterTravel" mnemonicParsing="false" onAction="#handleFilter" text="Travel" />
+                    </items>
+                  </MenuButton>
                </children></HBox>
             <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.columnIndex="1">
                <children>
                   <DatePicker fx:id="startDate" onAction="#handleStartDate" promptText="Start Date" />
                   <DatePicker fx:id="endDate" onAction="#handleEndDate" promptText="End Date" />
-                  <TextField fx:id="timeGranularity" />
+                  <TextField fx:id="timeGranularity" promptText="Data Points" />
                </children>
             </HBox>
          </children>

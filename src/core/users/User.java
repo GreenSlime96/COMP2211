@@ -15,6 +15,7 @@ public enum User {
 	INCOME_LOW("Low"),
 	INCOME_MEDIUM("Medium"),
 	INCOME_HIGH("High"),
+	
 	CONTEXT_NEWS("News"),
 	CONTEXT_SHOPPING("Shopping"),
 	CONTEXT_SOCIAL_MEDIA("Social Media"),
