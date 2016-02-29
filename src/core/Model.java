@@ -253,14 +253,14 @@ public class Model extends Observable {
 	 * @param dataStartDateTime the dataStartDateTime of the processor
 	 */
 	public synchronized final void setStartDateTime(LocalDateTime dataStartDateTime) {
-		currentProcessor.setDataStartDate(dataStartDateTime);
+		currentProcessor.setDataStartDateTime(dataStartDateTime);
 		
 		setChanged();
 		notifyObservers();
 	}
 
 	public synchronized final LocalDateTime getEndDateTime() {
-		return currentProcessor.getDataEndDate();
+		return currentProcessor.getDataEndDateTime();
 	}
 
 	/**
@@ -268,7 +268,7 @@ public class Model extends Observable {
 	 * @param dataEndDateTime
 	 */
 	public synchronized final void setEndDateTime(LocalDateTime dataEndDateTime) {
-		currentProcessor.setDataEndDate(dataEndDateTime);
+		currentProcessor.setDataEndDateTime(dataEndDateTime);
 		
 		setChanged();
 		notifyObservers();

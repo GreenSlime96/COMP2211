@@ -197,7 +197,7 @@ public class DataProcessor {
 		return DateProcessor.toLocalDateTime(dataStartDate);
 	}
 	
-	public final void setDataStartDate(LocalDateTime dateTime) {
+	public final void setDataStartDateTime(LocalDateTime dateTime) {
 		final long campaignStartDate = DateProcessor.toEpochSeconds(campaign.getStartDateTime());
 		final long campaignEndDate = DateProcessor.toEpochSeconds(campaign.getEndDateTime());
 		
@@ -217,11 +217,11 @@ public class DataProcessor {
 	}
 	
 	
-	public final LocalDateTime getDataEndDate() {
+	public final LocalDateTime getDataEndDateTime() {
 		return DateProcessor.toLocalDateTime(dataEndDate);
 	}
 	
-	public final void setDataEndDate(LocalDateTime dateTime) {
+	public final void setDataEndDateTime(LocalDateTime dateTime) {
 		final long campaignStartDate = DateProcessor.toEpochSeconds(campaign.getStartDateTime());
 		final long campaignEndDate = DateProcessor.toEpochSeconds(campaign.getEndDateTime());
 		
@@ -243,6 +243,11 @@ public class DataProcessor {
 	
 	public final int getTimeGranularityInSeconds() {
 		return timeGranularityInSeconds;
+	}
+	
+	public final void setDataPoints(int dataPoints) {
+		final long timeDifference = dataEndDate - dataStartDate;		
+		timeGranularityInSeconds = (int) (timeDifference / dataPoints);
 	}
 	
 	public final void setTimeGranularityInSeconds(int timeGranularityInSeconds) {
