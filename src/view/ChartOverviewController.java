@@ -71,6 +71,9 @@ public class ChartOverviewController {
 		
 		timeGranularity.textProperty().addListener(new ChangeListener<String>() {
 		    @Override public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+		    	if (newValue.isEmpty())
+		    		return;
+		    	
 		        if (newValue.matches("\\d*")) {
 		            int value = Integer.parseInt(newValue);		
 		            	
