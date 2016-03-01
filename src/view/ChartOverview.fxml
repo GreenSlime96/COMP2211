@@ -154,7 +154,7 @@
                 <NumberAxis side="LEFT" />
               </yAxis>
             </AreaChart>
-            <GridPane alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="800.0" VBox.vgrow="ALWAYS">
+            <GridPane alignment="CENTER" maxHeight="600.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="800.0" VBox.vgrow="SOMETIMES">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -165,10 +165,10 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <PieChart fx:id="genderChart" animated="false" labelLineLength="10.0" legendVisible="false" />
-                  <PieChart fx:id="ageChart" animated="false" labelLineLength="10.0" legendVisible="false" GridPane.columnIndex="1" />
-                  <PieChart fx:id="incomeChart" animated="false" labelLineLength="10.0" legendVisible="false" GridPane.columnIndex="2" />
-                  <PieChart fx:id="contextChart" animated="false" labelLineLength="10.0" legendVisible="false" GridPane.columnIndex="3" />
+                  <PieChart fx:id="genderChart" animated="false" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" />
+                  <PieChart fx:id="ageChart" animated="false" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" GridPane.columnIndex="1" />
+                  <PieChart fx:id="incomeChart" animated="false" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" GridPane.columnIndex="2" />
+                  <PieChart fx:id="contextChart" animated="false" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" GridPane.columnIndex="3" />
                </children>
             </GridPane>
          </children>
