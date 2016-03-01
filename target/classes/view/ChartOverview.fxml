@@ -23,18 +23,19 @@
 
 <BorderPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.ChartOverviewController">
    <top>
-      <GridPane BorderPane.alignment="CENTER">
+      <GridPane hgap="10.0" vgap="10.0" BorderPane.alignment="CENTER">
         <columnConstraints>
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
           <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
         </columnConstraints>
         <rowConstraints>
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+            <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="1">
                <children>
-                  <ChoiceBox fx:id="metricsBox" HBox.hgrow="ALWAYS" />
+                  <ChoiceBox fx:id="metricsBox" />
                   <MenuButton mnemonicParsing="false" text="Filters">
                     <items>
                         <CheckMenuItem fx:id="filterMale" mnemonicParsing="false" onAction="#handleFilter" text="Male" />
@@ -68,11 +69,17 @@
                     </items>
                   </MenuButton>
                </children></HBox>
-            <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.columnIndex="1">
+            <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                <children>
                   <DatePicker fx:id="startDate" onAction="#handleStartDate" promptText="Start Date" />
                   <DatePicker fx:id="endDate" onAction="#handleEndDate" promptText="End Date" />
                   <TextField fx:id="timeGranularity" promptText="Data Points" />
+               </children>
+            </HBox>
+            <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
+               <children>
+                  <Label text="Campaign:" />
+                  <ChoiceBox fx:id="campaignsBox" />
                </children>
             </HBox>
          </children>
@@ -154,7 +161,7 @@
                 <NumberAxis side="LEFT" />
               </yAxis>
             </AreaChart>
-            <GridPane alignment="CENTER" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="800.0" VBox.vgrow="ALWAYS">
+            <GridPane alignment="CENTER" maxHeight="600.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="800.0" VBox.vgrow="SOMETIMES">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
@@ -165,10 +172,10 @@
                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <PieChart fx:id="genderChart" animated="false" labelLineLength="10.0" legendVisible="false" />
-                  <PieChart fx:id="ageChart" animated="false" labelLineLength="10.0" legendVisible="false" GridPane.columnIndex="1" />
-                  <PieChart fx:id="incomeChart" animated="false" labelLineLength="10.0" legendVisible="false" GridPane.columnIndex="2" />
-                  <PieChart fx:id="contextChart" animated="false" labelLineLength="10.0" legendVisible="false" GridPane.columnIndex="3" />
+                  <PieChart fx:id="genderChart" animated="false" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" />
+                  <PieChart fx:id="ageChart" animated="false" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" GridPane.columnIndex="1" />
+                  <PieChart fx:id="incomeChart" animated="false" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" GridPane.columnIndex="2" />
+                  <PieChart fx:id="contextChart" animated="false" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" GridPane.columnIndex="3" />
                </children>
             </GridPane>
          </children>

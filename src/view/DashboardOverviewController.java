@@ -8,7 +8,10 @@ import core.Model;
 import core.campaigns.Campaign;
 import core.campaigns.InvalidCampaignException;
 import core.data.DataProcessor;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -17,9 +20,12 @@ import javafx.scene.control.Accordion;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
@@ -167,9 +173,47 @@ public class DashboardOverviewController {
 
 								ChartOverviewController controller = loader.getController();
 
-								controller.setDataProcessor(dataProcessor);
+								controller.setDataProcessor(dataProcessor, model.campaigns);
 
-								Tab tab = new Tab("Chart", campaignOverview);
+								TextField textField = new TextField("Chart");
+								Label label = new Label("Chart");
+								Tab tab = new Tab();
+								
+								textField.setMaxSize(label.getPrefWidth(), label.getPrefHeight());
+								
+								tab.setGraphic(label);
+								tab.setContent(campaignOverview);
+								
+								label.setOnMouseClicked(new EventHandler<MouseEvent>() {
+									@Override
+									public void handle(MouseEvent event) {
+										if (event.getClickCount() == 2) {
+											textField.setText(label.getText());
+											tab.setGraphic(textField);
+											textField.selectAll();
+											textField.requestFocus();
+										}
+									}
+								});
+								
+								textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
+									@Override
+									public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue,
+											Boolean newValue) {
+										if (!newValue) {
+											label.setText(textField.getText());
+											tab.setGraphic(label);
+										}
+									}
+								});
+								
+								textField.setOnAction(new EventHandler<ActionEvent>() {
+									@Override
+									public void handle(ActionEvent event) {
+										label.setText(textField.getText());
+										tab.setGraphic(label);
+									}
+								});
 
 								tab.setOnCloseRequest(new EventHandler<Event>() {
 									@Override

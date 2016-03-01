@@ -4,9 +4,11 @@ import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 
+import core.campaigns.Campaign;
 import core.data.DataProcessor;
 import core.data.Metric;
 import core.users.User;
@@ -26,11 +28,21 @@ import javafx.scene.control.TextField;
 
 public class ChartOverviewController {
 	
+	// ==== Constants ====
+	
+	private static final ObservableList<Metric> METRICS = FXCollections.observableArrayList(Arrays.asList(Metric.values()));
+	
+	
+	// ==== FXML Properties ====
+	
 	@FXML
 	private AreaChart<Number, Number> areaChart;
 	
 	@FXML
 	private ChoiceBox<Metric> metricsBox;
+	
+	@FXML
+	private ChoiceBox<Campaign> campaignsBox;
 	
 	@FXML
 	private DatePicker startDate;
@@ -138,8 +150,7 @@ public class ChartOverviewController {
 //	private ObservableList<PieChart.Data> ageData;
 //	private ObservableList<PieChart.Data> incomeData;
 //	private ObservableList<PieChart.Data> contextData;
-	
-	private DataProcessor dataProcessor;	
+	private DataProcessor dataProcessor;
 	
 	public ChartOverviewController() {
 //		genderData = FXCollections.observableArrayList();
@@ -148,22 +159,20 @@ public class ChartOverviewController {
 //		contextData = FXCollections.observableArrayList();
 	}
 	
-	public void setDataProcessor(DataProcessor dataProcessor) {
+	public void setDataProcessor(DataProcessor dataProcessor, ObservableList<Campaign> campaigns) {
 		this.dataProcessor = dataProcessor;		
-
+		campaignsBox.setItems(campaigns);
+		
 		refreshData();
 	}
 	
 	@FXML
-	private void initialize() {		
-		ObservableList<Metric> metricsList = FXCollections.observableArrayList();
+	private void initialize() {	
 		
-		for (Metric metric : Metric.values()) {
-			metricsList.add(metric);
-		}
+		// update Metrics box with current metrics
+		metricsBox.setItems(METRICS);
 		
-		metricsBox.setItems(metricsList);
-		
+		// listener to update DataProcessor metric
 		metricsBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Metric>() {
 			@Override
 			public void changed(ObservableValue<? extends Metric> observable, Metric oldValue, Metric newValue) {
@@ -172,37 +181,47 @@ public class ChartOverviewController {
 			}			
 		});
 		
+		campaignsBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Campaign>() {
+			@Override
+			public void changed(ObservableValue<? extends Campaign> observable, Campaign oldValue, Campaign newValue) {
+				dataProcessor.setCampaign(newValue);
+				refreshData();
+			}
+		});
+		
+		// locks to integers only
 		timeGranularity.textProperty().addListener(new ChangeListener<String>() {
 		    @Override public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-		    	if (newValue.isEmpty())
-		    		return;
-		    	
-		        if (newValue.matches("\\d*")) {
-		            int value = Integer.parseInt(newValue);		
-		            	
+		        if (!newValue.isEmpty() && newValue.matches("\\d*")) {
+		            int value = Integer.parseInt(newValue);
+		            
+		            if (value > 2000) {
+			           	timeGranularity.setText(oldValue);
+			           	return;
+		            }
+		            
 		            dataProcessor.setDataPoints(value);
 		            refreshData();
 		        } else {
 		           	timeGranularity.setText(oldValue);
 		        }
 		    }
-		});
-		
-//		genderChart.setData(genderData);
-//		ageChart.setData(ageData);
-//		incomeChart.setData(incomeData);
-//		contextChart.setData(contextData);
-		
+		});	
 	}
 	
 	private void refreshData() {
 		drawChart();
 		drawUsers();
 		
+		updateCampaigns();
 		updateStats();
 		updateDates();
 		updateFilter();
 		updateMetric();
+	}
+	
+	private void updateCampaigns() {
+		campaignsBox.getSelectionModel().select(dataProcessor.getCampaign());
 	}
 	
 	private void updateStats() {
