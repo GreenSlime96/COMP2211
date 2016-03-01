@@ -8,9 +8,11 @@ import core.Model;
 import core.campaigns.Campaign;
 import core.campaigns.InvalidCampaignException;
 import core.data.DataProcessor;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -21,6 +23,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
@@ -47,6 +50,9 @@ public class DashboardOverviewController {
 	@FXML
 	private Tab addChartTab;
 	
+	@FXML
+	private ProgressBar progress;
+	
 	private Stage mainStage;
 	private Model model;
 	
@@ -58,6 +64,15 @@ public class DashboardOverviewController {
 	
 	@FXML
 	private void initialize() {
+		progress.managedProperty().bind(progress.visibleProperty());
+		
+		addCampaignButton.managedProperty().bind(progress.visibleProperty().not());
+		addCampaignButton.visibleProperty().bind(progress.visibleProperty().not());
+		
+		removeCampaignButton.managedProperty().bind(progress.visibleProperty().not());
+		removeCampaignButton.visibleProperty().bind(progress.visibleProperty().not());
+		
+		progress.setVisible(false);
 	}
 	
 	@FXML
@@ -66,18 +81,58 @@ public class DashboardOverviewController {
 		File campaignDirectory = dc.showDialog(mainStage);
 		
 		if (campaignDirectory != null) {
-			try {
-				model.addCampaign(campaignDirectory);
-			} catch (InvalidCampaignException e) {
-				final Alert alert = new Alert(AlertType.ERROR);
+			final Campaign campaign = new Campaign(campaignDirectory);
+			
+			if (model.campaigns.contains(campaign)) {
+				final Alert alert = new Alert(AlertType.WARNING);
 				
 				alert.initOwner(mainStage);
-				alert.setTitle("Invalid Campaign");
-				alert.setHeaderText("Error Loading Campaign");
-				alert.setContentText(e.getMessage());
+				alert.setTitle("Campaign Already Loaded");
+				alert.setHeaderText("Campaign Already Loaded");
+				alert.setContentText("Your selected Campaign has already been loaded. Please check the sidebar");
 				
-				alert.showAndWait();				
+				alert.showAndWait();	
 			}
+			
+			campaign.progress.addListener(new ChangeListener<Number>() {
+				@Override
+				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+					progress.setProgress(newValue.doubleValue());
+				}					
+			});
+			
+
+			
+			Task<Void> task = new Task<Void>() {
+				@Override
+				protected Void call() {
+					try {
+						progress.setVisible(true);						
+						campaign.loadData();
+						Platform.runLater(new Runnable() {
+							@Override
+							public void run() {
+								model.campaigns.add(campaign);
+							}							
+						});
+					} catch (InvalidCampaignException e) {
+						final Alert alert = new Alert(AlertType.ERROR);
+						
+						alert.initOwner(mainStage);
+						alert.setTitle("Invalid Campaign");
+						alert.setHeaderText("Error Loading Campaign");
+						alert.setContentText(e.getMessage());
+						
+						alert.showAndWait();	
+					} finally {
+						progress.setVisible(false);
+					}
+					
+					return null;
+				}					
+			};
+
+			new Thread(task).start();
 		}
 	}
 	
@@ -120,7 +175,6 @@ public class DashboardOverviewController {
 			return;
 		
 		final Campaign campaign = model.getCampaign(index);
-		System.out.println("adding chart");
 		model.addChart(campaign);
 	}
 	
@@ -179,7 +233,7 @@ public class DashboardOverviewController {
 								Label label = new Label("Chart");
 								Tab tab = new Tab();
 								
-								textField.setMaxSize(label.getPrefWidth(), label.getPrefHeight());
+//								textField.setMaxSize(label.getPrefWidth(), label.getPrefHeight());
 								
 								tab.setGraphic(label);
 								tab.setContent(campaignOverview);
@@ -198,10 +252,11 @@ public class DashboardOverviewController {
 								
 								textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
 									@Override
-									public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue,
-											Boolean newValue) {
+									public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
 										if (!newValue) {
-											label.setText(textField.getText());
+											if (!textField.getText().isEmpty())
+												label.setText(textField.getText());
+											
 											tab.setGraphic(label);
 										}
 									}
@@ -210,7 +265,9 @@ public class DashboardOverviewController {
 								textField.setOnAction(new EventHandler<ActionEvent>() {
 									@Override
 									public void handle(ActionEvent event) {
-										label.setText(textField.getText());
+										if (!textField.getText().isEmpty())
+											label.setText(textField.getText());
+										
 										tab.setGraphic(label);
 									}
 								});

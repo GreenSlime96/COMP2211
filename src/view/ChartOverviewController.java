@@ -181,6 +181,7 @@ public class ChartOverviewController {
 			}			
 		});
 		
+		// campaign change listener
 		campaignsBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Campaign>() {
 			@Override
 			public void changed(ObservableValue<? extends Campaign> observable, Campaign oldValue, Campaign newValue) {

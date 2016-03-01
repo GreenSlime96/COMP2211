@@ -14,9 +14,15 @@ import core.tables.LogTable;
 import core.users.InvalidUserException;
 import core.users.User;
 import gnu.trove.map.hash.TLongShortHashMap;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import util.DateProcessor;
 
 public class Campaign {
+	
+	// ==== JavaFX MVC Stuff ====
+	
+	public final DoubleProperty progress = new SimpleDoubleProperty(0);
 
 	// ==== Constants ====
 
@@ -166,7 +172,7 @@ public class Campaign {
 	
 	// TODO: bounces
 	public final int getNumberOfBounces() {
-		return -1;
+		return numberOfBounces;
 	}
 
 	public final int getNumberOfConversions() {
@@ -174,7 +180,7 @@ public class Campaign {
 	}
 	
 	public final double getTotalCostOfCampaign() {
-		return getCostOfImpressions() + getCostOfClicks();
+		return costOfImpressions + costOfClicks;
 	}
 	
 	public final double getClickThroughRate() {
@@ -194,7 +200,7 @@ public class Campaign {
 	}
 	
 	public final double getBounceRate() {
-		return getNumberOfBounces() / getNumberOfClicks();
+		return (double) getNumberOfBounces() / getNumberOfClicks();
 	}
 	
 	// ==== Miscellaneous Metrics ====
@@ -429,7 +435,12 @@ public class Campaign {
 			if (mbb.get() != '\n')
 				throw new InvalidUserException("invalid entry: " + impressionsTable.size());
 			
+			// add to my table
 			impressionsTable.add(dateTime, userID, userData, cost);
+			
+			// set and notify?
+			if (mbb.position() % 10000 == 0)
+				progress.set((double) mbb.position() / mbb.capacity()); 
 			
 			// misc increment
 			costOfImpressions += cost;

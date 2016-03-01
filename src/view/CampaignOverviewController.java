@@ -3,9 +3,15 @@ package view;
 import java.text.NumberFormat;
 
 import core.campaigns.Campaign;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.MouseEvent;
 
 public class CampaignOverviewController {
 	
@@ -56,7 +62,73 @@ public class CampaignOverviewController {
 	
 	@FXML
 	private void initialize() {
-		
+		titledPane.getContent().setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent event) {
+				if (event.getClickCount() == 2) {
+					StringBuilder clipboardString = new StringBuilder();
+					
+					clipboardString.append("Number of Impressions:\t");
+					clipboardString.append(numberOfImpressions.getText());
+					clipboardString.append(System.lineSeparator());
+					
+					clipboardString.append("Number of Clicks:\t");
+					clipboardString.append(numberOfClicks.getText());
+					clipboardString.append(System.lineSeparator());
+					
+					clipboardString.append("Number of Uniques:\t");
+					clipboardString.append(numberOfUniques.getText());
+					clipboardString.append(System.lineSeparator());
+					
+					clipboardString.append("Number of Bounces:\t");
+					clipboardString.append(numberOfBounces.getText());
+					clipboardString.append(System.lineSeparator());
+					
+					clipboardString.append("Number of Conversions:\t");
+					clipboardString.append(numberOfConversions.getText());
+					clipboardString.append(System.lineSeparator());
+					
+					clipboardString.append("Total Cost of Campaign:\t");
+					clipboardString.append(totalCost.getText());
+					clipboardString.append(System.lineSeparator());
+					
+					clipboardString.append("Click Through Rate:\t");
+					clipboardString.append(clickThroughRate.getText());
+					clipboardString.append(System.lineSeparator());
+					
+					clipboardString.append("Cost Per Acquisition:\t");
+					clipboardString.append(costPerAcquisition.getText());
+					clipboardString.append(System.lineSeparator());
+					
+					clipboardString.append("Cost Per Click:\t");
+					clipboardString.append(costPerClick.getText());
+					clipboardString.append(System.lineSeparator());
+					
+					clipboardString.append("Cost Per Thousand Impressions:\t");
+					clipboardString.append(costPerThousandImpressions.getText());
+					clipboardString.append(System.lineSeparator());
+					
+					clipboardString.append("Bounce Rate:\t");
+					clipboardString.append(bounceRate.getText());
+					clipboardString.append(System.lineSeparator());
+					
+					// copy to clipboard
+			        final ClipboardContent content = new ClipboardContent();
+			        content.putString(clipboardString.toString());
+			        Clipboard.getSystemClipboard().setContent(content);
+			        
+			        // alert the user
+			        Alert alert = new Alert(AlertType.INFORMATION);
+			        alert.setTitle("Campaign Successfully Copied");
+			        alert.setHeaderText(null);
+			        alert.setContentText("Copied to Clipboard!");
+
+			        // wait for acknowledgement
+			        alert.showAndWait();
+				}				
+			}
+			
+		});
 	}
 	
 	
