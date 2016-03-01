@@ -20,6 +20,10 @@ public class Main extends Application {
 	public void start(Stage primaryStage) throws Exception {
 		this.primaryStage = primaryStage;
 		
+		// 720p
+		primaryStage.setMinWidth(1280);
+		primaryStage.setMinHeight(750);
+				
 		model = new Model();
 
 		initRootLayout();

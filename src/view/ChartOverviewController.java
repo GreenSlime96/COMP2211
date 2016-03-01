@@ -1,8 +1,10 @@
 package view;
 
+import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.EnumMap;
 import java.util.List;
 
 import core.data.DataProcessor;
@@ -15,10 +17,12 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.LineChart;
+import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 
 public class ChartOverviewController {
@@ -88,10 +92,62 @@ public class ChartOverviewController {
 	@FXML
 	private CheckMenuItem filterTravel;
 
-	// ==== End Filter ====
+	// ==== End Filter Stuff ====
 	
-	private DataProcessor dataProcessor;
+	// ==== Begin User Stuff ====
 	
+	@FXML
+	private PieChart genderChart;
+	
+	@FXML
+	private PieChart ageChart;
+	
+	@FXML
+	private PieChart incomeChart;
+	
+	@FXML
+	private PieChart contextChart;
+	
+	// ==== End User Stuff ====
+	
+	// ==== Begin Bar Goodies ====
+	
+	@FXML
+	private Label impressionsLabel;
+	
+	@FXML
+	private Label clicksLabel;
+	
+	@FXML
+	private Label uniquesLabel;
+	
+	@FXML
+	private Label costLabel;
+	
+	@FXML
+	private Label cpaLabel;
+	
+	@FXML
+	private Label ctrLabel;
+	
+	@FXML
+	private Label bounceRateLabel;
+	
+	// ==== End Bar Goodies
+	
+//	private ObservableList<PieChart.Data> genderData;
+//	private ObservableList<PieChart.Data> ageData;
+//	private ObservableList<PieChart.Data> incomeData;
+//	private ObservableList<PieChart.Data> contextData;
+	
+	private DataProcessor dataProcessor;	
+	
+	public ChartOverviewController() {
+//		genderData = FXCollections.observableArrayList();
+//		ageData = FXCollections.observableArrayList();
+//		incomeData = FXCollections.observableArrayList();
+//		contextData = FXCollections.observableArrayList();
+	}
 	
 	public void setDataProcessor(DataProcessor dataProcessor) {
 		this.dataProcessor = dataProcessor;		
@@ -100,7 +156,7 @@ public class ChartOverviewController {
 	}
 	
 	@FXML
-	private void initialize() {
+	private void initialize() {		
 		ObservableList<Metric> metricsList = FXCollections.observableArrayList();
 		
 		for (Metric metric : Metric.values()) {
@@ -113,7 +169,7 @@ public class ChartOverviewController {
 			@Override
 			public void changed(ObservableValue<? extends Metric> observable, Metric oldValue, Metric newValue) {
 				dataProcessor.setMetric(newValue);		
-				drawChart();
+				refreshData();
 			}			
 		});
 		
@@ -126,21 +182,87 @@ public class ChartOverviewController {
 		            int value = Integer.parseInt(newValue);		
 		            	
 		            dataProcessor.setDataPoints(value);
-		            drawChart();
+		            refreshData();
 		        } else {
 		           	timeGranularity.setText(oldValue);
 		        }
 		    }
 		});
+		
+//		genderChart.setData(genderData);
+//		ageChart.setData(ageData);
+//		incomeChart.setData(incomeData);
+//		contextChart.setData(contextData);
+		
 	}
 	
 	private void refreshData() {
+		drawChart();
+		drawUsers();
+		
+		updateStats();
 		updateDates();
 		updateFilter();
 		updateMetric();
-		
-		drawChart();
 	}
+	
+	private void updateStats() {
+		final NumberFormat numberFormatter = NumberFormat.getInstance();
+		final NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();
+		final NumberFormat percentFormatter = NumberFormat.getPercentInstance();
+		
+		final String impressions = numberFormatter.format(dataProcessor.numberOfImpressions);
+		final String clicks = numberFormatter.format(dataProcessor.numberOfClicks);
+		final String uniques = numberFormatter.format(dataProcessor.numberOfUniques);
+		final String cost = currencyFormatter.format((dataProcessor.costOfImpressions + dataProcessor.costOfClicks) / 100);
+		final String cpa = currencyFormatter.format((dataProcessor.costOfImpressions + dataProcessor.costOfClicks) / 100 / dataProcessor.numberOfAcquisitions);
+		final String ctr = numberFormatter.format(dataProcessor.numberOfClicks / (double) dataProcessor.numberOfImpressions);
+		final String bounceRate = percentFormatter.format((double) dataProcessor.numberOfBounces / dataProcessor.numberOfClicks);
+		
+		impressionsLabel.setText(impressions);
+		clicksLabel.setText(clicks);
+		uniquesLabel.setText(uniques);
+		costLabel.setText(cost);
+		cpaLabel.setText(cpa);
+		ctrLabel.setText(ctr);
+		bounceRateLabel.setText(bounceRate);
+	}
+	
+	private void drawUsers() {
+		final EnumMap<User, Integer> users = dataProcessor.getContextData();
+		
+		if (users == null)
+			System.exit(0);
+		
+		final ObservableList<PieChart.Data> genderData = genderChart.getData();
+		final ObservableList<PieChart.Data> ageData = ageChart.getData();
+		final ObservableList<PieChart.Data> incomeData = incomeChart.getData();
+		final ObservableList<PieChart.Data> contextData = contextChart.getData();
+				
+		genderData.clear();
+		genderData.add(new PieChart.Data(User.GENDER_MALE.toString(), users.get(User.GENDER_MALE)));
+		genderData.add(new PieChart.Data(User.GENDER_FEMALE.toString(), users.get(User.GENDER_FEMALE)));
+		
+		ageData.clear();
+		ageData.add(new PieChart.Data(User.AGE_BELOW_25.toString(), users.get(User.AGE_BELOW_25)));
+		ageData.add(new PieChart.Data(User.AGE_25_TO_34.toString(), users.get(User.AGE_25_TO_34)));
+		ageData.add(new PieChart.Data(User.AGE_35_TO_44.toString(), users.get(User.AGE_35_TO_44)));
+		ageData.add(new PieChart.Data(User.AGE_45_TO_54.toString(), users.get(User.AGE_45_TO_54)));
+		ageData.add(new PieChart.Data(User.AGE_ABOVE_54.toString(), users.get(User.AGE_ABOVE_54)));
+		
+		incomeData.clear();
+		incomeData.add(new PieChart.Data(User.INCOME_LOW.toString(), users.get(User.INCOME_LOW)));
+		incomeData.add(new PieChart.Data(User.INCOME_MEDIUM.toString(), users.get(User.INCOME_MEDIUM)));
+		incomeData.add(new PieChart.Data(User.INCOME_HIGH.toString(), users.get(User.INCOME_HIGH)));
+		
+		contextData.clear();
+		contextData.add(new PieChart.Data(User.CONTEXT_NEWS.toString(), users.get(User.CONTEXT_NEWS)));
+		contextData.add(new PieChart.Data(User.CONTEXT_SHOPPING.toString(), users.get(User.CONTEXT_SHOPPING)));
+		contextData.add(new PieChart.Data(User.CONTEXT_SOCIAL_MEDIA.toString(), users.get(User.CONTEXT_SOCIAL_MEDIA)));
+		contextData.add(new PieChart.Data(User.CONTEXT_BLOG.toString(), users.get(User.CONTEXT_BLOG)));
+		contextData.add(new PieChart.Data(User.CONTEXT_HOBBIES.toString(), users.get(User.CONTEXT_HOBBIES)));
+		contextData.add(new PieChart.Data(User.CONTEXT_TRAVEL.toString(), users.get(User.CONTEXT_TRAVEL)));
+		}
 	
 	private void updateDates() {
 		startDate.setValue(dataProcessor.getDataStartDateTime().toLocalDate());
@@ -195,7 +317,7 @@ public class ChartOverviewController {
 		dataProcessor.setFilterValue(User.CONTEXT_HOBBIES, filterHobbies.isSelected());
 		dataProcessor.setFilterValue(User.CONTEXT_TRAVEL, filterTravel.isSelected());
 		
-		drawChart();
+		refreshData();
 	}
 	
 	@FXML
@@ -205,7 +327,7 @@ public class ChartOverviewController {
 		
 		dataProcessor.setDataStartDateTime(LocalDateTime.of(date, time));
 		
-		drawChart();
+		refreshData();
 	}
 	
 	@FXML
@@ -215,7 +337,7 @@ public class ChartOverviewController {
 		
 		dataProcessor.setDataStartDateTime(LocalDateTime.of(date, time));
 		
-		drawChart();
+		refreshData();
 	}
 	
 	@FXML
@@ -225,9 +347,7 @@ public class ChartOverviewController {
 	
 	private void drawChart() {
 		areaChart.getData().clear();
-		
-		areaChart.setTitle(dataProcessor.getMetric().toString());
-		
+				
 		XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();
 		
 		List<? extends Number> list = dataProcessor.getData();

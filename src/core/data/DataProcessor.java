@@ -46,6 +46,15 @@ public class DataProcessor {
 	private int bounceMinimumPagesViewed;
 	private int bounceMinimumSecondsOnPage;
 	
+	public int numberOfImpressions;
+	public int numberOfClicks;
+	public int numberOfUniques;
+	public int numberOfAcquisitions;
+	public int numberOfBounces;
+	
+	public double costOfImpressions;
+	public double costOfClicks;
+	
 //	// TODO: misc stats (useful for checks)
 //	private int dataReturnSize;
 	
@@ -187,6 +196,75 @@ public class DataProcessor {
 			System.out.println("Data Size:\t" + returnList.size());
 			System.out.println("Time Taken:\t" + (System.currentTimeMillis() - time));
 			System.out.println("--------------------------------------");
+		}
+		
+		costOfImpressions = 0;
+		numberOfImpressions = 0;		
+		for (int i = 0; i < campaign.getImpressions().size(); i++) {
+			final int dateTime = campaign.getImpressions().getDateTime(i);
+			
+			if (dateTime < dataStartDate)
+				continue;
+			
+			if (dateTime > dataEndDate)
+				break;
+			
+			if (dataFilter.test(campaign.getImpressions().getUserData(i))) {
+				costOfImpressions += campaign.getImpressions().getCost(i);
+				numberOfImpressions++;
+			}
+		}
+		
+		TLongSet usersSet = new TLongHashSet();
+		numberOfClicks = 0;
+		costOfClicks = 0;
+		for (int i = 0; i < campaign.getClicks().size(); i++) {
+			final int dateTime = campaign.getClicks().getDateTime(i);
+			
+			if (dateTime < dataStartDate)
+				continue;
+			
+			if (dateTime > dataEndDate)
+				break;
+			
+			if (dataFilter.test(campaign.getClicks().getUserData(i))) {
+				usersSet.add(campaign.getClicks().getUserID(i));
+				costOfClicks += campaign.getClicks().getCost(i);
+				numberOfClicks++;
+			}
+		}
+		numberOfUniques = usersSet.size();
+
+		numberOfAcquisitions = 0;
+		numberOfBounces = 0;
+		for (int i = 0; i < campaign.getServers().size(); i++) {
+			final int dateTime = campaign.getClicks().getDateTime(i);
+			
+			if (dateTime < dataStartDate)
+				continue;
+			
+			if (dateTime > dataEndDate)
+				break;
+			
+			if (dataFilter.test(campaign.getServers().getUserData(i))) {
+				if (campaign.getServers().getConversion(i)) {
+					numberOfAcquisitions++;
+					continue;
+				}
+				
+				if (campaign.getServers().getPagesViewed(i) > bounceMinimumPagesViewed)
+					continue;
+				
+				final long exitDateTime = campaign.getServers().getExitDateTime(i);
+				
+				if (exitDateTime == DateProcessor.DATE_NULL)
+					continue;
+				
+				if (exitDateTime - dateTime > bounceMinimumSecondsOnPage)
+					continue;
+				
+				numberOfBounces++;
+			}
 		}
 		
 		return returnList;
@@ -675,7 +753,7 @@ public class DataProcessor {
 		}
 		
 		for (User u : User.values()) {
-			System.out.println(u.title + "\t" + values[u.ordinal()]);
+			enumMap.put(u, values[u.ordinal()]);
 		}
 		
 		return enumMap;

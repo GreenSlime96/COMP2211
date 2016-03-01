@@ -1,5 +1,7 @@
 package view;
 
+import java.text.NumberFormat;
+
 import core.campaigns.Campaign;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
@@ -63,16 +65,32 @@ public class CampaignOverviewController {
 	public void setCampaign(Campaign campaign) {
 		titledPane.setText(campaign.toString());
 		
-		numberOfImpressions.setText(Integer.toString(campaign.getNumberOfImpressions()));
-		numberOfClicks.setText(Integer.toString(campaign.getNumberOfClicks()));
-		numberOfUniques.setText(Integer.toString(campaign.getNumberOfUniques()));
-		numberOfBounces.setText(Integer.toString(campaign.getNumberOfBounces()));
-		numberOfConversions.setText(Integer.toString(campaign.getNumberOfConversions()));
-		totalCost.setText("£" + Double.toString(campaign.getTotalCostOfCampaign() / 100).substring(0, Double.toString(campaign.getTotalCostOfCampaign() / 100).indexOf('.') + 3));
-		clickThroughRate.setText(Double.toString(campaign.getClickThroughRate()).substring(0, Double.toString(campaign.getClickThroughRate()).indexOf('.') + 3));
-		costPerAcquisition.setText("£" + Double.toString(campaign.getCostPerAcquision()).substring(0, Double.toString(campaign.getCostPerAcquision()).indexOf('.') + 3));
-		costPerClick.setText("£" + Double.toString(campaign.getCostPerClick()).substring(0, Double.toString(campaign.getCostPerClick()).indexOf('.') + 3 ));
-		costPerThousandImpressions.setText("£" + Double.toString(campaign.getCostPerThousandImpressions()).substring(0,  Double.toString(campaign.getCostPerThousandImpressions()).indexOf('.') + 3));
-		bounceRate.setText(Double.toString(campaign.getBounceRate()));
+		final NumberFormat numberFormatter = NumberFormat.getInstance();
+		final NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();
+		final NumberFormat percentFormatter = NumberFormat.getPercentInstance();
+		
+		final String impressions = numberFormatter.format(campaign.getNumberOfImpressions());
+		final String clicks = numberFormatter.format(campaign.getNumberOfClicks());
+		final String uniques = numberFormatter.format(campaign.getNumberOfUniques());
+		final String bounces = numberFormatter.format(campaign.getNumberOfBounces());
+		final String conversions = numberFormatter.format(campaign.getNumberOfConversions());
+		final String cost = currencyFormatter.format(campaign.getTotalCostOfCampaign() / 100);
+		final String cpa = currencyFormatter.format(campaign.getTotalCostOfCampaign() / 100 / campaign.getNumberOfConversions());
+		final String ctr = numberFormatter.format(campaign.getClickThroughRate());
+		final String cpc = currencyFormatter.format(campaign.getCostPerClick() / 100);
+		final String cpm = currencyFormatter.format(campaign.getTotalCostOfCampaign() * 10 / campaign.getNumberOfImpressions());
+		final String br = percentFormatter.format(campaign.getBounceRate());
+		
+		numberOfImpressions.setText(impressions);
+		numberOfClicks.setText(clicks);
+		numberOfUniques.setText(uniques);
+		numberOfBounces.setText(bounces);
+		numberOfConversions.setText(conversions);
+		totalCost.setText(cost);
+		clickThroughRate.setText(ctr);
+		costPerAcquisition.setText(cpa);
+		costPerClick.setText(cpc);
+		costPerThousandImpressions.setText(cpm);
+		bounceRate.setText(br);
 	}
 }

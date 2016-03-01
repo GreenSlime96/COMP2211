@@ -3,9 +3,13 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.AreaChart?>
 <?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.PieChart?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.CheckMenuItem?>
 <?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.CustomMenuItem?>
 <?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.TextField?>
@@ -14,18 +18,10 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
 <BorderPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.ChartOverviewController">
-   <center>
-      <AreaChart fx:id="areaChart" animated="false" legendVisible="false" BorderPane.alignment="CENTER">
-        <xAxis>
-          <NumberAxis side="BOTTOM" />
-        </xAxis>
-        <yAxis>
-          <NumberAxis side="LEFT" />
-        </yAxis>
-      </AreaChart>
-   </center>
    <top>
       <GridPane BorderPane.alignment="CENTER">
         <columnConstraints>
@@ -62,6 +58,15 @@
                         <CheckMenuItem fx:id="filterTravel" mnemonicParsing="false" onAction="#handleFilter" text="Travel" />
                     </items>
                   </MenuButton>
+                  <MenuButton mnemonicParsing="false" text="Bounce">
+                    <items>
+                        <CustomMenuItem mnemonicParsing="false" text="Unspecified Action">
+                          <content>
+                            <CheckBox text="Click Me" />
+                          </content>
+                        </CustomMenuItem>
+                    </items>
+                  </MenuButton>
                </children></HBox>
             <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.columnIndex="1">
                <children>
@@ -76,4 +81,97 @@
          </padding>
       </GridPane>
    </top>
+   <center>
+      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+         <children>
+            <GridPane alignment="CENTER" hgap="10.0" VBox.vgrow="NEVER">
+              <columnConstraints>
+                <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="20.0" prefHeight="30.0" valignment="BOTTOM" />
+                <RowConstraints minHeight="20.0" prefHeight="30.0" valignment="TOP" />
+              </rowConstraints>
+               <children>
+                  <Label text="IMPRESSIONS" GridPane.rowIndex="1" />
+                  <Label text="CLICKS" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <Label text="UNIQUES" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                  <Label text="TOTAL COST" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                  <Label text="CPA" GridPane.columnIndex="4" GridPane.rowIndex="1" />
+                  <Label fx:id="impressionsLabel" text="8,828,249">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="clicksLabel" text="17,750" GridPane.columnIndex="1">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="uniquesLabel" text="17,738" GridPane.columnIndex="2">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="costLabel" text="£1130.28" GridPane.columnIndex="3">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label fx:id="cpaLabel" text="£116.08" GridPane.columnIndex="4">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label text="BOUNCE RATE" GridPane.columnIndex="6" GridPane.rowIndex="1" />
+                  <Label fx:id="bounceRateLabel" text="£116.08" GridPane.columnIndex="6">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+                  <Label text="CTR" GridPane.columnIndex="5" GridPane.rowIndex="1" />
+                  <Label fx:id="ctrLabel" text="£116.08" GridPane.columnIndex="5">
+                     <font>
+                        <Font name="System Bold" size="18.0" />
+                     </font>
+                  </Label>
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </GridPane>
+            <AreaChart fx:id="areaChart" animated="false" legendVisible="false" VBox.vgrow="ALWAYS">
+              <xAxis>
+                <NumberAxis side="BOTTOM" />
+              </xAxis>
+              <yAxis>
+                <NumberAxis side="LEFT" />
+              </yAxis>
+            </AreaChart>
+            <GridPane alignment="CENTER" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="800.0" VBox.vgrow="ALWAYS">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <PieChart fx:id="genderChart" animated="false" labelLineLength="10.0" legendVisible="false" />
+                  <PieChart fx:id="ageChart" animated="false" labelLineLength="10.0" legendVisible="false" GridPane.columnIndex="1" />
+                  <PieChart fx:id="incomeChart" animated="false" labelLineLength="10.0" legendVisible="false" GridPane.columnIndex="2" />
+                  <PieChart fx:id="contextChart" animated="false" labelLineLength="10.0" legendVisible="false" GridPane.columnIndex="3" />
+               </children>
+            </GridPane>
+         </children>
+      </VBox>
+   </center>
 </BorderPane>
