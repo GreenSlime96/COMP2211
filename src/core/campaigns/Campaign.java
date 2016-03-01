@@ -354,6 +354,8 @@ public class Campaign {
 		// skip the header -- precomputed
 		mbb.position(50);
 		
+		int overflowCounter = 0;
+		
 		while (mbb.hasRemaining()) {
 			byte temp;
 
@@ -439,11 +441,14 @@ public class Campaign {
 			impressionsTable.add(dateTime, userID, userData, cost);
 			
 			// set and notify?
-			if (mbb.position() % 10000 == 0)
-				progress.set((double) mbb.position() / mbb.capacity()); 
+			if (overflowCounter == 10000) {
+				progress.set((double) mbb.position() / mbb.capacity());
+				overflowCounter = 0;
+			}				
 			
 			// misc increment
 			costOfImpressions += cost;
+			overflowCounter++;
 		}
 
 		System.out.println("processing:\t" + (System.currentTimeMillis() - time) + "ms");
