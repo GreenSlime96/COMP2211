@@ -47,6 +47,20 @@
                                     <Font name="System Bold" size="14.0" />
                                  </font></Label>
                            </graphic>
+                           <content>
+                              <AnchorPane prefHeight="200.0" prefWidth="200.0">
+                                 <children>
+                                    <Label layoutY="660.0" text="← Load a Campaign" textFill="#00000066" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0">
+                                       <font>
+                                          <Font name="System Bold" size="18.0" />
+                                       </font>
+                                       <padding>
+                                          <Insets bottom="15.0" left="15.0" right="15.0" top="15.0" />
+                                       </padding>
+                                    </Label>
+                                 </children>
+                              </AnchorPane>
+                           </content>
                         </Tab>
                      </tabs></TabPane>
                </children>
