@@ -154,7 +154,7 @@
                 <NumberAxis side="LEFT" />
               </yAxis>
             </AreaChart>
-            <GridPane alignment="CENTER" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="800.0" VBox.vgrow="ALWAYS">
+            <GridPane alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="800.0" VBox.vgrow="ALWAYS">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
                 <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />

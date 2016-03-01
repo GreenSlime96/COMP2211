@@ -2,7 +2,6 @@ package core;
 
 import java.io.File;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Observable;
@@ -176,17 +175,17 @@ public class Model extends Observable {
 	 * TODO: throw exception, need to notify user
 	 * 
 	 * @param campaign
+	 * @throws Exception 
 	 */
-	public synchronized final void removeCampaign(int index) {
+	public synchronized final void removeCampaign(int index) throws Exception {
 		removeCampaign(campaigns.get(index));
 	}
 	
-	public synchronized final void removeCampaign(Campaign campaign) {
+	public synchronized final void removeCampaign(Campaign campaign) throws Exception {
 		// iterate over DataProcessors to make sure there are no dependencies
 		for (DataProcessor dataProcessor : dataProcessors) {
 			if (dataProcessor.getCampaign().equals(campaign)) {
-				System.out.println("DEBUG: campaign in use, skipping");
-				return;
+				throw new Exception("Campaign in use");
 			}
 		}
 

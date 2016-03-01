@@ -9,8 +9,6 @@ import core.campaigns.Campaign;
 import core.campaigns.InvalidCampaignException;
 import core.data.DataProcessor;
 import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -19,11 +17,9 @@ import javafx.scene.control.Accordion;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TitledPane;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
@@ -81,7 +77,33 @@ public class DashboardOverviewController {
 	
 	@FXML
 	private void handleRemoveCampaign() {
-		System.out.println("clicked remove");
+		int index = campaignAccordion.getPanes().indexOf(campaignAccordion.getExpandedPane());
+		
+		if (index == -1) {
+			final Alert alert = new Alert(AlertType.ERROR);
+			
+			alert.initOwner(mainStage);
+			alert.setTitle("No Campaign Selected");
+			alert.setHeaderText("No Campaign Selected");
+			alert.setContentText("You must select a campaign in order to remove it.");
+			
+			alert.showAndWait();
+			
+			return;
+		}
+			
+		try {
+			model.removeCampaign(index);
+		} catch (Exception e) {
+			final Alert alert = new Alert(AlertType.WARNING);
+			
+			alert.initOwner(mainStage);
+			alert.setTitle("Campaign in Use");
+			alert.setHeaderText("Campaign in Use");
+			alert.setContentText("The selected campaign cannot be removed as it is currently in use. Close charts and try again");
+			
+			alert.showAndWait();
+		}
 	}
 	
 	@FXML
