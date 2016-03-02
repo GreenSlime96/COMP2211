@@ -9,6 +9,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.time.LocalDateTime;
 
+import core.tables.ClicksTable;
 import core.tables.CostTable;
 import core.tables.LogTable;
 import core.users.InvalidUserException;
@@ -39,7 +40,7 @@ public class Campaign {
 	private LocalDateTime campaignEndDate;
 
 	private CostTable impressionsTable;
-	private CostTable clicksTable;
+	private ClicksTable clicksTable;
 	private LogTable serversTable;
 
 	private int numberOfConversions;
@@ -95,7 +96,7 @@ public class Campaign {
 			System.out.println("click_log:\t" + (end - time) + "ms");
 			
 			time = System.currentTimeMillis();
-			updateServers(usersMap);
+//			updateServers(usersMap);
 			end = System.currentTimeMillis();
 			
 			System.out.println("server_log:\t" + (end - time) + "ms");
@@ -121,7 +122,17 @@ public class Campaign {
 			System.out.println("Conversions:\t" + numberOfConversions);
 			System.out.println("Bounces:\t" + numberOfBounces);
 			System.out.println("Page Views:\t" + numberOfPagesViewed);
-			System.out.println("--------------------------------------");		
+			System.out.println("--------------------------------------");
+			
+			int maxDiff = 0;
+			for (int i = 0; i < serversTable.size(); i++) {
+				if (serversTable.getExitDateTime(i) == DateProcessor.DATE_NULL)
+					continue;
+				
+				maxDiff = Math.max(maxDiff, serversTable.getExitDateTime(i) - serversTable.getDateTime(i));
+			}
+			
+			System.out.println(maxDiff);
 		} catch (InvalidUserException e) {
 			throw new InvalidCampaignException("Invalid User Data in impression_log.csv");
 		} catch (IOException e) {
@@ -137,7 +148,7 @@ public class Campaign {
 		return impressionsTable;
 	}
 
-	public final CostTable getClicks() {
+	public final ClicksTable getClicks() {
 		return clicksTable;
 	}
 
@@ -282,7 +293,7 @@ public class Campaign {
 	 * @throws InvalidCampaignException 
 	 */
 	private void processClicks(TLongShortHashMap usersMap) throws IOException, InvalidCampaignException {
-		clicksTable = new CostTable(serversTable.size());
+		clicksTable = new ClicksTable(serversTable.size());
 		
 		BufferedReader br = new BufferedReader(new FileReader(new File(campaignDirectory, CLICKS_FILE)));
 		
@@ -346,7 +357,7 @@ public class Campaign {
 		costOfImpressions = 0;
 
 		long time = System.currentTimeMillis();
-//		mbb.load();
+		mbb.load();
 		System.out.println("loading:\t" + (System.currentTimeMillis() - time) + "ms");
 
 		time = System.currentTimeMillis();
@@ -438,7 +449,7 @@ public class Campaign {
 				throw new InvalidUserException("invalid entry: " + impressionsTable.size());
 			
 			// add to my table
-			impressionsTable.add(dateTime, userID, userData, cost);
+			impressionsTable.add(dateTime, userData, cost);
 			
 			// set and notify?
 			if (overflowCounter == 10000) {
@@ -464,16 +475,16 @@ public class Campaign {
 		campaignEndDate = DateProcessor.toLocalDateTime(impressionsTable.getDateTime(impressionsTable.size() - 1));
 	}
 	
-	/**
-	 * post-processes the server logs and updates unfilled userDatas
-	 * 
-	 * @param usersMap
-	 */
-	private void updateServers(TLongShortHashMap usersMap) {
-		for (int i = 0; i < serversTable.size(); i++) {
-			serversTable.setUserData(i, usersMap.get(serversTable.getUserID(i)));
-		}
-	}
+//	/**
+//	 * post-processes the server logs and updates unfilled userDatas
+//	 * 
+//	 * @param usersMap
+//	 */
+//	private void updateServers(TLongShortHashMap usersMap) {
+//		for (int i = 0; i < serversTable.size(); i++) {
+//			serversTable.setUserData(i, usersMap.get(serversTable.getUserID(i)));
+//		}
+//	}
 
 	// ==== Object Override ====
 

@@ -15,7 +15,7 @@ public class CostTable {
 	int size;
 	
 	int[] dateTime;	
-	long[] userID;	
+//	long[] userID;
 	short[] userData;
 	double[] cost;
 	
@@ -25,7 +25,7 @@ public class CostTable {
 	public CostTable(int initialCapacity) {
 		if (initialCapacity >= 0) {
 			dateTime = new int[initialCapacity];
-			userID = new long[initialCapacity];
+//			userID = new long[initialCapacity];
 			userData = new short[initialCapacity];
 			cost = new double[initialCapacity];
 		} else {
@@ -40,11 +40,11 @@ public class CostTable {
 	
 	// ==== Accessors ====
 	
-	public boolean add(int dateTime, long userID, short userData, double cost) {
+	public boolean add(int dateTime, short userData, double cost) {
 		ensureCapacityInternal(size + 1);
 			
 		this.dateTime[size] = dateTime;
-		this.userID[size] = userID;
+//		this.userID[size] = userID;
 		this.userData[size] = userData;
 		this.cost[size] = cost;
 		
@@ -59,11 +59,11 @@ public class CostTable {
 		return dateTime[index];
 	}
 	
-	public long getUserID(int index) {
-		rangeCheck(index);
-		
-		return userID[index];
-	}
+//	public long getUserID(int index) {
+//		rangeCheck(index);
+//		
+//		return userID[index];
+//	}
 	
 	public short getUserData(int index) {
 		rangeCheck(index);
@@ -84,7 +84,7 @@ public class CostTable {
     public void trimToSize() {
         if (size < dateTime.length) {
             dateTime = Arrays.copyOf(dateTime, size);
-            userID = Arrays.copyOf(userID, size);
+//            userID = Arrays.copyOf(userID, size);
             userData = Arrays.copyOf(userData, size);
             cost = Arrays.copyOf(cost, size);
         }
@@ -110,7 +110,7 @@ public class CostTable {
         
         // minCapacity is usually close to size, so this is a win:
         dateTime = Arrays.copyOf(dateTime, newCapacity);
-        userID = Arrays.copyOf(userID, newCapacity);
+//        userID = Arrays.copyOf(userID, newCapacity);
         userData = Arrays.copyOf(userData, newCapacity);
         cost = Arrays.copyOf(cost, newCapacity);
     }

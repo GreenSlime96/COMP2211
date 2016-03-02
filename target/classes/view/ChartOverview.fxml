@@ -10,7 +10,10 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -85,7 +88,7 @@
       </GridPane>
    </top>
    <center>
-      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+      <VBox BorderPane.alignment="CENTER">
          <children>
             <GridPane alignment="CENTER" hgap="10.0" VBox.vgrow="NEVER">
               <columnConstraints>
@@ -149,31 +152,53 @@
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </padding>
             </GridPane>
-            <AreaChart fx:id="areaChart" animated="false" legendVisible="false" VBox.vgrow="ALWAYS">
-              <xAxis>
-                <NumberAxis side="BOTTOM" />
-              </xAxis>
-              <yAxis>
-                <NumberAxis side="LEFT" />
-              </yAxis>
-            </AreaChart>
-            <GridPane alignment="CENTER" maxHeight="600.0" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="800.0" VBox.vgrow="SOMETIMES">
-              <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-              </columnConstraints>
-              <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-              </rowConstraints>
-               <children>
-                  <PieChart fx:id="genderChart" animated="false" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" />
-                  <PieChart fx:id="ageChart" animated="false" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" GridPane.columnIndex="1" />
-                  <PieChart fx:id="incomeChart" animated="false" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" GridPane.columnIndex="2" />
-                  <PieChart fx:id="contextChart" animated="false" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" GridPane.columnIndex="3" />
-               </children>
-            </GridPane>
+            <TabPane side="LEFT" tabClosingPolicy="UNAVAILABLE" VBox.vgrow="ALWAYS">
+              <tabs>
+                <Tab text="Graphs">
+                  <content>
+                    <AnchorPane>
+                           <children>
+                              <AreaChart fx:id="areaChart" animated="false" legendVisible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <xAxis>
+                                  <NumberAxis side="BOTTOM" />
+                                </xAxis>
+                                <yAxis>
+                                  <NumberAxis side="LEFT" />
+                                </yAxis>
+                              </AreaChart>
+                           </children>
+                        </AnchorPane>
+                  </content>
+                </Tab>
+                <Tab text="Demographics">
+                  <content>
+                    <AnchorPane>
+                           <children>
+                              <GridPane alignment="CENTER" hgap="10.0" minHeight="-Infinity" minWidth="-Infinity" vgap="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                <columnConstraints>
+                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                  <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                </rowConstraints>
+                                 <children>
+                                    <PieChart fx:id="genderChart" animated="false" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" title="Gender" />
+                                    <PieChart fx:id="ageChart" animated="false" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" title="Age" GridPane.columnIndex="1" />
+                                    <PieChart fx:id="incomeChart" animated="false" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" title="Income" GridPane.rowIndex="1" />
+                                    <PieChart fx:id="contextChart" animated="false" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" title="Context" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                 </padding>
+                              </GridPane>
+                           </children>
+                        </AnchorPane>
+                  </content>
+                </Tab>
+              </tabs>
+            </TabPane>
          </children>
       </VBox>
    </center>

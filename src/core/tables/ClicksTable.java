@@ -2,7 +2,7 @@ package core.tables;
 
 import java.util.Arrays;
 
-public class LogTable {
+public class ClicksTable extends CostTable {
 	
 	// ==== Constants ====
     
@@ -15,54 +15,43 @@ public class LogTable {
 	int size;
 	
 	int[] dateTime;	
-//	long[] userID;	
-//	short[] userData;
-	int[] exitDateTime;
-	byte[] pagesViewed;
-	boolean[] conversion;
+	long[] userID;	
+	short[] userData;
+	double[] cost;
+	
 	
 	// ==== Constructor ====
 	
-	public LogTable(int initialCapacity) {
+	public ClicksTable(int initialCapacity) {
 		if (initialCapacity >= 0) {
 			dateTime = new int[initialCapacity];
-//			userID = new long[initialCapacity];
-//			userData = new short[initialCapacity];
-			exitDateTime = new int[initialCapacity];
-			pagesViewed = new byte[initialCapacity];
-			conversion = new boolean[initialCapacity];
+			userID = new long[initialCapacity];
+			userData = new short[initialCapacity];
+			cost = new double[initialCapacity];
 		} else {
 			throw new IllegalArgumentException("Illegal Capacity: " + initialCapacity);
 		}
 	}	
 	
-	public LogTable() {
+	public ClicksTable() {
 		this(DEFAULT_CAPACITY);
 	}	
 	
 	
 	// ==== Accessors ====
 	
-	public boolean add(int dateTime, long userID, short userData, int exitDateTime, byte pagesViewed, boolean conversion) {
+	public boolean add(int dateTime, long userID, short userData, double cost) {
 		ensureCapacityInternal(size + 1);
 			
 		this.dateTime[size] = dateTime;
-//		this.userID[size] = userID;
-//		this.userData[size] = userData;
-		this.exitDateTime[size] = exitDateTime;
-		this.pagesViewed[size] =  pagesViewed;
-		this.conversion[size] = conversion;
+		this.userID[size] = userID;
+		this.userData[size] = userData;
+		this.cost[size] = cost;
 		
 		size++;
 		
 		return true;
 	}
-	
-//	public void setUserData(int index, short userData) {
-//		rangeCheck(index);
-//		
-//		this.userData[index] = userData;
-//	}
 	
 	public int getDateTime(int index) {
 		rangeCheck(index);
@@ -70,34 +59,22 @@ public class LogTable {
 		return dateTime[index];
 	}
 	
-//	public long getUserID(int index) {
-//		rangeCheck(index);
-//		
-//		return userID[index];
-//	}
-	
-//	public short getUserData(int index) {
-//		rangeCheck(index);
-//		
-//		return userData[index];
-//	}
-	
-	public int getExitDateTime(int index) {
+	public long getUserID(int index) {
 		rangeCheck(index);
 		
-		return exitDateTime[index];
+		return userID[index];
 	}
 	
-	public byte getPagesViewed(int index) {
+	public short getUserData(int index) {
 		rangeCheck(index);
 		
-		return pagesViewed[index];
+		return userData[index];
 	}
 	
-	public boolean getConversion(int index) {
+	public double getCost(int index) {
 		rangeCheck(index);
 		
-		return conversion[index];
+		return cost[index];
 	}
 	
 	public int size() {
@@ -107,11 +84,9 @@ public class LogTable {
     public void trimToSize() {
         if (size < dateTime.length) {
             dateTime = Arrays.copyOf(dateTime, size);
-//            userID = Arrays.copyOf(userID, size);
-//            userData = Arrays.copyOf(userData, size);
-            exitDateTime = Arrays.copyOf(exitDateTime, size);
-            pagesViewed = Arrays.copyOf(pagesViewed, size);
-            conversion = Arrays.copyOf(conversion, size);
+            userID = Arrays.copyOf(userID, size);
+            userData = Arrays.copyOf(userData, size);
+            cost = Arrays.copyOf(cost, size);
         }
     }
 	
@@ -135,11 +110,9 @@ public class LogTable {
         
         // minCapacity is usually close to size, so this is a win:
         dateTime = Arrays.copyOf(dateTime, newCapacity);
-//        userID = Arrays.copyOf(userID, newCapacity);
-//        userData = Arrays.copyOf(userData, newCapacity);
-        exitDateTime = Arrays.copyOf(exitDateTime, newCapacity);
-        pagesViewed = Arrays.copyOf(pagesViewed, newCapacity);
-        conversion = Arrays.copyOf(conversion, newCapacity);
+        userID = Arrays.copyOf(userID, newCapacity);
+        userData = Arrays.copyOf(userData, newCapacity);
+        cost = Arrays.copyOf(cost, newCapacity);
     }
     
 	private static int hugeCapacity(int minCapacity) {

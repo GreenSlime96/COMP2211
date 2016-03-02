@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 import core.campaigns.Campaign;
+import core.tables.ClicksTable;
 import core.tables.CostTable;
 import core.tables.LogTable;
 import core.users.User;
@@ -54,6 +55,10 @@ public class DataProcessor {
 	
 	public double costOfImpressions;
 	public double costOfClicks;
+	
+	private LogTable logTable;
+	private ClicksTable clickTable;
+	private CostTable impressionTable;
 	
 //	// TODO: misc stats (useful for checks)
 //	private int dataReturnSize;
@@ -127,6 +132,10 @@ public class DataProcessor {
 		
 		if (dataEndDate < campaignStartDate || dataEndDate > campaignEndDate)
 			dataEndDate = campaignEndDate;
+		
+		logTable = campaign.getServers();
+		clickTable = campaign.getClicks();
+		impressionTable = campaign.getImpressions();
 	}
 	
 	public final Metric getMetric() {
@@ -200,8 +209,8 @@ public class DataProcessor {
 		
 		costOfImpressions = 0;
 		numberOfImpressions = 0;		
-		for (int i = 0; i < campaign.getImpressions().size(); i++) {
-			final int dateTime = campaign.getImpressions().getDateTime(i);
+		for (int i = 0; i < impressionTable.size(); i++) {
+			final int dateTime = impressionTable.getDateTime(i);
 			
 			if (dateTime < dataStartDate)
 				continue;
@@ -209,8 +218,8 @@ public class DataProcessor {
 			if (dateTime > dataEndDate)
 				break;
 			
-			if (dataFilter.test(campaign.getImpressions().getUserData(i))) {
-				costOfImpressions += campaign.getImpressions().getCost(i);
+			if (dataFilter.test(impressionTable.getUserData(i))) {
+				costOfImpressions += impressionTable.getCost(i);
 				numberOfImpressions++;
 			}
 		}
@@ -218,8 +227,8 @@ public class DataProcessor {
 		TLongSet usersSet = new TLongHashSet();
 		numberOfClicks = 0;
 		costOfClicks = 0;
-		for (int i = 0; i < campaign.getClicks().size(); i++) {
-			final int dateTime = campaign.getClicks().getDateTime(i);
+		for (int i = 0; i < clickTable.size(); i++) {
+			final int dateTime = clickTable.getDateTime(i);
 			
 			if (dateTime < dataStartDate)
 				continue;
@@ -227,9 +236,9 @@ public class DataProcessor {
 			if (dateTime > dataEndDate)
 				break;
 			
-			if (dataFilter.test(campaign.getClicks().getUserData(i))) {
-				usersSet.add(campaign.getClicks().getUserID(i));
-				costOfClicks += campaign.getClicks().getCost(i);
+			if (dataFilter.test(clickTable.getUserData(i))) {
+				usersSet.add(clickTable.getUserID(i));
+				costOfClicks += clickTable.getCost(i);
 				numberOfClicks++;
 			}
 		}
@@ -237,8 +246,8 @@ public class DataProcessor {
 
 		numberOfAcquisitions = 0;
 		numberOfBounces = 0;
-		for (int i = 0; i < campaign.getServers().size(); i++) {
-			final int dateTime = campaign.getClicks().getDateTime(i);
+		for (int i = 0; i < logTable.size(); i++) {
+			final int dateTime = clickTable.getDateTime(i);
 			
 			if (dateTime < dataStartDate)
 				continue;
@@ -246,16 +255,16 @@ public class DataProcessor {
 			if (dateTime > dataEndDate)
 				break;
 			
-			if (dataFilter.test(campaign.getServers().getUserData(i))) {
-				if (campaign.getServers().getConversion(i)) {
+			if (dataFilter.test(clickTable.getUserData(i))) {
+				if (logTable.getConversion(i)) {
 					numberOfAcquisitions++;
 					continue;
 				}
 				
-				if (campaign.getServers().getPagesViewed(i) > bounceMinimumPagesViewed)
+				if (logTable.getPagesViewed(i) > bounceMinimumPagesViewed)
 					continue;
 				
-				final long exitDateTime = campaign.getServers().getExitDateTime(i);
+				final long exitDateTime = logTable.getExitDateTime(i);
 				
 				if (exitDateTime == DateProcessor.DATE_NULL)
 					continue;
@@ -387,11 +396,11 @@ public class DataProcessor {
 	// ==== Compute Metrics ====	
 	
 	private final List<Integer> numberOfImpressions() {
-		return numberOfRecord(campaign.getImpressions());
+		return numberOfRecord(impressionTable);
 	}
 	
 	private final List<Integer> numberOfClicks() {
-		return numberOfRecord(campaign.getClicks());
+		return numberOfRecord(clickTable);
 	}
 	
 	private final List<Integer> numberOfRecord(CostTable costTable) {
@@ -445,7 +454,7 @@ public class DataProcessor {
 	// The number of unique users that click on an ad during the course of a campaign.
 	private final List<Integer> numberOfUniques() {
 		final ArrayList<Integer> uniquesList = new ArrayList<Integer>();
-		final CostTable costTable = campaign.getClicks();
+		final ClicksTable costTable = clickTable;
 		
 		// 330ms vs 668ms
 		final TLongSet usersSet = new TLongHashSet();
@@ -499,7 +508,6 @@ public class DataProcessor {
 	 */
 	private final List<Integer> numberOfBounces() {
 		final ArrayList<Integer> bouncesList = new ArrayList<Integer>();
-		final LogTable logTable = campaign.getServers();
 		
 		int numberOfBounces = 0;
 		
@@ -531,7 +539,7 @@ public class DataProcessor {
 					nextDate = dataEndDate;
 			}
 			
-			if (dataFilter.test(logTable.getUserData(i))) {				
+			if (dataFilter.test(clickTable.getUserData(i))) {				
 				if (logTable.getPagesViewed(i) > bounceMinimumPagesViewed)
 					continue;
 				
@@ -565,7 +573,6 @@ public class DataProcessor {
 	}
 	
 	private final List<Integer> numberOfConversions() {
-		final LogTable logTable = campaign.getServers();
 		final ArrayList<Integer> conversionsList = new ArrayList<Integer>();
 		
 		int numberOfConversions = 0;
@@ -599,7 +606,7 @@ public class DataProcessor {
 			}
 			
 			// try to short circuit as expr1 is a direct boolean evaluation
-			if (logTable.getConversion(i) && dataFilter.test(logTable.getUserData(i))) {
+			if (logTable.getConversion(i) && dataFilter.test(clickTable.getUserData(i))) {
 				numberOfConversions++;
 			}
 		}
@@ -662,8 +669,8 @@ public class DataProcessor {
 	
 	// I'm assuming this is cost of impression and click
 	private final List<Double> totalCost() {
-		final List<Double> impressionsCost = costOfRecord(campaign.getImpressions());
-		final List<Double> clicksCost = costOfRecord(campaign.getClicks());
+		final List<Double> impressionsCost = costOfRecord(impressionTable);
+		final List<Double> clicksCost = costOfRecord(clickTable);
 				
 		final ArrayList<Double> costList = new ArrayList<Double>(impressionsCost.size());
 		
@@ -743,12 +750,11 @@ public class DataProcessor {
 	// Clicks are more valuable than impressions, always
 	public final EnumMap<User, Integer> getContextData() {
 		final EnumMap<User, Integer> enumMap = new EnumMap<User, Integer>(User.class);
-		final CostTable costTable = campaign.getClicks();
 		
 		final int[] values = new int[User.values().length];
 		
-		for (int i = 0; i < costTable.size(); i++) {
-			final short userData = costTable.getUserData(i);
+		for (int i = 0; i < clickTable.size(); i++) {
+			final short userData = clickTable.getUserData(i);
 			
 			if (!dataFilter.test(userData))
 				continue;
