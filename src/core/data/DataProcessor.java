@@ -210,7 +210,13 @@ public class DataProcessor {
 			System.out.println("Data Size:\t" + returnList.size());
 			System.out.println("Time Taken:\t" + (System.currentTimeMillis() - time));
 			System.out.println("--------------------------------------");
-		}
+		}		
+		return returnList;
+	}
+	
+	public final void computeTotals(int dataFilterIndex)
+	{
+		DataFilter dataFilter = dataFilters.get(dataFilterIndex);
 		
 		costOfImpressions = 0;
 		numberOfImpressions = 0;		
@@ -280,10 +286,7 @@ public class DataProcessor {
 				numberOfBounces++;
 			}
 		}
-		
-		return returnList;
 	}
-	
 	
 	public final LocalDateTime getDataStartDateTime() {
 		return DateProcessor.toLocalDateTime(dataStartDate);
@@ -398,9 +401,6 @@ public class DataProcessor {
 		return dataFilters.get(dataFilterIndex).getField(field);
 	}
 	
-	public final void setFilterValue(User field, boolean value) {
-		setFilterValue(field, value, 0);
-	}
 	public final void setFilterValue(User field, boolean value, int dataFilterIndex) {
 		dataFilters.get(dataFilterIndex).setField(field, value);
 	}

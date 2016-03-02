@@ -306,6 +306,8 @@ public class ChartOverviewController {
 	}
 	
 	private void updateStats() {
+		dataProcessor.computeTotals(filterList.getSelectionModel().getSelectedIndex());
+		
 		final NumberFormat numberFormatter = NumberFormat.getInstance();
 		final NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();
 		final NumberFormat percentFormatter = NumberFormat.getPercentInstance();

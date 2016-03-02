@@ -307,8 +307,8 @@ public class Model extends Observable {
 		return currentProcessor.getFilterValue(field);
 	}
 
-	public synchronized final void setFieldFilteredValue(User field, boolean value) {
-		currentProcessor.setFilterValue(field, value);
+	public synchronized final void setFieldFilteredValue(User field, boolean value, int dataFilterIndex) {
+		currentProcessor.setFilterValue(field, value, dataFilterIndex);
 		
 		setChanged();
 		notifyObservers();
