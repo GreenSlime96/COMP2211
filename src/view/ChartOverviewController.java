@@ -462,7 +462,7 @@ public class ChartOverviewController {
 				!filterBlog.isSelected() && !filterHobbies.isSelected() && !filterTravel.isSelected()){
 			filterNews.setSelected(true);
 			filterShopping.setSelected(true);
-			filterSocialMedia.setSelected(true);
+			filterBlog.setSelected(true);
 			filterSocialMedia.setSelected(true);
 			filterHobbies.setSelected(true);
 			filterTravel.setSelected(true);
