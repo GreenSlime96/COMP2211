@@ -45,7 +45,7 @@
                <children>
                   <DatePicker fx:id="startDate" onAction="#handleStartDate" promptText="Start Date" />
                   <DatePicker fx:id="endDate" onAction="#handleEndDate" promptText="End Date" />
-                  <TextField fx:id="timeGranularity" promptText="Data Points" />
+                  <ChoiceBox fx:id="timeGranularity" prefWidth="150.0" />
                </children>
             </HBox>
             <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">

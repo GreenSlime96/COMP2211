@@ -54,7 +54,7 @@ public class ChartOverviewController {
 	private DatePicker endDate;
 	
 	@FXML
-	private TextField timeGranularity;
+	private ChoiceBox<String> timeGranularity;
 	
 	// ==== Begin Filter Stuff ====
 	
@@ -217,23 +217,26 @@ public class ChartOverviewController {
 		});
 		
 		// locks to integers only
-		timeGranularity.textProperty().addListener(new ChangeListener<String>() {
-		    @Override public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-		        if (!newValue.isEmpty() && newValue.matches("\\d*")) {
-		            int value = Integer.parseInt(newValue);
-		            
-		            if (value > 2000) {
-			           	timeGranularity.setText(oldValue);
-			           	return;
-		            }
-		            
-		            dataProcessor.setDataPoints(value);
-		            refreshData();
-		        } else {
-		           	timeGranularity.setText(oldValue);
-		        }
-		    }
-		});	
+		timeGranularity.setItems(FXCollections.observableArrayList("Weeks", "Days", "Hours"));
+		timeGranularity.getSelectionModel().clearAndSelect(1);
+
+		
+		timeGranularity.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>()
+				{
+					@Override
+					public void changed(ObservableValue<? extends String> observable, String oldValue,
+							String newValue) {
+						
+						int i = timeGranularity.getSelectionModel().getSelectedIndex();
+						if (i == 0)
+							dataProcessor.setTimeGranularityInSeconds(60*60*24*7);
+						else if(i == 1)
+							dataProcessor.setTimeGranularityInSeconds(60*60*24);
+						else if(i == 2)
+							dataProcessor.setTimeGranularityInSeconds(60*60);	
+						refreshData();
+					}
+				});
 		
 		// locks to integers only
 		bounceViews.textProperty().addListener(new ChangeListener<String>() {
