@@ -1,5 +1,6 @@
 package core.users;
 
+import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 
 public enum User {
@@ -101,37 +102,37 @@ public enum User {
 
 	// ==== Static Helper Methods ====
 	
-	public static short encodeUser(MappedByteBuffer mbb) throws InvalidUserException {
+	public static short encodeUser(ByteBuffer bb) throws InvalidUserException {
 		byte temp;
 		
 		short userData = 0;
 		
-		if ((temp = mbb.get()) == 'F') {
+		if ((temp = bb.get()) == 'F') {
 			userData |= User.GENDER_FEMALE.mask;
-			mbb.position(mbb.position() + 6);
+			bb.position(bb.position() + 6);
 		} else if (temp == 'M') {
 			userData |= User.GENDER_MALE.mask;
-			mbb.position(mbb.position() + 4);
+			bb.position(bb.position() + 4);
 		} else {
 			throw new InvalidUserException("invalid gender");
 		}
 
 		// age
-		temp = mbb.get();
+		temp = bb.get();
 		userData |= info_map[temp];
-		mbb.position(mbb.position() + skip_map[temp]);
+		bb.position(bb.position() + skip_map[temp]);
 		
 		// income
-		temp = mbb.get();
+		temp = bb.get();
 		userData |= info_map[temp];
-		mbb.position(mbb.position() + skip_map[temp]);
+		bb.position(bb.position() + skip_map[temp]);
 				
 		// context
-		temp = mbb.get();
+		temp = bb.get();
 		userData |= info_map[temp];
-		mbb.position(mbb.position() + skip_map[temp]);
+		bb.position(bb.position() + skip_map[temp]);
 		
-		if (mbb.get() != ',')
+		if (bb.get() != ',')
 			throw new InvalidUserException("invalid user: " + Integer.toBinaryString(userData));
 				
 		return userData;

@@ -33,6 +33,14 @@ public class ImpressionsTable implements CostTable {
 	
 	// ==== Accessors ====
 	
+	public void append(ImpressionsTable table) {
+		System.arraycopy(table.dateTime, 0, dateTime, size, table.size);
+		System.arraycopy(table.userData, 0, userData, size, table.size);
+		System.arraycopy(table.cost, 0, cost, size, table.size);
+		
+		size += table.size;
+	}
+	
 	public boolean add(int dateTime, short userData, float cost) {
 		ensureCapacityInternal(size + 1);
 			

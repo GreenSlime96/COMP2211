@@ -1,6 +1,6 @@
 package util;
 
-import java.nio.MappedByteBuffer;
+import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
@@ -33,92 +33,92 @@ public class DateProcessor {
 		return toEpochSeconds(year, month, day, hour, minute, second);	
 	}
 	
-	public static int _toEpochSeconds(MappedByteBuffer mbb) {
-		int index = mbb.position();
+	public static int _toEpochSeconds(ByteBuffer bb) {
+		int index = bb.position();
 		
-		int year = mbb.get() & 0xF;
+		int year = bb.get() & 0xF;
 		year *= 10;
-		year += mbb.get() & 0xF;
+		year += bb.get() & 0xF;
 		year *= 10;
-		year += mbb.get() & 0xF;
+		year += bb.get() & 0xF;
 		year *= 10;
-		year += mbb.get() & 0xF;
+		year += bb.get() & 0xF;
 
-		mbb.position(index += 5);
+		bb.position(index += 5);
 
-		int month = mbb.get() & 0xF;
+		int month = bb.get() & 0xF;
 		month *= 10;
-		month += mbb.get() & 0xF;
+		month += bb.get() & 0xF;
 
-		mbb.position(index += 3);
+		bb.position(index += 3);
 
-		int day = mbb.get() & 0xF;
+		int day = bb.get() & 0xF;
 		day *= 10;
-		day += mbb.get() & 0xF;
+		day += bb.get() & 0xF;
 
-		mbb.position(index += 3);
+		bb.position(index += 3);
 
-		int hour = mbb.get() & 0xF;
+		int hour = bb.get() & 0xF;
 		hour *= 10;
-		hour += mbb.get() & 0xF;
+		hour += bb.get() & 0xF;
 
-		mbb.position(index += 3);
+		bb.position(index += 3);
 
-		int minute = mbb.get() & 0xF;
+		int minute = bb.get() & 0xF;
 		minute *= 10;
-		minute += mbb.get() & 0xF;
+		minute += bb.get() & 0xF;
 
-		mbb.position(index += 3);
+		bb.position(index += 3);
 
-		int second = mbb.get() & 0xF;
+		int second = bb.get() & 0xF;
 		second *= 10;
-		second += mbb.get() & 0xF;
+		second += bb.get() & 0xF;
 
-		mbb.position(index += 3);
+		bb.position(index += 3);
 
 		return toEpochSeconds(year, month, day, hour, minute, second);	
 	}
 	
-	public static int toEpochSeconds(MappedByteBuffer mbb) {
-		int year = mbb.get() & 0xF;
+	public static int toEpochSeconds(ByteBuffer bb) {
+		int year = bb.get() & 0xF;
 		year *= 10;
-		year += mbb.get() & 0xF;
+		year += bb.get() & 0xF;
 		year *= 10;
-		year += mbb.get() & 0xF;
+		year += bb.get() & 0xF;
 		year *= 10;
-		year += mbb.get() & 0xF;
+		year += bb.get() & 0xF;
 
-		mbb.position(mbb.position() + 1);
+		bb.position(bb.position() + 1);
 
-		int month = mbb.get() & 0xF;
+		int month = bb.get() & 0xF;
 		month *= 10;
-		month += mbb.get() & 0xF;
+		month += bb.get() & 0xF;
 
-		mbb.position(mbb.position() + 1);
+		bb.position(bb.position() + 1);
 		
-		int day = mbb.get() & 0xF;
+		int day = bb.get() & 0xF;
 		day *= 10;
-		day += mbb.get() & 0xF;
+		day += bb.get() & 0xF;
 
-		mbb.position(mbb.position() + 1);
+		bb.position(bb.position() + 1);
 		
-		int hour = mbb.get() & 0xF;
+		int hour = bb.get() & 0xF;
 		hour *= 10;
-		hour += mbb.get() & 0xF;
+		hour += bb.get() & 0xF;
 
-		mbb.position(mbb.position() + 1);
+		bb.position(bb.position() + 1);
 		
-		int minute = mbb.get() & 0xF;
+		int minute = bb.get() & 0xF;
 		minute *= 10;
-		minute += mbb.get() & 0xF;
+		minute += bb.get() & 0xF;
 
-		mbb.position(mbb.position() + 1);
+		bb.position(bb.position() + 1);
 		
-		int second = mbb.get() & 0xF;
+		int second = bb.get() & 0xF;
 		second *= 10;
-		second += mbb.get() & 0xF;
+		second += bb.get() & 0xF;
 
-		mbb.position(mbb.position() + 1);
+		bb.position(bb.position() + 1);
 		
 		return toEpochSeconds(year, month, day, hour, minute, second);	
 	}

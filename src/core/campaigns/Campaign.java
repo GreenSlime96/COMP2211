@@ -5,9 +5,17 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import core.tables.ClicksTable;
 import core.tables.ImpressionsTable;
@@ -357,112 +365,118 @@ public class Campaign {
 
 		long time = System.currentTimeMillis();
 //		mbb.load();
+		threaded(mbb, Runtime.getRuntime().availableProcessors());
 		System.out.println("loading:\t" + (System.currentTimeMillis() - time) + "ms");
 
-		time = System.currentTimeMillis();
-
-		// skip the header -- precomputed
-		mbb.position(50);
-		
-		int overflowCounter = 0;
-		int clicksProgress = 0;
-		
-		while (mbb.hasRemaining()) {
-			byte temp;
-
-			/*
-			 * BEGIN DATE PROCESSING SECTION
-			 */
-
-			int dateTime = DateProcessor.toEpochSeconds(mbb);
-
-			/*
-			 * END DATE PROCESSING SECTION
-			 */
-
-			/*
-			 * BEGIN USERID PROCESSING SECTION
-			 */
-
-			// we know MIN(id).length = 12
-			// skip first multiplication by 0
-			long userID = mbb.get() & 0xF;
-
-			while ((temp = mbb.get()) != ',') {				
-				userID *= 10;
-				userID += temp & 0xF;
-			}
-
-			/*
-			 * END USERID PROCESSING SECTION
-			 */
-
-			/*
-			 * BEGIN USERDATA PROCESSING SECTION
-			 */
-
-			short userData = User.encodeUser(mbb);
-			
-			if (clicksProgress < numberOfClicks && clicksTable.getUserID(clicksProgress) == userID)
-				clicksTable.setUserData(clicksProgress++, userData);
-			
-			/*
-			 * END USERDATA PROCESSING SECTION
-			 */
-
-			/*
-			 * BEGIN COST PROCESSING SECTION
-			 */
-
-			int costTemp = mbb.get() & 0xF;
-
-			while ((temp = mbb.get()) != '.') {
-				costTemp *= 10;
-				costTemp += temp & 0xF;
-			}
-
-			costTemp *= 10;
-			costTemp += mbb.get() & 0xF;
-
-			costTemp *= 10;
-			costTemp += mbb.get() & 0xF;
-
-			costTemp *= 10;
-			costTemp += mbb.get() & 0xF;
-
-			costTemp *= 10;
-			costTemp += mbb.get() & 0xF;
-
-			costTemp *= 10;
-			costTemp += mbb.get() & 0xF;
-
-			costTemp *= 10;
-			costTemp += mbb.get() & 0xF;
-
-			float cost = costTemp * 0.000001f;
-
-			/*
-			 * END COST PROCESSING SECTION
-			 */
-			
-			if (mbb.get() != '\n')
-				throw new InvalidUserException("invalid entry: " + impressionsTable.size());
-			
-			// add to my table
-			impressionsTable.add(dateTime, userData, cost);
-			
-			// set and notify?
-			if (overflowCounter == 10000) {
-				progress.set((double) mbb.position() / mbb.capacity());
-				overflowCounter = 0;
-			}				
-			
-			// misc increment
-			costOfImpressions += cost;
-			overflowCounter++;
-		}
-
-		System.out.println("processing:\t" + (System.currentTimeMillis() - time) + "ms");
+//		time = System.currentTimeMillis();
+//
+//		// skip the header -- precomputed
+//		mbb.position(50);
+////		mbb.limit(mbb.capacity());
+//		
+//		int overflowCounter = 0;
+//		int clicksProgress = 0;
+//		
+////		System.exit(0);
+//		
+//		costOfImpressions = 0;
+//		
+//		while (mbb.hasRemaining()) {
+//			byte temp;
+//
+//			/*
+//			 * BEGIN DATE PROCESSING SECTION
+//			 */
+//
+//			int dateTime = DateProcessor.toEpochSeconds(mbb);
+//
+//			/*
+//			 * END DATE PROCESSING SECTION
+//			 */
+//
+//			/*
+//			 * BEGIN USERID PROCESSING SECTION
+//			 */
+//
+//			// we know MIN(id).length = 12
+//			// skip first multiplication by 0
+//			long userID = mbb.get() & 0xF;
+//
+//			while ((temp = mbb.get()) != ',') {				
+//				userID *= 10;
+//				userID += temp & 0xF;
+//			}
+//
+//			/*
+//			 * END USERID PROCESSING SECTION
+//			 */
+//
+//			/*
+//			 * BEGIN USERDATA PROCESSING SECTION
+//			 */
+//
+//			short userData = User.encodeUser(mbb);
+//			
+//			if (clicksProgress < numberOfClicks && clicksTable.getUserID(clicksProgress) == userID)
+//				clicksTable.setUserData(clicksProgress++, userData);
+//			
+//			/*
+//			 * END USERDATA PROCESSING SECTION
+//			 */
+//
+//			/*
+//			 * BEGIN COST PROCESSING SECTION
+//			 */
+//
+//			int costTemp = mbb.get() & 0xF;
+//
+//			while ((temp = mbb.get()) != '.') {
+//				costTemp *= 10;
+//				costTemp += temp & 0xF;
+//			}
+//
+//			costTemp *= 10;
+//			costTemp += mbb.get() & 0xF;
+//
+//			costTemp *= 10;
+//			costTemp += mbb.get() & 0xF;
+//
+//			costTemp *= 10;
+//			costTemp += mbb.get() & 0xF;
+//
+//			costTemp *= 10;
+//			costTemp += mbb.get() & 0xF;
+//
+//			costTemp *= 10;
+//			costTemp += mbb.get() & 0xF;
+//
+//			costTemp *= 10;
+//			costTemp += mbb.get() & 0xF;
+//
+//			float cost = costTemp * 0.000001f;
+//
+//			/*
+//			 * END COST PROCESSING SECTION
+//			 */
+//			
+//			if (mbb.get() != '\n')
+//				throw new InvalidUserException("invalid entry: " + impressionsTable.size());
+//			
+//			// add to my table
+//			impressionsTable.add(dateTime, userData, cost);
+//			
+//			// set and notify?
+//			if (overflowCounter == 10000) {
+//				progress.set((double) mbb.position() / mbb.capacity());
+//				overflowCounter = 0;
+//			}				
+//			
+//			// misc increment
+//			costOfImpressions += cost;
+//			overflowCounter++;
+//		}
+//
+//		System.out.println("processing:\t" + (System.currentTimeMillis() - time) + "ms");
 
 		// trim the ArrayList to save capacity
 		impressionsTable.trimToSize();
@@ -470,6 +484,167 @@ public class Campaign {
 		// compute dates
 		campaignStartDate = DateProcessor.toLocalDateTime(impressionsTable.getDateTime(0));
 		campaignEndDate = DateProcessor.toLocalDateTime(impressionsTable.getDateTime(impressionsTable.size() - 1));
+		
+//		for (int i = 0; i < nt.size(); i++) {
+//			if (nt.getDateTime(i) != impressionsTable.getDateTime(i))
+//				throw new IllegalArgumentException("e");
+//		}
+	}
+	
+	private void threaded(ByteBuffer bb, int threads) {	
+		final ByteBuffer[] bbs = new ByteBuffer[threads];
+		final int size = bb.capacity() / threads;
+//		final ImpressionsTable table = new ImpressionsTable(8828248);
+		
+		bbs[0] = bb;
+		
+		for (int i = 1; i < threads; i++) {
+			final ByteBuffer view = bbs[i - 1];
+			
+			// move position
+			bbs[i - 1].position(size);
+			
+			// buffer until we get newline
+			while (view.get() != '\n') {}
+			
+			bbs[i] = view.slice();
+			
+			// move back to 9
+			view.limit(view.position());
+			view.position(0);
+		}
+		
+		// skip first 50 lines
+		bb.position(50);
+		
+		ExecutorService executor = Executors.newFixedThreadPool(threads);
+		List<Future<ImpressionsTable>> list = new ArrayList<Future<ImpressionsTable>>();
+		
+		for (int i = 0; i < threads; i++) {
+			Future<ImpressionsTable> future = executor.submit(new Helper(bbs[i]));
+			list.add(future);
+		}
+		
+		for (Future<ImpressionsTable> future : list) {
+			try {
+				impressionsTable.append(future.get());
+			} catch (ExecutionException | InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
+//		System.out.println(table.size());
+//		return table;
+	}
+	
+	class Helper implements Callable<ImpressionsTable> {
+		final ByteBuffer mbb;
+		
+		public Helper(ByteBuffer bb) {
+			mbb = bb;
+		}
+
+		@Override
+		public ImpressionsTable call() throws Exception {
+			double localCost = 0;
+			
+			final ImpressionsTable impressionsTable = new ImpressionsTable();
+			
+			while (mbb.hasRemaining()) {
+				byte temp;
+
+				/*
+				 * BEGIN DATE PROCESSING SECTION
+				 */
+
+				int dateTime = DateProcessor.toEpochSeconds(mbb);
+
+				/*
+				 * END DATE PROCESSING SECTION
+				 */
+
+				/*
+				 * BEGIN USERID PROCESSING SECTION
+				 */
+
+				// we know MIN(id).length = 12
+				// skip first multiplication by 0
+				long userID = mbb.get() & 0xF;
+
+				while ((temp = mbb.get()) != ',') {
+					userID *= 10;
+					userID += temp & 0xF;
+				}
+
+				/*
+				 * END USERID PROCESSING SECTION
+				 */
+
+				/*
+				 * BEGIN USERDATA PROCESSING SECTION
+				 */
+
+				short userData;
+
+				userData = User.encodeUser(mbb);
+
+				// if (clicksProgress < numberOfClicks &&
+				// clicksTable.getUserID(clicksProgress) == userID)
+				// clicksTable.setUserData(clicksProgress++, userData);
+
+				/*
+				 * END USERDATA PROCESSING SECTION
+				 */
+
+				/*
+				 * BEGIN COST PROCESSING SECTION
+				 */
+
+				int costTemp = mbb.get() & 0xF;
+
+				while ((temp = mbb.get()) != '.') {
+					costTemp *= 10;
+					costTemp += temp & 0xF;
+				}
+
+				costTemp *= 10;
+				costTemp += mbb.get() & 0xF;
+
+				costTemp *= 10;
+				costTemp += mbb.get() & 0xF;
+
+				costTemp *= 10;
+				costTemp += mbb.get() & 0xF;
+
+				costTemp *= 10;
+				costTemp += mbb.get() & 0xF;
+
+				costTemp *= 10;
+				costTemp += mbb.get() & 0xF;
+
+				costTemp *= 10;
+				costTemp += mbb.get() & 0xF;
+
+				float cost = costTemp * 0.000001f;
+
+				/*
+				 * END COST PROCESSING SECTION
+				 */
+
+				if (mbb.get() != '\n')
+					throw new InvalidUserException("invalid entry: " + impressionsTable.size());
+
+				// add to my table
+				impressionsTable.add(dateTime, userData, cost);
+
+				// misc increment
+				localCost += cost;
+			}
+			
+			costOfImpressions += localCost;
+			
+			return impressionsTable;
+		}		
 	}
 
 	// ==== Object Override ====
