@@ -62,25 +62,20 @@ public class Model extends Observable {
 	 */
 	
 	
-	public synchronized final List<? extends Number> getChartData(int index) {
-		return dataProcessors.get(index).getData();
+	public synchronized final List<? extends Number> getChartData(int index, int dataFilterIndex) {
+		return dataProcessors.get(index).getData(dataFilterIndex);
 	}
-	
-	public synchronized final List<? extends Number> getChartData() {
-		return currentProcessor.getData();
-	}
-	
 	/**
 	 * Retrieves the distribution of Users in the currently selected DataProcessor
 	 * 
 	 * @return
 	 */
-	public synchronized final EnumMap<User, Integer> getDistribution(int index) {
-		return dataProcessors.get(index).getContextData();
+	public synchronized final EnumMap<User, Integer> getDistribution(int index, int dataFilterIndex) {
+		return dataProcessors.get(index).getContextData(dataFilterIndex);
 	}
 	
-	public synchronized final EnumMap<User, Integer> getDistribution() {
-		return currentProcessor.getContextData();
+	public synchronized final EnumMap<User, Integer> getDistribution(int dataFilterIndex) {
+		return currentProcessor.getContextData(dataFilterIndex);
 	}
 	
 	/**
