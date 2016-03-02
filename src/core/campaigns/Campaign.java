@@ -123,9 +123,9 @@ public class Campaign {
 			System.out.println("Page Views:\t" + numberOfPagesViewed);
 			System.out.println("--------------------------------------");		
 		} catch (InvalidUserException e) {
-			throw new InvalidCampaignException("invalid user data in impression_log");
+			throw new InvalidCampaignException("Invalid User Data in impression_log.csv");
 		} catch (IOException e) {
-			throw new InvalidCampaignException("something happened when reading files");
+			throw new InvalidCampaignException("Invalid Campaign Directory!");
 		}		
 	}
 

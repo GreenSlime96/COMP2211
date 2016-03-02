@@ -60,10 +60,26 @@ public class DashboardOverviewController {
 	// ==== Constructor ====
 	
 	public DashboardOverviewController() {
-	}	
+	}
 	
 	@FXML
 	private void initialize() {
+		campaignAccordion.expandedPaneProperty().addListener(new ChangeListener<TitledPane>() {
+			@Override
+			public void changed(ObservableValue<? extends TitledPane> observable, TitledPane oldValue, TitledPane newValue) {
+		        if (oldValue != null) 
+		        	oldValue.setCollapsible(true);
+		        
+				if (newValue != null)
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							newValue.setCollapsible(false);
+						}
+					});
+			}			
+		});
+		
 		progress.managedProperty().bind(progress.visibleProperty());
 		
 		addCampaignButton.managedProperty().bind(progress.visibleProperty().not());
@@ -92,6 +108,8 @@ public class DashboardOverviewController {
 				alert.setContentText("Your selected Campaign has already been loaded. Please check the sidebar");
 				
 				alert.showAndWait();	
+				
+				return;
 			}
 			
 			campaign.progress.addListener(new ChangeListener<Number>() {
@@ -99,8 +117,7 @@ public class DashboardOverviewController {
 				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
 					progress.setProgress(newValue.doubleValue());
 				}					
-			});
-			
+			});			
 
 			
 			Task<Void> task = new Task<Void>() {
@@ -116,14 +133,19 @@ public class DashboardOverviewController {
 							}							
 						});
 					} catch (InvalidCampaignException e) {
-						final Alert alert = new Alert(AlertType.ERROR);
-						
-						alert.initOwner(mainStage);
-						alert.setTitle("Invalid Campaign");
-						alert.setHeaderText("Error Loading Campaign");
-						alert.setContentText(e.getMessage());
-						
-						alert.showAndWait();	
+						Platform.runLater(new Runnable() {
+							@Override
+							public void run() {
+								final Alert alert = new Alert(AlertType.ERROR);
+								
+								alert.initOwner(mainStage);
+								alert.setTitle("Invalid Campaign");
+								alert.setHeaderText("Error Loading Campaign");
+								alert.setContentText(e.getMessage());
+								
+								alert.showAndWait();	
+							}
+						});
 					} finally {
 						progress.setVisible(false);
 					}
@@ -161,7 +183,7 @@ public class DashboardOverviewController {
 			alert.initOwner(mainStage);
 			alert.setTitle("Campaign in Use");
 			alert.setHeaderText("Campaign in Use");
-			alert.setContentText("The selected campaign cannot be removed as it is currently in use. Close charts and try again");
+			alert.setContentText("The selected campaign cannot be removed as it is currently in use. Close charts and try again.");
 			
 			alert.showAndWait();
 		}
@@ -204,6 +226,9 @@ public class DashboardOverviewController {
 							e.printStackTrace();
 						}
 					}
+					
+					// lol
+					campaignAccordion.setExpandedPane(campaignAccordion.getPanes().get(campaignAccordion.getPanes().size() - 1));
 				}
 			}
 		});

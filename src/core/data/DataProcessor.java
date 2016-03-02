@@ -540,10 +540,18 @@ public class DataProcessor {
 				if (exitDateTime == DateProcessor.DATE_NULL)
 					continue;
 				
-				if (exitDateTime - logTable.getDateTime(i) > bounceMinimumSecondsOnPage)
+				if (exitDateTime - dateTime > bounceMinimumSecondsOnPage) {
 					continue;
+				}
 				
 				numberOfBounces++;
+				
+//				if (campaign.getServers().getPagesViewed(i) <= bounceMinimumPagesViewed &&
+//						exitDateTime != DateProcessor.DATE_NULL &&
+//						exitDateTime - dateTime < bounceMinimumSecondsOnPage) {
+//					numberOfBounces++;
+//					System.out.println(exitDateTime - dateTime);
+//				}
 			}
 		}
 		

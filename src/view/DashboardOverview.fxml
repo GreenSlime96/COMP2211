@@ -11,7 +11,6 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
 <AnchorPane minHeight="600.0" minWidth="800.0" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.DashboardOverviewController">
@@ -24,22 +23,24 @@
                      <center>
                         <Accordion fx:id="campaignAccordion" BorderPane.alignment="CENTER" />
                      </center>
-                     <bottom>
-                        <VBox alignment="CENTER">
+                     <top>
+                        <HBox alignment="CENTER" maxWidth="300.0" minWidth="300.0" spacing="10.0" BorderPane.alignment="CENTER">
                            <children>
-                              <HBox alignment="CENTER" maxWidth="300.0" minWidth="300.0" spacing="10.0">
-                                 <children>
-                                    <ProgressBar fx:id="progress" prefWidth="250.0" progress="0.0" HBox.hgrow="ALWAYS" />
-                                    <Button fx:id="addCampaignButton" mnemonicParsing="false" onAction="#handleAddCampaign" text="Add Campaign" />
-                                    <Button fx:id="removeCampaignButton" mnemonicParsing="false" onAction="#handleRemoveCampaign" text="Remove Campaign" />
-                                 </children>
+                              <ProgressBar fx:id="progress" prefHeight="20.0" prefWidth="250.0" progress="0.0" HBox.hgrow="ALWAYS">
+                                 <HBox.margin>
+                                    <Insets />
+                                 </HBox.margin>
                                  <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                 </padding>
-                              </HBox>
+                                    <Insets bottom="3.0" top="4.0" />
+                                 </padding></ProgressBar>
+                              <Button fx:id="addCampaignButton" mnemonicParsing="false" onAction="#handleAddCampaign" text="Add Campaign" />
+                              <Button fx:id="removeCampaignButton" mnemonicParsing="false" onAction="#handleRemoveCampaign" text="Remove Campaign" />
                            </children>
-                        </VBox>
-                     </bottom>
+                           <padding>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </padding>
+                        </HBox>
+                     </top>
                   </BorderPane>
                </children>
             </AnchorPane>

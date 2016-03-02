@@ -146,6 +146,16 @@ public class ChartOverviewController {
 	
 	// ==== End Bar Goodies
 	
+	// ==== Begin Bounces ====
+	
+	@FXML
+	private TextField bounceViews;
+	
+	@FXML
+	private TextField bounceTime;
+	
+	// ==== End Bounces ====
+	
 //	private ObservableList<PieChart.Data> genderData;
 //	private ObservableList<PieChart.Data> ageData;
 //	private ObservableList<PieChart.Data> incomeData;
@@ -208,6 +218,44 @@ public class ChartOverviewController {
 		        }
 		    }
 		});	
+		
+		// locks to integers only
+		bounceViews.textProperty().addListener(new ChangeListener<String>() {
+		    @Override public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+		        if (!newValue.isEmpty() && newValue.matches("\\d*")) {
+		            int value = Integer.parseInt(newValue);
+		            
+		            if (value > 2000) {
+		            	bounceViews.setText(oldValue);
+			           	return;
+		            }
+		            
+		            dataProcessor.setBounceMinimumPagesViewed(value);
+		            refreshData();
+//		        } else {
+//		        	bounceViews.setText(oldValue);
+		        }
+		    }
+		});	
+		
+		// locks to integers only
+		bounceTime.textProperty().addListener(new ChangeListener<String>() {
+		    @Override public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+		        if (!newValue.isEmpty() && newValue.matches("\\d*")) {
+		            int value = Integer.parseInt(newValue);
+		            
+		            if (value > 2000) {
+		            	bounceTime.setText(oldValue);
+			           	return;
+		            }
+		            
+		            dataProcessor.setBounceMinimumSecondsOnPage(value);
+		            refreshData();
+//		        } else {
+//		        	bounceTime.setText(oldValue);
+		        }
+		    }
+		});	
 	}
 	
 	private void refreshData() {
@@ -219,6 +267,12 @@ public class ChartOverviewController {
 		updateDates();
 		updateFilter();
 		updateMetric();
+		updateBounce();
+	}
+	
+	private void updateBounce() {
+		bounceTime.setText(Integer.toString(dataProcessor.getBounceMinimumSecondsOnPage()));
+		bounceViews.setText(Integer.toString(dataProcessor.getBounceMinimumPagesViewed()));
 	}
 	
 	private void updateCampaigns() {
