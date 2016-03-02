@@ -347,6 +347,7 @@ public class ChartOverviewController {
 	}
 	
 	private void updateFilter() {
+
 		filterMale.setSelected(dataProcessor.getFilterValue(User.GENDER_MALE));
 		filterFemale.setSelected(dataProcessor.getFilterValue(User.GENDER_FEMALE));
 		
@@ -370,6 +371,9 @@ public class ChartOverviewController {
 	
 	@FXML
 	private void handleFilter() {
+		//if all filters in agroup are deselected, select them all
+		fixDeselectedFilters();
+
 		dataProcessor.setFilterValue(User.GENDER_MALE, filterMale.isSelected());
 		dataProcessor.setFilterValue(User.GENDER_FEMALE, filterFemale.isSelected());
 		
@@ -431,4 +435,38 @@ public class ChartOverviewController {
 		
 		areaChart.getData().add(series);
 	}
+
+	//TODO code review
+	private void fixDeselectedFilters(){
+		if(!filterMale.isSelected() && !filterFemale.isSelected()){
+			filterMale.setSelected(true);
+			filterFemale.setSelected(true);
+		}
+
+		if(!filterBelow25.isSelected() && !filter25to34.isSelected() && !filter35to44.isSelected() &&
+				!filter45to54.isSelected() && !filterAbove54.isSelected()){
+			filterBelow25.setSelected(true);
+			filter25to34.setSelected(true);
+			filter35to44.setSelected(true);
+			filter45to54.setSelected(true);
+			filterAbove54.setSelected(true);
+		}
+
+		if(!filterLow.isSelected() && !filterMedium.isSelected() && !filterHigh.isSelected()){
+			filterLow.setSelected(true);
+			filterMedium.setSelected(true);
+			filterHigh.setSelected(true);
+		}
+
+		if(!filterNews.isSelected() && !filterShopping.isSelected() && !filterSocialMedia.isSelected() &&
+				!filterBlog.isSelected() && !filterHobbies.isSelected() && !filterTravel.isSelected()){
+			filterNews.setSelected(true);
+			filterShopping.setSelected(true);
+			filterSocialMedia.setSelected(true);
+			filterSocialMedia.setSelected(true);
+			filterHobbies.setSelected(true);
+			filterTravel.setSelected(true);
+		}
+	}
+
 }
