@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 
+import animation.PieChartScaleAnimation;
 import core.campaigns.Campaign;
 import core.data.DataFilter;
 import core.data.DataProcessor;
@@ -17,6 +18,8 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.PieChart;
@@ -28,6 +31,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 
 public class ChartOverviewController {
 	
@@ -346,6 +350,7 @@ public class ChartOverviewController {
 		genderData.clear();
 		genderData.add(new PieChart.Data(User.GENDER_MALE.toString(), users.get(User.GENDER_MALE)));
 		genderData.add(new PieChart.Data(User.GENDER_FEMALE.toString(), users.get(User.GENDER_FEMALE)));
+		addPieChartAnimation(genderChart);
 		
 		ageData.clear();
 		ageData.add(new PieChart.Data(User.AGE_BELOW_25.toString(), users.get(User.AGE_BELOW_25)));
@@ -353,11 +358,13 @@ public class ChartOverviewController {
 		ageData.add(new PieChart.Data(User.AGE_35_TO_44.toString(), users.get(User.AGE_35_TO_44)));
 		ageData.add(new PieChart.Data(User.AGE_45_TO_54.toString(), users.get(User.AGE_45_TO_54)));
 		ageData.add(new PieChart.Data(User.AGE_ABOVE_54.toString(), users.get(User.AGE_ABOVE_54)));
+		addPieChartAnimation(ageChart);
 		
 		incomeData.clear();
 		incomeData.add(new PieChart.Data(User.INCOME_LOW.toString(), users.get(User.INCOME_LOW)));
 		incomeData.add(new PieChart.Data(User.INCOME_MEDIUM.toString(), users.get(User.INCOME_MEDIUM)));
 		incomeData.add(new PieChart.Data(User.INCOME_HIGH.toString(), users.get(User.INCOME_HIGH)));
+		addPieChartAnimation(incomeChart);
 		
 		contextData.clear();
 		contextData.add(new PieChart.Data(User.CONTEXT_NEWS.toString(), users.get(User.CONTEXT_NEWS)));
@@ -366,7 +373,53 @@ public class ChartOverviewController {
 		contextData.add(new PieChart.Data(User.CONTEXT_BLOG.toString(), users.get(User.CONTEXT_BLOG)));
 		contextData.add(new PieChart.Data(User.CONTEXT_HOBBIES.toString(), users.get(User.CONTEXT_HOBBIES)));
 		contextData.add(new PieChart.Data(User.CONTEXT_TRAVEL.toString(), users.get(User.CONTEXT_TRAVEL)));
+		addPieChartAnimation(contextChart);
+	}
+	
+	private void addPieChartAnimation(PieChart chart)
+	{
+		for (final PieChart.Data d : chart.getData())
+		{
+			d.getNode().setOnMouseEntered(new PieChartScaleAnimation(chart, d, true));
+			d.getNode().setOnMouseExited(new PieChartScaleAnimation(chart, d, false));
+			
+			Tooltip.install(d.getNode(), new Tooltip(d.getName() + ": " + d.getPieValue()));
 		}
+	}
+	
+	private void addAreaChartTooltips(AreaChart<Number, Number> chart)
+	{
+		for(XYChart.Series<Number, Number> s : chart.getData())
+		{
+			for(XYChart.Data<Number, Number> d : s.getData())
+			{
+				//Tooltips
+				Tooltip.install(d.getNode(), new Tooltip(
+						d.getXValue() + "\n" + 
+		        chart.getYAxis().getLabel() + ": " + d.getYValue()));
+			
+				//Adding class on hover
+				d.getNode().setOnMouseEntered(new EventHandler<Event>() {
+					
+		            @Override
+		            public void handle(Event event) {
+		                d.getNode().getStyleClass().add("onHover");                     
+		            }
+		        });
+		
+		        //Removing class on exit
+		        d.getNode().setOnMouseExited(new EventHandler<Event>() {
+		
+		            @Override
+		            public void handle(Event event) {
+		                d.getNode().getStyleClass().remove("onHover");      
+		            }
+		        });
+		        
+		        
+			}
+		}
+	}
 	
 	private void updateDates() {
 		startDate.setValue(dataProcessor.getDataStartDateTime().toLocalDate());
@@ -488,5 +541,7 @@ public class ChartOverviewController {
 			
 			areaChart.getData().add(series);
 		}
+		
+		addAreaChartTooltips(areaChart);
 	}
 }
