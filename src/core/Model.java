@@ -162,11 +162,11 @@ public class Model extends Observable {
 			System.out.println("DEBUG: campaign exist, skipping");
 			return;
 		}
-
+		
 		// add and load data
 		campaign.loadData();
 		campaigns.add(campaign);
-
+		
 		setChanged();
 		notifyObservers();
 	}

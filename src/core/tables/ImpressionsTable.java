@@ -2,43 +2,41 @@ package core.tables;
 
 import java.util.Arrays;
 
-public class ClicksTable implements CostTable {
+public class ImpressionsTable implements CostTable {
+
 	
 	// ==== Properties ====
 	
 	int size;
 	
 	int[] dateTime;	
-	long[] userID;	
 	short[] userData;
-	double[] cost;
+	float[] cost;
 	
 	
 	// ==== Constructor ====
 	
-	public ClicksTable(int initialCapacity) {
+	public ImpressionsTable(int initialCapacity) {
 		if (initialCapacity >= 0) {
 			dateTime = new int[initialCapacity];
-			userID = new long[initialCapacity];
 			userData = new short[initialCapacity];
-			cost = new double[initialCapacity];
+			cost = new float[initialCapacity];
 		} else {
 			throw new IllegalArgumentException("Illegal Capacity: " + initialCapacity);
 		}
 	}	
 	
-	public ClicksTable() {
+	public ImpressionsTable() {
 		this(DEFAULT_CAPACITY);
 	}	
 	
 	
 	// ==== Accessors ====
 	
-	public boolean add(int dateTime, long userID, short userData, double cost) {
+	public boolean add(int dateTime, short userData, float cost) {
 		ensureCapacityInternal(size + 1);
 			
 		this.dateTime[size] = dateTime;
-		this.userID[size] = userID;
 		this.userData[size] = userData;
 		this.cost[size] = cost;
 		
@@ -53,22 +51,10 @@ public class ClicksTable implements CostTable {
 		return dateTime[index];
 	}
 	
-	public long getUserID(int index) {
-		rangeCheck(index);
-		
-		return userID[index];
-	}
-	
 	public short getUserData(int index) {
 		rangeCheck(index);
 		
 		return userData[index];
-	}
-	
-	public void setUserData(int index, short userData) {
-		rangeCheck(index);
-
-		this.userData[index] = userData;
 	}
 	
 	public double getCost(int index) {
@@ -84,7 +70,6 @@ public class ClicksTable implements CostTable {
     public void trimToSize() {
         if (size < dateTime.length) {
             dateTime = Arrays.copyOf(dateTime, size);
-            userID = Arrays.copyOf(userID, size);
             userData = Arrays.copyOf(userData, size);
             cost = Arrays.copyOf(cost, size);
         }
@@ -110,7 +95,7 @@ public class ClicksTable implements CostTable {
         
         // minCapacity is usually close to size, so this is a win:
         dateTime = Arrays.copyOf(dateTime, newCapacity);
-        userID = Arrays.copyOf(userID, newCapacity);
+//        userID = Arrays.copyOf(userID, newCapacity);
         userData = Arrays.copyOf(userData, newCapacity);
         cost = Arrays.copyOf(cost, newCapacity);
     }

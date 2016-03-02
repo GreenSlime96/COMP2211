@@ -9,6 +9,7 @@ import java.util.Objects;
 import core.campaigns.Campaign;
 import core.tables.ClicksTable;
 import core.tables.CostTable;
+import core.tables.ImpressionsTable;
 import core.tables.LogTable;
 import core.users.User;
 import gnu.trove.set.TLongSet;
@@ -58,7 +59,7 @@ public class DataProcessor {
 	
 	private LogTable logTable;
 	private ClicksTable clickTable;
-	private CostTable impressionTable;
+	private ImpressionsTable impressionTable;
 	
 //	// TODO: misc stats (useful for checks)
 //	private int dataReturnSize;
@@ -415,7 +416,7 @@ public class DataProcessor {
 		
 		outerLoop:
 		for (int i = 0; i < costTable.size(); i++) {
-			final long dateTime = costTable.getDateTime(i);
+			final int dateTime = costTable.getDateTime(i);
 						
 			// we ignore the impression if the date is before the current date
 			if (dateTime < currentDate)
@@ -465,7 +466,7 @@ public class DataProcessor {
 				
 		outerLoop:
 		for (int i = 0; i < costTable.size(); i++) {
-			final long dateTime = costTable.getDateTime(i);
+			final int dateTime = costTable.getDateTime(i);
 
 			// we ignore the impression if the date is before the current date
 			if (dateTime < currentDate)
@@ -517,7 +518,7 @@ public class DataProcessor {
 				
 		outerLoop:
 		for (int i = 0; i < logTable.size(); i++) {
-			final long dateTime = logTable.getDateTime(i);
+			final int dateTime = logTable.getDateTime(i);
 						
 			// we ignore the impression if the date is before the current date
 			if (dateTime < currentDate)
@@ -583,7 +584,7 @@ public class DataProcessor {
 				
 		outerLoop:
 		for (int i = 0; i < logTable.size(); i++) {
-			final long dateTime = logTable.getDateTime(i);
+			final int dateTime = logTable.getDateTime(i);
 						
 			// we ignore the impression if the date is before the current date
 			if (dateTime < currentDate)
@@ -631,7 +632,7 @@ public class DataProcessor {
 		
 		outerLoop:
 		for (int i = 0; i < table.size(); i++) {
-			final long dateTime = table.getDateTime(i);
+			final int dateTime = table.getDateTime(i);
 			
 			// we ignore the impression if the date is before the current date
 			if (dateTime < currentDate)

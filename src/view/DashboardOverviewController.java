@@ -124,8 +124,10 @@ public class DashboardOverviewController {
 				@Override
 				protected Void call() {
 					try {
+						long t1 = System.currentTimeMillis();
 						progress.setVisible(true);						
 						campaign.loadData();
+						System.out.println(System.currentTimeMillis() - t1);
 						Platform.runLater(new Runnable() {
 							@Override
 							public void run() {
@@ -208,27 +210,28 @@ public class DashboardOverviewController {
 			@Override
 			public void onChanged(Change<? extends Campaign> c) {
 				while (c.next()) {
-					campaignAccordion.getPanes().clear();
+					TitledPane campaignOverview = null;
 					
+					campaignAccordion.getPanes().clear();
+
 					for (Campaign campaign : model.campaigns) {
 						try {
-				            // Load person overview.
-				            FXMLLoader loader = new FXMLLoader();
-				            loader.setLocation(this.getClass().getResource("CampaignOverview.fxml"));
-				            TitledPane campaignOverview = (TitledPane) loader.load();
-				            
-				            CampaignOverviewController controller = loader.getController();
-				            
-				            controller.setCampaign(campaign);
-				            
-				            campaignAccordion.getPanes().add(campaignOverview);
+							// Load person overview.
+							FXMLLoader loader = new FXMLLoader();
+							loader.setLocation(this.getClass().getResource("CampaignOverview.fxml"));
+							campaignOverview = (TitledPane) loader.load();
+
+							CampaignOverviewController controller = loader.getController();
+
+							controller.setCampaign(campaign);
+
+							campaignAccordion.getPanes().add(campaignOverview);
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
 					}
 					
-					// lol
-					campaignAccordion.setExpandedPane(campaignAccordion.getPanes().get(campaignAccordion.getPanes().size() - 1));
+					campaignAccordion.setExpandedPane(campaignOverview);
 				}
 			}
 		});

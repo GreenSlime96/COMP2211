@@ -15,8 +15,6 @@ public class LogTable {
 	int size;
 	
 	int[] dateTime;	
-//	long[] userID;	
-//	short[] userData;
 	int[] exitDateTime;
 	byte[] pagesViewed;
 	boolean[] conversion;
@@ -43,12 +41,10 @@ public class LogTable {
 	
 	// ==== Accessors ====
 	
-	public boolean add(int dateTime, long userID, short userData, int exitDateTime, byte pagesViewed, boolean conversion) {
+	public boolean add(int dateTime, int exitDateTime, byte pagesViewed, boolean conversion) {
 		ensureCapacityInternal(size + 1);
 			
 		this.dateTime[size] = dateTime;
-//		this.userID[size] = userID;
-//		this.userData[size] = userData;
 		this.exitDateTime[size] = exitDateTime;
 		this.pagesViewed[size] =  pagesViewed;
 		this.conversion[size] = conversion;
@@ -58,29 +54,11 @@ public class LogTable {
 		return true;
 	}
 	
-//	public void setUserData(int index, short userData) {
-//		rangeCheck(index);
-//		
-//		this.userData[index] = userData;
-//	}
-	
 	public int getDateTime(int index) {
 		rangeCheck(index);
 		
 		return dateTime[index];
 	}
-	
-//	public long getUserID(int index) {
-//		rangeCheck(index);
-//		
-//		return userID[index];
-//	}
-	
-//	public short getUserData(int index) {
-//		rangeCheck(index);
-//		
-//		return userData[index];
-//	}
 	
 	public int getExitDateTime(int index) {
 		rangeCheck(index);
@@ -107,8 +85,6 @@ public class LogTable {
     public void trimToSize() {
         if (size < dateTime.length) {
             dateTime = Arrays.copyOf(dateTime, size);
-//            userID = Arrays.copyOf(userID, size);
-//            userData = Arrays.copyOf(userData, size);
             exitDateTime = Arrays.copyOf(exitDateTime, size);
             pagesViewed = Arrays.copyOf(pagesViewed, size);
             conversion = Arrays.copyOf(conversion, size);
@@ -135,8 +111,6 @@ public class LogTable {
         
         // minCapacity is usually close to size, so this is a win:
         dateTime = Arrays.copyOf(dateTime, newCapacity);
-//        userID = Arrays.copyOf(userID, newCapacity);
-//        userData = Arrays.copyOf(userData, newCapacity);
         exitDateTime = Arrays.copyOf(exitDateTime, newCapacity);
         pagesViewed = Arrays.copyOf(pagesViewed, newCapacity);
         conversion = Arrays.copyOf(conversion, newCapacity);
