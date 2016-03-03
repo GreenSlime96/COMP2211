@@ -4,12 +4,12 @@
 <?import javafx.scene.chart.AreaChart?>
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.chart.PieChart?>
-<?import javafx.scene.control.CheckMenuItem?>
+<?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.CustomMenuItem?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.MenuButton?>
-<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
@@ -37,27 +37,80 @@
             <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="1">
                <children>
                   <ChoiceBox fx:id="metricsBox" />
-                  <MenuButton mnemonicParsing="false" text="Filters">
+                  <MenuButton focusTraversable="false" mnemonicParsing="false" text="Filters">
                     <items>
-                        <CheckMenuItem fx:id="filterMale" mnemonicParsing="false" onAction="#handleFilter" text="Male" />
-                        <CheckMenuItem fx:id="filterFemale" mnemonicParsing="false" onAction="#handleFilter" text="Female" />
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <CheckMenuItem fx:id="filterBelow25" mnemonicParsing="false" onAction="#handleFilter" text="&lt;25" />
-                        <CheckMenuItem fx:id="filter25to34" mnemonicParsing="false" onAction="#handleFilter" text="25-34" />
-                        <CheckMenuItem fx:id="filter35to44" mnemonicParsing="false" onAction="#handleFilter" text="35-44" />
-                        <CheckMenuItem fx:id="filter45to54" mnemonicParsing="false" onAction="#handleFilter" text="45-54" />
-                        <CheckMenuItem fx:id="filterAbove54" mnemonicParsing="false" onAction="#handleFilter" text="&gt;54" />
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <CheckMenuItem fx:id="filterLow" mnemonicParsing="false" onAction="#handleFilter" text="Low" />
-                        <CheckMenuItem fx:id="filterMedium" mnemonicParsing="false" onAction="#handleFilter" text="Medium" />
-                        <CheckMenuItem fx:id="filterHigh" mnemonicParsing="false" onAction="#handleFilter" text="High" />
-                        <SeparatorMenuItem mnemonicParsing="false" />
-                        <CheckMenuItem fx:id="filterNews" mnemonicParsing="false" onAction="#handleFilter" text="News" />
-                        <CheckMenuItem fx:id="filterShopping" mnemonicParsing="false" onAction="#handleFilter" text="Shopping" />
-                        <CheckMenuItem fx:id="filterSocialMedia" mnemonicParsing="false" onAction="#handleFilter" text="Social Media" />
-                        <CheckMenuItem fx:id="filterBlog" mnemonicParsing="false" onAction="#handleFilter" text="Blog" />
-                        <CheckMenuItem fx:id="filterHobbies" mnemonicParsing="false" onAction="#handleFilter" text="Hobbies" />
-                        <CheckMenuItem fx:id="filterTravel" mnemonicParsing="false" onAction="#handleFilter" text="Travel" />
+                        <CustomMenuItem hideOnClick="false" mnemonicParsing="false" text="Unspecified Action">
+                           <content>
+                              <GridPane hgap="10.0" minWidth="-Infinity" prefWidth="500.0">
+                                <columnConstraints>
+                                  <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
+                                  <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
+                                    <ColumnConstraints hgrow="ALWAYS" percentWidth="25.0" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                  <RowConstraints vgrow="ALWAYS" />
+                                </rowConstraints>
+                                 <children>
+                                    <VBox minWidth="-Infinity" spacing="10.0" GridPane.columnIndex="2">
+                                       <children>
+                                          <Label text="Income">
+                                             <font>
+                                                <Font name="System Bold" size="13.0" />
+                                             </font>
+                                          </Label>
+                                          <CheckBox fx:id="filterLow" mnemonicParsing="false" onAction="#handleFilter" text="Low" />
+                                          <CheckBox fx:id="filterMedium" mnemonicParsing="false" onAction="#handleFilter" text="Medium" />
+                                          <CheckBox fx:id="filterHigh" mnemonicParsing="false" onAction="#handleFilter" text="High" />
+                                       </children>
+                                    </VBox>
+                                    <VBox minWidth="-Infinity" spacing="10.0">
+                                       <children>
+                                          <Label text="Gender">
+                                             <font>
+                                                <Font name="System Bold" size="13.0" />
+                                             </font>
+                                          </Label>
+                                          <CheckBox fx:id="filterMale" mnemonicParsing="false" onAction="#handleFilter" text="Male" />
+                                          <CheckBox fx:id="filterFemale" mnemonicParsing="false" onAction="#handleFilter" text="Female" />
+                                       </children>
+                                    </VBox>
+                                    <VBox minWidth="-Infinity" spacing="10.0" GridPane.columnIndex="1">
+                                       <children>
+                                          <Label text="Age">
+                                             <font>
+                                                <Font name="System Bold" size="13.0" />
+                                             </font>
+                                          </Label>
+                                          <CheckBox fx:id="filterBelow25" mnemonicParsing="false" onAction="#handleFilter" text="&lt;25" />
+                                          <CheckBox fx:id="filter25to34" mnemonicParsing="false" onAction="#handleFilter" text="25-34" />
+                                          <CheckBox fx:id="filter35to44" mnemonicParsing="false" onAction="#handleFilter" text="35-44" />
+                                          <CheckBox fx:id="filter45to54" mnemonicParsing="false" onAction="#handleFilter" text="45-54" />
+                                          <CheckBox fx:id="filterAbove54" mnemonicParsing="false" onAction="#handleFilter" text="&gt;54" />
+                                       </children>
+                                    </VBox>
+                                    <VBox minWidth="-Infinity" spacing="10.0" GridPane.columnIndex="3">
+                                       <children>
+                                          <Label text="Context">
+                                             <font>
+                                                <Font name="System Bold" size="13.0" />
+                                             </font>
+                                          </Label>
+                                          <CheckBox fx:id="filterNews" mnemonicParsing="false" onAction="#handleFilter" text="News" />
+                                          <CheckBox fx:id="filterShopping" mnemonicParsing="false" onAction="#handleFilter" text="Shopping" />
+                                          <CheckBox fx:id="filterSocialMedia" mnemonicParsing="false" onAction="#handleFilter" text="Social Media" />
+                                          <CheckBox fx:id="filterBlog" mnemonicParsing="false" onAction="#handleFilter" text="Blog" />
+                                          <CheckBox fx:id="filterHobbies" mnemonicParsing="false" onAction="#handleFilter" text="Hobbies" />
+                                          <CheckBox fx:id="filterTravel" mnemonicParsing="false" onAction="#handleFilter" text="Travel" />
+                                       </children>
+                                    </VBox>
+                                 </children>
+                                 <padding>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                 </padding>
+                              </GridPane>
+                           </content>
+                        </CustomMenuItem>
                     </items>
                   </MenuButton>
                </children></HBox>

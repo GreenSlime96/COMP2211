@@ -20,7 +20,7 @@ import javafx.fxml.FXML;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -56,52 +56,52 @@ public class ChartOverviewController {
 	// ==== Begin Filter Stuff ====
 	
 	@FXML
-	private CheckMenuItem filterMale;
+	private CheckBox filterMale;
 	
 	@FXML
-	private CheckMenuItem filterFemale;
+	private CheckBox filterFemale;
 	
 	@FXML
-	private CheckMenuItem filterBelow25;
+	private CheckBox filterBelow25;
 	
 	@FXML
-	private CheckMenuItem filter25to34;
+	private CheckBox filter25to34;
 	
 	@FXML
-	private CheckMenuItem filter35to44;
+	private CheckBox filter35to44;
 	
 	@FXML
-	private CheckMenuItem filter45to54;
+	private CheckBox filter45to54;
 	
 	@FXML
-	private CheckMenuItem filterAbove54;
+	private CheckBox filterAbove54;
 	
 	@FXML
-	private CheckMenuItem filterLow;
+	private CheckBox filterLow;
 	
 	@FXML
-	private CheckMenuItem filterMedium;
+	private CheckBox filterMedium;
 	
 	@FXML
-	private CheckMenuItem filterHigh;
+	private CheckBox filterHigh;
 	
 	@FXML
-	private CheckMenuItem filterNews;
+	private CheckBox filterNews;
 	
 	@FXML
-	private CheckMenuItem filterShopping;
+	private CheckBox filterShopping;
 	
 	@FXML
-	private CheckMenuItem filterSocialMedia;
+	private CheckBox filterSocialMedia;
 	
 	@FXML
-	private CheckMenuItem filterBlog;
+	private CheckBox filterBlog;
 	
 	@FXML
-	private CheckMenuItem filterHobbies;
+	private CheckBox filterHobbies;
 	
 	@FXML
-	private CheckMenuItem filterTravel;
+	private CheckBox filterTravel;
 
 	// ==== End Filter Stuff ====
 	
@@ -363,7 +363,7 @@ public class ChartOverviewController {
 		
 		filterNews.setSelected(dataProcessor.getFilterValue(User.CONTEXT_NEWS));
 		filterShopping.setSelected(dataProcessor.getFilterValue(User.CONTEXT_SHOPPING));
-		filterSocialMedia.setSelected(dataProcessor.getFilterValue(User.CONTEXT_SHOPPING));
+		filterSocialMedia.setSelected(dataProcessor.getFilterValue(User.CONTEXT_SOCIAL_MEDIA));
 		filterBlog.setSelected(dataProcessor.getFilterValue(User.CONTEXT_BLOG));
 		filterHobbies.setSelected(dataProcessor.getFilterValue(User.CONTEXT_HOBBIES));
 		filterTravel.setSelected(dataProcessor.getFilterValue(User.CONTEXT_TRAVEL));

@@ -37,8 +37,13 @@ public class DataFilter implements Predicate<Short> {
 	public void setField(User field, boolean value) {
 		if (value) {
 			flags |= field.mask;
-		} else {
-			flags &= ~field.mask;
+		} else {			
+			for (User user : User.values()) {				
+				if (user.prefix.equals(field.prefix) && user != field && getField(user)) {
+					flags &= ~field.mask;
+					return;
+				}
+			}
 		}
 	}
 	
