@@ -364,18 +364,19 @@ public class Campaign {
 
 		long time = System.currentTimeMillis();
 		threaded(mbb, Runtime.getRuntime().availableProcessors());
-		System.out.println("loading:\t" + (System.currentTimeMillis() - time) + "ms");
 
 		// trim the ArrayList to save capacity
-		impressionsTable.trimToSize();
+//		impressionsTable.trimToSize();
 
 		// compute dates
 		campaignStartDate = DateProcessor.toLocalDateTime(impressionsTable.getDateTime(0));
 		campaignEndDate = DateProcessor.toLocalDateTime(impressionsTable.getDateTime(impressionsTable.size() - 1));
+		
+		System.out.println("loading:\t" + (System.currentTimeMillis() - time) + "ms");
 	}
 	
 	private void threaded(ByteBuffer byteBuffer, int threads) {	
-//		threads = 4;
+		threads = 4;
 		long t1 = System.currentTimeMillis();
 		
 		final ExecutorService executor = Executors.newFixedThreadPool(threads);
@@ -449,10 +450,10 @@ public class Campaign {
 		final int numberOfClicks = clicksTable.size();
 		
 		double localCost = 0;
-		int clicksProgress = 0;
+		int clicksProgress = -1;
 		int overflowCounter = 0;
 		
-		boolean foundClick = false;
+		int alignedTo = -1;
 		
 		while (byteBuffer.hasRemaining()) {
 			byte temp;
@@ -468,15 +469,29 @@ public class Campaign {
 
 			short userData = User.encodeUser(byteBuffer);
 
-			if (!foundClick) {
-				for (int i = 0; i < clicksTable.size(); i++) {
-					if (clicksTable.getUserID(i) == userID) {
-						clicksTable.setUserData(clicksProgress++, userData);
-						foundClick = true;
-						clicksProgress = i + 1;
-						System.out.println("found: " + userID + " at " + i + " data " + userData);
+			if (clicksProgress == -1) {
+				if (alignedTo == -1) {
+					for (int i = 0; i < numberOfClicks; i++) {
+						if (dateTime <= clicksTable.getDateTime(i)) {
+							alignedTo = i;
+							break;
+						}
+					}
+				}
+				
+				for (int i = alignedTo; i < numberOfClicks; i++) {
+					final int delta = clicksTable.getDateTime(i) - dateTime;
+					
+					// escape if timed out
+					if (delta > 300)
 						break;
-					}						
+					
+					// if matched and within timeout
+					if (clicksTable.getUserID(i) == userID) {
+						clicksTable.setUserData(i, userData);
+						clicksProgress = i + 1;
+						break;
+					}
 				}
 			} else if (clicksProgress < numberOfClicks && clicksTable.getUserID(clicksProgress) == userID) {
 				clicksTable.setUserData(clicksProgress++, userData);
@@ -516,7 +531,8 @@ public class Campaign {
 			impressionsTable.add(dateTime, userData, cost);
 			
 			if (overflowCounter == 10000) {
-				progress.set((double) byteBuffer.position() / byteBuffer.limit());
+				final double newVal = (double) byteBuffer.position() / byteBuffer.limit();
+				progress.set(Math.max(newVal, progress.doubleValue()));
 				overflowCounter = 0;
 			}
 
@@ -524,6 +540,8 @@ public class Campaign {
 			localCost += cost;
 			overflowCounter++;
 		}
+		
+//		System.out.println("aligned to:\t" + alignedTo + "\tfinished at:\t" + clicksProgress);
 		
 		costOfImpressions += localCost;
 		
