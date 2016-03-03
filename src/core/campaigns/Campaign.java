@@ -376,7 +376,7 @@ public class Campaign {
 	}
 	
 	private void threaded(ByteBuffer byteBuffer, int threads) {	
-		threads = 4;
+//		threads = 4;
 		long t1 = System.currentTimeMillis();
 		
 		final ExecutorService executor = Executors.newFixedThreadPool(threads);
