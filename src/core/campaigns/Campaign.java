@@ -446,6 +446,8 @@ public class Campaign {
 	}
 	
 	private ImpressionsTable processImpressions(ByteBuffer byteBuffer) throws InvalidUserException {
+		long t1 = System.currentTimeMillis();
+		
 		final ImpressionsTable impressionsTable = new ImpressionsTable();
 		final int numberOfClicks = clicksTable.size();
 		
@@ -544,6 +546,10 @@ public class Campaign {
 //		System.out.println("aligned to:\t" + alignedTo + "\tfinished at:\t" + clicksProgress);
 		
 		costOfImpressions += localCost;
+		
+		long t2 = System.currentTimeMillis();
+		
+		System.out.println(t2 - t1 + " done");
 		
 		return impressionsTable;
 	}
