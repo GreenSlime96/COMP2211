@@ -71,6 +71,12 @@ public class ClicksTable extends CostTable {
 		return userData[index];
 	}
 	
+	public void setUserData(int index, short userData) {
+		rangeCheck(index);
+
+		this.userData[index] = userData;
+	}
+	
 	public double getCost(int index) {
 		rangeCheck(index);
 		

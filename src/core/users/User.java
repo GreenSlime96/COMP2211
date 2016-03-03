@@ -79,11 +79,14 @@ public enum User {
 	public final int mask;
 	public final String title;
 	public final int length;
+	public final String prefix;
 
 	
 	// ==== Constructor ====
 
 	User(String string) {
+		prefix = name().substring(0, name().indexOf('_')).intern();
+		
 		mask = 1 << ordinal();
 		
 		title = string;
