@@ -412,7 +412,7 @@ public class ChartOverviewController {
 		final LocalDate date = endDate.getValue();
 		final LocalTime time = LocalTime.of(0, 0);
 		
-		dataProcessor.setDataStartDateTime(LocalDateTime.of(date, time));
+		dataProcessor.setDataEndDateTime(LocalDateTime.of(date, time));
 		
 		refreshData();
 	}
