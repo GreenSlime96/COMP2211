@@ -335,13 +335,14 @@ public class ChartOverviewController {
 		}
 	
 	private void updateDates() {
-		startDate.setDayCellFactory(new DateRangeCallback(dataProcessor.getCampaign().getStartDateTime().toLocalDate(),
-				dataProcessor.getCampaign().getEndDateTime().toLocalDate().minusDays(1)));
-		startDate.setValue(dataProcessor.getDataStartDateTime().toLocalDate());
+		LocalDate startLocalDate = dataProcessor.getCampaign().getStartDateTime().toLocalDate();
+		LocalDate endLocalDate = dataProcessor.getCampaign().getStartDateTime().toLocalDate();
 
-		endDate.setDayCellFactory(new DateRangeCallback(dataProcessor.getCampaign().getStartDateTime().toLocalDate().plusDays(1),
-				dataProcessor.getCampaign().getEndDateTime().toLocalDate()));
-		endDate.setValue(dataProcessor.getDataEndDateTime().toLocalDate());
+		startDate.setDayCellFactory(new DateRangeCallback(startLocalDate, endLocalDate.minusDays(1)));
+		startDate.setValue(startLocalDate);
+
+		endDate.setDayCellFactory(new DateRangeCallback(startLocalDate.plusDays(1),endLocalDate));
+		endDate.setValue(endLocalDate);
 	}
 	
 	private void updateMetric() {
