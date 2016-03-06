@@ -14,6 +14,8 @@ import core.tables.LogTable;
 import core.users.User;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import util.DateProcessor;
 
 // TODO should we rename this to DataProcessor instead?
@@ -36,7 +38,7 @@ public class DataProcessor {
 	private long dataEndDate;
 	
 	// the filter to filter the metrics by
-	private final DataFilter dataFilter;
+	private final ObservableList<DataFilter> dataFilters = FXCollections.observableArrayList();
 	
 	// the metric that the chart is handling
 	private Metric metric;
@@ -83,7 +85,7 @@ public class DataProcessor {
 		
 		// new DataFilter with same parameters, different objects
 		// as user can modify this filter
-		dataFilter = new DataFilter(dataProcessor.dataFilter);
+		addAllDataFilters(getAllDataFilters());
 		
 		// same metrics
 		metric = dataProcessor.metric;
@@ -101,7 +103,7 @@ public class DataProcessor {
 		setCampaign(campaign);	
 		
 		// create a new DataFilter (all enabled)
-		dataFilter = new DataFilter();
+		addDataFilter(new DataFilter());
 		
 		// set default metric
 		metric = Metric.NUMBER_OF_IMPRESSIONS;
@@ -158,44 +160,45 @@ public class DataProcessor {
 	 * 
 	 * @return a list of numbers with data
 	 */
-	public final List<? extends Number> getData() {
+	public final List<? extends Number> getData(int dataFilterIndex) {
 		List<? extends Number> returnList;
-
+		DataFilter dataFilter = dataFilters.get(dataFilterIndex);
+		
 		final long time = System.currentTimeMillis();
 		
 		switch (metric) {
 		case NUMBER_OF_IMPRESSIONS:
-			returnList = numberOfImpressions();
+			returnList = numberOfImpressions(dataFilterIndex);
 			break;
 		case NUMBER_OF_CLICKS:
-			returnList = numberOfClicks();
+			returnList = numberOfClicks(dataFilterIndex);
 			break;
 		case NUMBER_OF_UNIQUES:
-			returnList = numberOfUniques();
+			returnList = numberOfUniques(dataFilterIndex);
 			break;
 		case NUMBER_OF_BOUNCES:
-			returnList = numberOfBounces();
+			returnList = numberOfBounces(dataFilterIndex);
 			break;
 		case NUMBER_OF_CONVERSIONS:
-			returnList = numberOfConversions();
+			returnList = numberOfConversions(dataFilterIndex);
 			break;
 		case TOTAL_COST:
-			returnList = totalCost();
+			returnList = totalCost(dataFilterIndex);
 			break;
 		case CLICK_THROUGH_RATE:
-			returnList = clickThroughRate();
+			returnList = clickThroughRate(dataFilterIndex);
 			break;
 		case COST_PER_ACQUISITION:
-			returnList = costPerAcquisition();
+			returnList = costPerAcquisition(dataFilterIndex);
 			break;
 		case COST_PER_CLICK:
-			returnList = costPerClick();
+			returnList = costPerClick(dataFilterIndex);
 			break;
 		case COST_PER_THOUSAND_IMPRESSIONS:
-			returnList = costPerThousandImpressions();
+			returnList = costPerThousandImpressions(dataFilterIndex);
 			break;
 		case BOUNCE_RATE:
-			returnList = bounceRate();
+			returnList = bounceRate(dataFilterIndex);
 			break;
 		default:
 			returnList = null;
@@ -206,7 +209,13 @@ public class DataProcessor {
 			System.out.println("Data Size:\t" + returnList.size());
 			System.out.println("Time Taken:\t" + (System.currentTimeMillis() - time));
 			System.out.println("--------------------------------------");
-		}
+		}		
+		return returnList;
+	}
+	
+	public final void computeTotals(int dataFilterIndex)
+	{
+		DataFilter dataFilter = dataFilters.get(dataFilterIndex);
 		
 		costOfImpressions = 0;
 		numberOfImpressions = 0;		
@@ -276,10 +285,7 @@ public class DataProcessor {
 				numberOfBounces++;
 			}
 		}
-		
-		return returnList;
 	}
-	
 	
 	public final LocalDateTime getDataStartDateTime() {
 		return DateProcessor.toLocalDateTime(dataStartDate);
@@ -387,25 +393,31 @@ public class DataProcessor {
 	}
 	
 	public final boolean getFilterValue(User field) {
-		return dataFilter.getField(field);
+		return getFilterValue(field, 0);
 	}
-	public final void setFilterValue(User field, boolean value) {
-		dataFilter.setField(field, value);
+	
+	public final boolean getFilterValue(User field, int dataFilterIndex) {
+		return dataFilters.get(dataFilterIndex).getField(field);
+	}
+	
+	public final void setFilterValue(User field, boolean value, int dataFilterIndex) {
+		dataFilters.get(dataFilterIndex).setField(field, value);
 	}
 	
 	
 	// ==== Compute Metrics ====	
 	
-	private final List<Integer> numberOfImpressions() {
-		return numberOfRecord(impressionTable);
+	private final List<Integer> numberOfImpressions(int dataFilterIndex) {
+		return numberOfRecord(impressionTable, dataFilterIndex);
 	}
 	
-	private final List<Integer> numberOfClicks() {
-		return numberOfRecord(clickTable);
+	private final List<Integer> numberOfClicks(int dataFilterIndex) {
+		return numberOfRecord(clickTable, dataFilterIndex);
 	}
 	
-	private final List<Integer> numberOfRecord(CostTable costTable) {
+	private final List<Integer> numberOfRecord(CostTable costTable, int dataFilterIndex) {
 		final ArrayList<Integer> recordList = new ArrayList<Integer>();
+		final DataFilter dataFilter = dataFilters.get(dataFilterIndex);
 		
 		// initialise current date as startDate
 		long currentDate = dataStartDate;
@@ -453,9 +465,10 @@ public class DataProcessor {
 	}
 	
 	// The number of unique users that click on an ad during the course of a campaign.
-	private final List<Integer> numberOfUniques() {
+	private final List<Integer> numberOfUniques(int dataFilterIndex) {
 		final ArrayList<Integer> uniquesList = new ArrayList<Integer>();
 		final ClicksTable costTable = clickTable;
+		final DataFilter dataFilter = dataFilters.get(dataFilterIndex);
 		
 		// 330ms vs 668ms
 		final TLongSet usersSet = new TLongHashSet();
@@ -507,8 +520,9 @@ public class DataProcessor {
 	 * (typically detected when a user navigates away from the website after a
 	 * short time, or when only a single page has been viewed).
 	 */
-	private final List<Integer> numberOfBounces() {
+	private final List<Integer> numberOfBounces(int dataFilterIndex) {
 		final ArrayList<Integer> bouncesList = new ArrayList<Integer>();
+		final DataFilter dataFilter = dataFilters.get(dataFilterIndex);
 		
 		int numberOfBounces = 0;
 		
@@ -573,8 +587,9 @@ public class DataProcessor {
 		return bouncesList;
 	}
 	
-	private final List<Integer> numberOfConversions() {
+	private final List<Integer> numberOfConversions(int dataFilterIndex) {
 		final ArrayList<Integer> conversionsList = new ArrayList<Integer>();
+		final DataFilter dataFilter = dataFilters.get(dataFilterIndex);
 		
 		int numberOfConversions = 0;
 		
@@ -621,8 +636,9 @@ public class DataProcessor {
 		return conversionsList;
 	}
 	
-	private final List<Double> costOfRecord(CostTable table) {
+	private final List<Double> costOfRecord(CostTable table, int dataFilterIndex) {
 		final ArrayList<Double> costList = new ArrayList<Double>();
+		final DataFilter dataFilter = dataFilters.get(dataFilterIndex);
 		
 		double costOfImpressions = 0;
 		
@@ -669,9 +685,9 @@ public class DataProcessor {
 	}
 	
 	// I'm assuming this is cost of impression and click
-	private final List<Double> totalCost() {
-		final List<Double> impressionsCost = costOfRecord(impressionTable);
-		final List<Double> clicksCost = costOfRecord(clickTable);
+	private final List<Double> totalCost(int dataFilterIndex) {
+		final List<Double> impressionsCost = costOfRecord(impressionTable, dataFilterIndex);
+		final List<Double> clicksCost = costOfRecord(clickTable, dataFilterIndex);
 				
 		final ArrayList<Double> costList = new ArrayList<Double>(impressionsCost.size());
 		
@@ -682,9 +698,9 @@ public class DataProcessor {
 	}
 	
 	// average clicks per impression
-	private final List<Double> clickThroughRate() {
-		final List<Integer> impressionsList = numberOfImpressions();
-		final List<Integer> clicksList = numberOfClicks();
+	private final List<Double> clickThroughRate(int dataFilterIndex) {
+		final List<Integer> impressionsList = numberOfImpressions(dataFilterIndex);
+		final List<Integer> clicksList = numberOfClicks(dataFilterIndex);
 		
 		final ArrayList<Double> clickThroughRate = new ArrayList<Double>(impressionsList.size());
 		
@@ -697,9 +713,9 @@ public class DataProcessor {
 	
 	// The average amount of money spent on an advertising campaign
 	// for each acquisition (i.e., conversion).
-	private final List<Double> costPerAcquisition() {
-		final List<Integer> conversionList = numberOfConversions();
-		final List<Double> costList = totalCost();
+	private final List<Double> costPerAcquisition(int dataFilterIndex) {
+		final List<Integer> conversionList = numberOfConversions(dataFilterIndex);
+		final List<Double> costList = totalCost(dataFilterIndex);
 		
 		final ArrayList<Double> costPerAcquisition = new ArrayList<Double>(conversionList.size());
 		
@@ -710,9 +726,9 @@ public class DataProcessor {
 	}
 	
 	// The average amount of money spent on an advertising campaign for each click.
-	private final List<Double> costPerClick() {
-		final List<Integer> clickList = numberOfClicks();
-		final List<Double> costList = totalCost();
+	private final List<Double> costPerClick(int dataFilterIndex) {
+		final List<Integer> clickList = numberOfClicks(dataFilterIndex);
+		final List<Double> costList = totalCost(dataFilterIndex);
 				
 		final ArrayList<Double> costPerAcquisition = new ArrayList<Double>(clickList.size());
 		
@@ -723,9 +739,9 @@ public class DataProcessor {
 	}
 	
 	// The average amount of money spent on an advertising campaign for every one thousand impressions.
-	private final List<Double> costPerThousandImpressions() {
-		final List<Integer> impressionsList = numberOfImpressions();
-		final List<Double> costsList = totalCost();
+	private final List<Double> costPerThousandImpressions(int dataFilterIndex) {
+		final List<Integer> impressionsList = numberOfImpressions(dataFilterIndex);
+		final List<Double> costsList = totalCost(dataFilterIndex);
 		
 		final ArrayList<Double> costPerThousandImpressions = new ArrayList<Double>(impressionsList.size());
 		
@@ -736,9 +752,9 @@ public class DataProcessor {
 	}
 	
 	// The average number of bounces per click.
-	private final List<Double> bounceRate() {
-		final List<Integer> bouncesList = numberOfBounces();
-		final List<Integer> clicksList = numberOfClicks();
+	private final List<Double> bounceRate(int dataFilterIndex) {
+		final List<Integer> bouncesList = numberOfBounces(dataFilterIndex);
+		final List<Integer> clicksList = numberOfClicks(dataFilterIndex);
 		
 		final ArrayList<Double> bounceRates = new ArrayList<Double>(bouncesList.size());
 		
@@ -749,8 +765,9 @@ public class DataProcessor {
 	}
 	
 	// Clicks are more valuable than impressions, always
-	public final EnumMap<User, Integer> getContextData() {
+	public final EnumMap<User, Integer> getContextData(int dataFilterIndex) {
 		final EnumMap<User, Integer> enumMap = new EnumMap<User, Integer>(User.class);
+		final DataFilter dataFilter = dataFilters.get(dataFilterIndex);
 		
 		final int[] values = new int[User.values().length];
 		
@@ -772,5 +789,25 @@ public class DataProcessor {
 		}
 		
 		return enumMap;
+	}
+	
+	public final void addDataFilter(DataFilter dataFilter)
+	{
+		dataFilters.add(dataFilter);
+	}
+	
+	public final void addAllDataFilters(ObservableList<DataFilter> dataFilters)
+	{
+		dataFilters.addAll(dataFilters);
+	}
+	
+	public final ObservableList<DataFilter> getAllDataFilters()
+	{
+		return dataFilters;
+	}
+	
+	public final DataFilter getDataFilter(int dataFilterIndex)
+	{
+		return dataFilters.get(dataFilterIndex);
 	}
 }
