@@ -142,7 +142,7 @@
                               <content>
                                 <AnchorPane>
                                        <children>
-                                          <AreaChart fx:id="areaChart" legendSide="TOP" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                          <AreaChart fx:id="areaChart" animated="false" legendSide="TOP" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                             <xAxis>
                                               <NumberAxis label="Increment" side="BOTTOM" />
                                             </xAxis>
@@ -168,10 +168,10 @@
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                             </rowConstraints>
                                              <children>
-                                                <PieChart fx:id="genderChart" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" title="Gender" />
-                                                <PieChart fx:id="ageChart" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" title="Age" GridPane.columnIndex="1" />
-                                                <PieChart fx:id="incomeChart" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" title="Income" GridPane.rowIndex="1" />
-                                                <PieChart fx:id="contextChart" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" title="Context" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                                <PieChart fx:id="genderChart" animated="false" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" title="Gender" />
+                                                <PieChart fx:id="ageChart" animated="false" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" title="Age" GridPane.columnIndex="1" />
+                                                <PieChart fx:id="incomeChart" animated="false" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" title="Income" GridPane.rowIndex="1" />
+                                                <PieChart fx:id="contextChart" animated="false" labelLineLength="10.0" labelsVisible="false" legendSide="LEFT" title="Context" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                              </children>
                                              <padding>
                                                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
