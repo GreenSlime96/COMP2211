@@ -20,11 +20,8 @@ import javafx.fxml.FXML;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
+import util.DateRangeCallback;
 
 public class ChartOverviewController {
 	
@@ -236,8 +233,8 @@ public class ChartOverviewController {
 //		        	bounceViews.setText(oldValue);
 		        }
 		    }
-		});	
-		
+		});
+
 		// locks to integers only
 		bounceTime.textProperty().addListener(new ChangeListener<String>() {
 		    @Override public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -255,7 +252,7 @@ public class ChartOverviewController {
 //		        	bounceTime.setText(oldValue);
 		        }
 		    }
-		});	
+		});
 	}
 	
 	private void refreshData() {
@@ -338,7 +335,12 @@ public class ChartOverviewController {
 		}
 	
 	private void updateDates() {
+		startDate.setDayCellFactory(new DateRangeCallback(dataProcessor.getCampaign().getStartDateTime().toLocalDate(),
+				dataProcessor.getCampaign().getEndDateTime().toLocalDate().minusDays(1)));
 		startDate.setValue(dataProcessor.getDataStartDateTime().toLocalDate());
+
+		endDate.setDayCellFactory(new DateRangeCallback(dataProcessor.getCampaign().getStartDateTime().toLocalDate().plusDays(1),
+				dataProcessor.getCampaign().getEndDateTime().toLocalDate()));
 		endDate.setValue(dataProcessor.getDataEndDateTime().toLocalDate());
 	}
 	
@@ -401,9 +403,9 @@ public class ChartOverviewController {
 	private void handleStartDate() {
 		final LocalDate date = startDate.getValue();
 		final LocalTime time = LocalTime.of(0, 0);
-		
+
 		dataProcessor.setDataStartDateTime(LocalDateTime.of(date, time));
-		
+
 		refreshData();
 	}
 	
