@@ -142,6 +142,7 @@ public class Campaign {
 			
 			DataFilter df = new DataFilter();
 			df.setField(User.GENDER_MALE, false);
+			df.setField(User.INCOME_HIGH, false);
 			
 			// hourly
 			int et = impressionsTable.getDateTime(0) + 3600;
@@ -149,14 +150,19 @@ public class Campaign {
 			
 			short[] count = new short[180];
 			int[] cost = new int[180];
+			
+			int[] ncount = new int[180 * 1392];
+			
 			System.gc();
 			long memNow =Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 			FastTable tb = new FastTable(1392);			
 			long s1 = System.currentTimeMillis();
 
 			long max = 0;
+			int hour = 0;
 			for (int i = 0; i < impressionsTable.size(); i++) {				
 				while (impressionsTable.getDateTime(i) > et) {
+					hour += 180;
 					et += 3600;
 					tb.add(count, cost);
 					
@@ -169,6 +175,7 @@ public class Campaign {
 				
 				cost[offset] += impressionsTable.getRawCost(i);
 				count[offset]++;
+				ncount[hour + offset]++;
 			}	
 			System.out.println(max + " MAX");
 			tb.add(count, cost);
@@ -184,8 +191,8 @@ public class Campaign {
 			long tc = 0;
 			for (int i = 0; i < 180; i++) {
 				if (df.test(User.unpackUser(i))) {
-					for (int j = 0; j < tb.size(); j++) {
-						tc += tb.getCost(j)[i];
+					for (int j = i; j < ncount.length; j += 180) {
+						tc += ncount[j];
 					}
 				}
 			}
@@ -193,19 +200,19 @@ public class Campaign {
 			System.out.println(s2 - s1 + " new iteration");
 			
 			
-			System.out.println(tc * 10e-6);
+			System.out.println(tc);
 			
 			tc = 0;
 			
 			s1 = System.currentTimeMillis();
 			for (int i = 0; i < impressionsTable.size(); i++) {
 				if (df.test(impressionsTable.getUserData(i)))
-					tc += impressionsTable.getRawCost(i);
+					tc++;
 			}
 			s2 = System.currentTimeMillis();			
 			System.out.println(s2 - s1 + " old iteration");
 			
-			System.out.println(tc * 10e-6);
+			System.out.println(tc);
 		} catch (InvalidUserException e) {
 			throw new InvalidCampaignException("Invalid User Data in impression_log.csv");
 		} catch (IOException e) {
