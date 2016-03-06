@@ -27,12 +27,12 @@ public class DateRangeCallback implements Callback<DatePicker, DateCell> {
 
                 if (item.isBefore(startDate)) {
                     setDisable(true);
-                    setStyle("-fx-background-color: #ffc0cb;");
+                    setStyle("-fx-background-color: #cccccc;");
                 }
 
                 if (item.isAfter(endDate)) {
                     setDisable(true);
-                    setStyle("-fx-background-color: #ffc0cb;");
+                    setStyle("-fx-background-color: #cccccc;");
                 }
             }
         };

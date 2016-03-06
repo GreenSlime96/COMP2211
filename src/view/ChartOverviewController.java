@@ -336,7 +336,7 @@ public class ChartOverviewController {
 	
 	private void updateDates() {
 		LocalDate startLocalDate = dataProcessor.getCampaign().getStartDateTime().toLocalDate();
-		LocalDate endLocalDate = dataProcessor.getCampaign().getStartDateTime().toLocalDate();
+		LocalDate endLocalDate = dataProcessor.getCampaign().getEndDateTime().toLocalDate();
 
 		startDate.setDayCellFactory(new DateRangeCallback(startLocalDate, endLocalDate.minusDays(1)));
 		startDate.setValue(startLocalDate);
