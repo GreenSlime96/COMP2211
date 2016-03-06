@@ -10,6 +10,7 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -17,7 +18,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import core.data.DataFilter;
 import core.tables.ClicksTable;
+import core.tables.FastTable;
 import core.tables.ImpressionsTable;
 import core.tables.LogTable;
 import core.users.InvalidUserException;
@@ -120,31 +123,95 @@ public class Campaign {
 			System.out.println("Bounces:\t" + numberOfBounces);
 			System.out.println("Page Views:\t" + numberOfPagesViewed);
 			System.out.println("--------------------------------------");
-//			
-//			int maxDiff = 0;
-//			for (int i = 0; i < serversTable.size(); i++) {
-//				if (serversTable.getExitDateTime(i) == DateProcessor.DATE_NULL)
-//					continue;
-//				
-//				maxDiff = Math.max(maxDiff, serversTable.getExitDateTime(i) - serversTable.getDateTime(i));
-//			}
-//			
-//			System.out.println(maxDiff);
+			
+
+			
+			int maxDiff = 0;
+			int nMaxDiff = 0;
+			for (int i = 0; i < serversTable.size(); i++) {
+				nMaxDiff = Math.max(nMaxDiff, serversTable.getDateTime(i) - clicksTable.getDateTime(i));
+				
+				if (serversTable.getExitDateTime(i) == DateProcessor.DATE_NULL)
+					continue;
+				
+				maxDiff = Math.max(maxDiff, serversTable.getExitDateTime(i) - serversTable.getDateTime(i));
+			}
+			
+			System.out.println("maxDiff: " + maxDiff);
+			System.out.println("nMaxDiff: " + nMaxDiff);
+			
+			DataFilter df = new DataFilter();
+			df.setField(User.GENDER_MALE, false);
+			
+			// hourly
+			int et = impressionsTable.getDateTime(0) + 3600;
+			long acc = 0;
+			
+			short[] count = new short[180];
+			int[] cost = new int[180];
+			System.gc();
+			long memNow =Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+			FastTable tb = new FastTable(1392);			
+			long s1 = System.currentTimeMillis();
+
+			long max = 0;
+			for (int i = 0; i < impressionsTable.size(); i++) {				
+				while (impressionsTable.getDateTime(i) > et) {
+					et += 3600;
+					tb.add(count, cost);
+					
+					count = new short[180];
+					cost = new int[180];
+				}
+				
+				final byte userData = User.compressUser(impressionsTable.getUserData(i));
+				final int offset = userData - Byte.MIN_VALUE;
+				
+				cost[offset] += impressionsTable.getRawCost(i);
+				count[offset]++;
+			}	
+			System.out.println(max + " MAX");
+			tb.add(count, cost);
+			long s2 = System.currentTimeMillis();			
+			System.out.println(s2 - s1 + " compress and store");
+			System.out.println(tb.size());
+			System.gc();
+			long memLater = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+			System.out.println(memLater - memNow);
+
+
+			s1 = System.currentTimeMillis();
+			long tc = 0;
+			for (int i = 0; i < 180; i++) {
+				if (df.test(User.unpackUser(i))) {
+					for (int j = 0; j < tb.size(); j++) {
+						tc += tb.getCost(j)[i];
+					}
+				}
+			}
+			s2 = System.currentTimeMillis();			
+			System.out.println(s2 - s1 + " new iteration");
+			
+			
+			System.out.println(tc * 10e-6);
+			
+			tc = 0;
+			
+			s1 = System.currentTimeMillis();
+			for (int i = 0; i < impressionsTable.size(); i++) {
+				if (df.test(impressionsTable.getUserData(i)))
+					tc += impressionsTable.getRawCost(i);
+			}
+			s2 = System.currentTimeMillis();			
+			System.out.println(s2 - s1 + " old iteration");
+			
+			System.out.println(tc * 10e-6);
 		} catch (InvalidUserException e) {
 			throw new InvalidCampaignException("Invalid User Data in impression_log.csv");
 		} catch (IOException e) {
 			throw new InvalidCampaignException("Invalid Campaign Directory!");
 		}		
 	}
-	
-//	private void testThreading(ByteBuffer bb, int threads) {
-//		
-//		ByteBuffer[] bbs = new ByteBuffer[threads];
-//		
-//		for (int i = 0; i < threads; i++) {
-//			bb.slice();
-//		}
-//	}
 
 	// ==== Accessors ====
 
@@ -179,7 +246,7 @@ public class Campaign {
 		return impressionsTable.size();
 	}
 
-	public final int getNumberOfClicks() {
+	public final int getNumberOfClicks() { 
 		return clicksTable.size();
 	}
 	
@@ -317,7 +384,7 @@ public class Campaign {
 			costOfClicks += cost;
 
 			// add to memory
-			clicksTable.add(dateTime, userID, (short) 0, cost);
+			clicksTable.add(dateTime, userID, cost);
 			usersSet.add(userID);
 		}
 		
@@ -350,8 +417,9 @@ public class Campaign {
 	private void processImpressions() throws IOException, InvalidUserException, InvalidCampaignException {
 		final FileInputStream fis = new FileInputStream(new File(campaignDirectory, IMPRESSIONS_FILE));			
 		final FileChannel fc = fis.getChannel();
-		final MappedByteBuffer mbb = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
+		final MappedByteBuffer byteBuffer = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
 		
+		final int threads = Runtime.getRuntime().availableProcessors();
 		final int expectedRecords = (int) fc.size() / 70;
 		
 		impressionsTable = new ImpressionsTable(expectedRecords);
@@ -361,32 +429,18 @@ public class Campaign {
 
 		// reset
 		costOfImpressions = 0;
-
+		
 		long time = System.currentTimeMillis();
-		threaded(mbb, Runtime.getRuntime().availableProcessors());
 
-		// trim the ArrayList to save capacity
-//		impressionsTable.trimToSize();
-
-		// compute dates
-		campaignStartDate = DateProcessor.toLocalDateTime(impressionsTable.getDateTime(0));
-		campaignEndDate = DateProcessor.toLocalDateTime(impressionsTable.getDateTime(impressionsTable.size() - 1));
-		
-		System.out.println("loading:\t" + (System.currentTimeMillis() - time) + "ms");
-	}
-	
-	private void threaded(ByteBuffer byteBuffer, int threads) {	
-//		threads = 4;
-		long t1 = System.currentTimeMillis();
-		
+		// begin threading		
 		final ExecutorService executor = Executors.newFixedThreadPool(threads);
 		final List<Future<ImpressionsTable>> list = new ArrayList<Future<ImpressionsTable>>(threads);
 		
 		final ByteBuffer[] byteBuffers = new ByteBuffer[threads];
 		final int size = byteBuffer.capacity() / threads;
-
 		
-		byteBuffers[0] = byteBuffer;
+		byteBuffer.position(50);
+		byteBuffers[0] = byteBuffer.slice();
 		
 		for (int i = 1; i < threads; i++) {
 			final ByteBuffer view = byteBuffers[i - 1];
@@ -403,128 +457,62 @@ public class Campaign {
 			view.position(0);
 		}
 		
-		// skip first 50 lines
-		byteBuffer.position(50);
-		
-		
-		long t2 = System.currentTimeMillis();
-		System.out.println(t2 - t1);
-		t1 = System.currentTimeMillis();
-		
 		for (int i = 0; i < threads; i++) {
-			final int j = i;
-			
-			Future<ImpressionsTable> future = executor.submit(new Callable<ImpressionsTable>() {
+			final int j = i;			
+			list.add(executor.submit(new Callable<ImpressionsTable>() {
 				public ImpressionsTable call() throws Exception {
-					return processImpressions(byteBuffers[j]);
-				}		
-				
-			});
-			
-			list.add(future);
+					final long startTime = System.currentTimeMillis();
+					final ImpressionsTable table = processImpressions(byteBuffers[j]);
+					final long endTime = System.currentTimeMillis();
+					
+					System.out.println("Thread " + j + ": " + (endTime - startTime) + "\t" + table.size());
+					return table;
+				}				
+			}));
 		}
-		
-		t2 = System.currentTimeMillis();
-		System.out.println(t2 - t1);
-		t1 = System.currentTimeMillis();
 		
 		for (Future<ImpressionsTable> future : list) {
 			try {
 				impressionsTable.append(future.get());
-			} catch (ExecutionException | InterruptedException e) {
-				e.printStackTrace();
+			} catch (InterruptedException e) {
+				throw new InvalidCampaignException("Loading Thread Interrupted!");
+			} catch (ExecutionException e) {
+				throw new InvalidUserException("Invalid Impressions File!");
 			}
 		}
 		
-		t2 = System.currentTimeMillis();
-		System.out.println(t2 - t1);
-		t1 = System.currentTimeMillis();
-		
 		executor.shutdownNow();
+		// end threading
+
+		// trim the ArrayList to save capacity
+		impressionsTable.trimToSize();
+
+		// compute dates
+		campaignStartDate = DateProcessor.toLocalDateTime(impressionsTable.getDateTime(0));
+		campaignEndDate = DateProcessor.toLocalDateTime(impressionsTable.getDateTime(impressionsTable.size() - 1));
 		
-		System.out.println(threads);
+		System.out.println("loading:\t" + (System.currentTimeMillis() - time) + "ms");
 	}
 	
 	private ImpressionsTable processImpressions(ByteBuffer byteBuffer) throws InvalidUserException {
-		long t1 = System.currentTimeMillis();
-		
 		final ImpressionsTable impressionsTable = new ImpressionsTable();
 		final int numberOfClicks = clicksTable.size();
 		
-		double localCost = 0;
-		int clicksProgress = -1;
-		int overflowCounter = 0;
+		long localCost = 0;
+		int clicksProgress = 0;
 		
-		int alignedTo = -1;
+		// preprocess
+		clicksProgress = clicksTable.indexOfDate(DateProcessor.toEpochSeconds(byteBuffer));
+		byteBuffer.rewind();
 		
 		while (byteBuffer.hasRemaining()) {
-			byte temp;
-
 			int dateTime = DateProcessor.toEpochSeconds(byteBuffer);
-
-			long userID = byteBuffer.get() & 0xF;
-
-			while ((temp = byteBuffer.get()) != ',') {
-				userID *= 10;
-				userID += temp & 0xF;
-			}
-
+			long userID = ImpressionParser.parseUserID(byteBuffer);
 			short userData = User.encodeUser(byteBuffer);
+			short cost = ImpressionParser.parseCost(byteBuffer);
 
-			if (clicksProgress == -1) {
-				if (alignedTo == -1) {
-					for (int i = 0; i < numberOfClicks; i++) {
-						if (dateTime <= clicksTable.getDateTime(i)) {
-							alignedTo = i;
-							break;
-						}
-					}
-				}
-				
-				for (int i = alignedTo; i < numberOfClicks; i++) {
-					final int delta = clicksTable.getDateTime(i) - dateTime;
-					
-					// escape if timed out
-					if (delta > 300)
-						break;
-					
-					// if matched and within timeout
-					if (clicksTable.getUserID(i) == userID) {
-						clicksTable.setUserData(i, userData);
-						clicksProgress = i + 1;
-						break;
-					}
-				}
-			} else if (clicksProgress < numberOfClicks && clicksTable.getUserID(clicksProgress) == userID) {
+			if (clicksProgress < numberOfClicks && clicksTable.getUserID(clicksProgress) == userID)
 				clicksTable.setUserData(clicksProgress++, userData);
-			}
-
-			int costTemp = byteBuffer.get() & 0xF;
-
-			while ((temp = byteBuffer.get()) != '.') {
-				costTemp *= 10;
-				costTemp += temp & 0xF;
-			}
-
-			costTemp *= 10;
-			costTemp += byteBuffer.get() & 0xF;
-
-			costTemp *= 10;
-			costTemp += byteBuffer.get() & 0xF;
-
-			costTemp *= 10;
-			costTemp += byteBuffer.get() & 0xF;
-
-			costTemp *= 10;
-			costTemp += byteBuffer.get() & 0xF;
-
-			costTemp *= 10;
-			costTemp += byteBuffer.get() & 0xF;
-
-			costTemp *= 10;
-			costTemp += byteBuffer.get() & 0xF;
-
-			float cost = costTemp * 0.000001f;
 
 			if (byteBuffer.get() != '\n')
 				throw new InvalidUserException("invalid entry: " + impressionsTable.size());
@@ -532,24 +520,11 @@ public class Campaign {
 			// add to my table
 			impressionsTable.add(dateTime, userData, cost);
 			
-			if (overflowCounter == 10000) {
-				final double newVal = (double) byteBuffer.position() / byteBuffer.limit();
-				progress.set(Math.max(newVal, progress.doubleValue()));
-				overflowCounter = 0;
-			}
-
 			// misc increment
 			localCost += cost;
-			overflowCounter++;
-		}
+		}		
 		
-//		System.out.println("aligned to:\t" + alignedTo + "\tfinished at:\t" + clicksProgress);
-		
-		costOfImpressions += localCost;
-		
-		long t2 = System.currentTimeMillis();
-		
-		System.out.println(t2 - t1 + " done");
+		costOfImpressions += localCost * 10e-6;
 		
 		return impressionsTable;
 	}

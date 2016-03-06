@@ -79,46 +79,46 @@ public class DateProcessor {
 		return toEpochSeconds(year, month, day, hour, minute, second);	
 	}
 	
-	public static int toEpochSeconds(ByteBuffer bb) {
-		int year = bb.get() & 0xF;
+	public static int toEpochSeconds(ByteBuffer byteBuffer) {
+		int year = byteBuffer.get() & 0xF;
 		year *= 10;
-		year += bb.get() & 0xF;
+		year += byteBuffer.get() & 0xF;
 		year *= 10;
-		year += bb.get() & 0xF;
+		year += byteBuffer.get() & 0xF;
 		year *= 10;
-		year += bb.get() & 0xF;
+		year += byteBuffer.get() & 0xF;
 
-		bb.position(bb.position() + 1);
+		byteBuffer.position(byteBuffer.position() + 1);
 
-		int month = bb.get() & 0xF;
+		int month = byteBuffer.get() & 0xF;
 		month *= 10;
-		month += bb.get() & 0xF;
+		month += byteBuffer.get() & 0xF;
 
-		bb.position(bb.position() + 1);
+		byteBuffer.position(byteBuffer.position() + 1);
 		
-		int day = bb.get() & 0xF;
+		int day = byteBuffer.get() & 0xF;
 		day *= 10;
-		day += bb.get() & 0xF;
+		day += byteBuffer.get() & 0xF;
 
-		bb.position(bb.position() + 1);
+		byteBuffer.position(byteBuffer.position() + 1);
 		
-		int hour = bb.get() & 0xF;
+		int hour = byteBuffer.get() & 0xF;
 		hour *= 10;
-		hour += bb.get() & 0xF;
+		hour += byteBuffer.get() & 0xF;
 
-		bb.position(bb.position() + 1);
+		byteBuffer.position(byteBuffer.position() + 1);
 		
-		int minute = bb.get() & 0xF;
+		int minute = byteBuffer.get() & 0xF;
 		minute *= 10;
-		minute += bb.get() & 0xF;
+		minute += byteBuffer.get() & 0xF;
 
-		bb.position(bb.position() + 1);
+		byteBuffer.position(byteBuffer.position() + 1);
 		
-		int second = bb.get() & 0xF;
+		int second = byteBuffer.get() & 0xF;
 		second *= 10;
-		second += bb.get() & 0xF;
+		second += byteBuffer.get() & 0xF;
 
-		bb.position(bb.position() + 1);
+		byteBuffer.position(byteBuffer.position() + 1);
 		
 		return toEpochSeconds(year, month, day, hour, minute, second);	
 	}

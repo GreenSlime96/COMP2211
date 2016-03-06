@@ -3,6 +3,11 @@ package core.users;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 
+import gnu.trove.map.TByteShortMap;
+import gnu.trove.map.TShortByteMap;
+import gnu.trove.map.hash.TByteShortHashMap;
+import gnu.trove.map.hash.TShortByteHashMap;
+
 public enum User {
 	GENDER_MALE("Male"), 
 	GENDER_FEMALE("Female"),
@@ -25,6 +30,13 @@ public enum User {
 	CONTEXT_TRAVEL("Travel");
 
 	// ==== Constants ====
+	
+	private static final TShortByteMap byteCache = new TShortByteHashMap();
+	private static final short[] shortCache = new short[256];
+	
+	static {
+		
+	}
 	
 	private static final int[] info_map;
 	private static final int[] skip_map;
@@ -80,11 +92,14 @@ public enum User {
 	public final int mask;
 	public final String title;
 	public final int length;
+	public final String prefix;
 
 	
 	// ==== Constructor ====
 
 	User(String string) {
+		prefix = name().substring(0, name().indexOf('_')).intern();
+		
 		mask = 1 << ordinal();
 		
 		title = string;
@@ -101,6 +116,49 @@ public enum User {
 	
 
 	// ==== Static Helper Methods ====
+
+	public static byte compressUser(short userData) {
+		byte encoded = byteCache.get(userData);
+		
+		if (encoded == byteCache.getNoEntryValue()) {	
+			final User[] users = values();
+			
+			int combinations = 180;
+			encoded = Byte.MIN_VALUE;
+			
+			for (int i = 0; i < users.length; i++) {			
+				if (checkFlag(userData, users[i])) {
+					int cardinality = 0;
+					int index = 0;
+					
+					for (User u : values()) {
+						if (u.prefix == users[i].prefix)
+							cardinality++;
+						
+						if (u == users[i])
+							index = cardinality;
+					}
+					
+					encoded += (combinations / cardinality) * (index - 1);
+					
+					combinations /= cardinality;							
+				}
+			}
+			
+			byteCache.put(userData, encoded);
+			shortCache[encoded - Byte.MIN_VALUE] = userData;
+		}
+		
+		return encoded;
+	}
+	
+	public static short unpackUser(byte userByte) {
+		return shortCache[userByte - Byte.MIN_VALUE];
+	}
+	
+	public static short unpackUser(int userByte) {
+		return shortCache[userByte];
+	}
 	
 	public static short encodeUser(ByteBuffer bb) throws InvalidUserException {
 		byte temp;
@@ -134,7 +192,7 @@ public enum User {
 		
 		if (bb.get() != ',')
 			throw new InvalidUserException("invalid user: " + Integer.toBinaryString(userData));
-				
+		
 		return userData;
 	}
 	

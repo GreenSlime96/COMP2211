@@ -24,8 +24,6 @@ public class LogTable {
 	public LogTable(int initialCapacity) {
 		if (initialCapacity >= 0) {
 			dateTime = new int[initialCapacity];
-//			userID = new long[initialCapacity];
-//			userData = new short[initialCapacity];
 			exitDateTime = new int[initialCapacity];
 			pagesViewed = new byte[initialCapacity];
 			conversion = new boolean[initialCapacity];
