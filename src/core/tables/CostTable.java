@@ -16,6 +16,9 @@ public interface CostTable {
 	int getDateTime(int index);
 	
 	short getUserData(int index);
+	
+	int indexOfDate(int dateTime);
+	
 
 	int size();
 }

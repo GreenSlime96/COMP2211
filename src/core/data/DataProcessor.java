@@ -340,24 +340,8 @@ public class DataProcessor {
 	
 	public final void setTimeGranularityInSeconds(int timeGranularityInSeconds) {
 		// check time granularity is at least 1
-		if (timeGranularityInSeconds < 1)
-			throw new IllegalArgumentException("cannot have time granularity below 1 second");
-		
-//		// store the time difference to compute min/max bounds
-//		final long timeDifference = dataEndDate - dataStartDate;
-//		
-//		// we want a minimum number of data points
-//		// if time granularity is larger than this number, then we won't have enough nodes
-//		if (timeGranularityInSeconds  > timeDifference / MINIMUM_NUMBER_OF_NODES)
-//			timeGranularityInSeconds = (int) (timeDifference / MINIMUM_NUMBER_OF_NODES);
-//		
-//		// converse to above logic
-//		if (timeGranularityInSeconds < timeDifference / MAXIMUM_NUMBER_OF_NODES)
-//			timeGranularityInSeconds = (int) (timeDifference / MAXIMUM_NUMBER_OF_NODES);
-//		
-//		// TODO remove, just throwing error if we reach this unreachable state
-//		if (timeGranularityInSeconds < 1 || timeGranularityInSeconds >=  timeDifference)
-//			throw new IllegalArgumentException("something happened in DataProcessor setTimeG...");
+		if (timeGranularityInSeconds < 3600)
+			throw new IllegalArgumentException("cannot have time granularity below 1 hour");
 		
 		// time granularity 		
 		this.timeGranularityInSeconds = timeGranularityInSeconds;

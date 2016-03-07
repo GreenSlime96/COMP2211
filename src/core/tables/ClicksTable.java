@@ -34,12 +34,11 @@ public class ClicksTable implements CostTable {
 	
 	// ==== Accessors ====
 	
-	public boolean add(int dateTime, long userID, short userData, double cost) {
+	public boolean add(int dateTime, long userID, double cost) {
 		ensureCapacityInternal(size + 1);
 			
 		this.dateTime[size] = dateTime;
 		this.userID[size] = userID;
-		this.userData[size] = userData;
 		this.cost[size] = cost;
 		
 		size++;
@@ -88,6 +87,25 @@ public class ClicksTable implements CostTable {
             userData = Arrays.copyOf(userData, size);
             cost = Arrays.copyOf(cost, size);
         }
+    }
+    
+    public int indexOfDate(int key) {      	
+        int low = 0;
+        int high = dateTime.length - 1;
+    	
+        while (low <= high) {
+            int mid = (low + high) >>> 1;
+            int midVal = dateTime[mid];
+
+            if (midVal < key)
+                low = mid + 1;
+            else if (midVal > key)
+                high = mid - 1;
+            else
+                return mid; // key found
+        }
+        
+        return low;  // key not found.
     }
 	
 	

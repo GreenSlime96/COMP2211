@@ -11,7 +11,7 @@ public class ImpressionsTable implements CostTable {
 	
 	int[] dateTime;	
 	short[] userData;
-	float[] cost;
+	short[] cost;
 	
 	
 	// ==== Constructor ====
@@ -20,7 +20,7 @@ public class ImpressionsTable implements CostTable {
 		if (initialCapacity >= 0) {
 			dateTime = new int[initialCapacity];
 			userData = new short[initialCapacity];
-			cost = new float[initialCapacity];
+			cost = new short[initialCapacity];
 		} else {
 			throw new IllegalArgumentException("Illegal Capacity: " + initialCapacity);
 		}
@@ -33,7 +33,17 @@ public class ImpressionsTable implements CostTable {
 	
 	// ==== Accessors ====
 	
-	public boolean add(int dateTime, short userData, float cost) {
+	public void append(ImpressionsTable table) {
+		ensureCapacityInternal(size + table.size);
+		
+		System.arraycopy(table.dateTime, 0, dateTime, size, table.size);
+		System.arraycopy(table.userData, 0, userData, size, table.size);
+		System.arraycopy(table.cost, 0, cost, size, table.size);
+		
+		size += table.size;
+	}
+	
+	public boolean add(int dateTime, short userData, short cost) {
 		ensureCapacityInternal(size + 1);
 			
 		this.dateTime[size] = dateTime;
@@ -60,12 +70,37 @@ public class ImpressionsTable implements CostTable {
 	public double getCost(int index) {
 		rangeCheck(index);
 		
+		return cost[index] * 10e-6;
+	}
+	
+	public short getRawCost(int index) {
+		rangeCheck(index);
+		
 		return cost[index];
 	}
 	
 	public int size() {
 		return size;
 	}
+	
+    public int indexOfDate(int key) {      	
+        int low = 0;
+        int high = dateTime.length - 1;
+    	
+        while (low <= high) {
+            int mid = (low + high) >>> 1;
+            int midVal = dateTime[mid];
+
+            if (midVal < key)
+                low = mid + 1;
+            else if (midVal > key)
+                high = mid - 1;
+            else
+                return mid; // key found
+        }
+        
+        return low;  // key not found.
+    }
 	
     public void trimToSize() {
         if (size < dateTime.length) {
@@ -95,7 +130,6 @@ public class ImpressionsTable implements CostTable {
         
         // minCapacity is usually close to size, so this is a win:
         dateTime = Arrays.copyOf(dateTime, newCapacity);
-//        userID = Arrays.copyOf(userID, newCapacity);
         userData = Arrays.copyOf(userData, newCapacity);
         cost = Arrays.copyOf(cost, newCapacity);
     }

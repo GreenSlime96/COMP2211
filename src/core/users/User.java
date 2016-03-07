@@ -1,6 +1,12 @@
 package core.users;
 
+import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
+
+import gnu.trove.map.TByteShortMap;
+import gnu.trove.map.TShortByteMap;
+import gnu.trove.map.hash.TByteShortHashMap;
+import gnu.trove.map.hash.TShortByteHashMap;
 
 public enum User {
 	GENDER_MALE("Male"), 
@@ -24,6 +30,13 @@ public enum User {
 	CONTEXT_TRAVEL("Travel");
 
 	// ==== Constants ====
+	
+	private static final TShortByteMap byteCache = new TShortByteHashMap();
+	private static final short[] shortCache = new short[256];
+	
+	static {
+		
+	}
 	
 	private static final int[] info_map;
 	private static final int[] skip_map;
@@ -103,40 +116,83 @@ public enum User {
 	
 
 	// ==== Static Helper Methods ====
+
+	public static byte compressUser(short userData) {
+		byte encoded = byteCache.get(userData);
+		
+		if (encoded == byteCache.getNoEntryValue()) {	
+			final User[] users = values();
+			
+			int combinations = 180;
+			encoded = Byte.MIN_VALUE;
+			
+			for (int i = 0; i < users.length; i++) {			
+				if (checkFlag(userData, users[i])) {
+					int cardinality = 0;
+					int index = 0;
+					
+					for (User u : values()) {
+						if (u.prefix == users[i].prefix)
+							cardinality++;
+						
+						if (u == users[i])
+							index = cardinality;
+					}
+					
+					encoded += (combinations / cardinality) * (index - 1);
+					
+					combinations /= cardinality;							
+				}
+			}
+			
+			byteCache.put(userData, encoded);
+			shortCache[encoded - Byte.MIN_VALUE] = userData;
+		}
+		
+		return encoded;
+	}
 	
-	public static short encodeUser(MappedByteBuffer mbb) throws InvalidUserException {
+	public static short unpackUser(byte userByte) {
+		return shortCache[userByte - Byte.MIN_VALUE];
+	}
+	
+	public static short unpackUser(int userByte) {
+		return shortCache[userByte];
+	}
+	
+	public static short encodeUser(ByteBuffer bb) throws InvalidUserException {
 		byte temp;
 		
 		short userData = 0;
 		
-		if ((temp = mbb.get()) == 'F') {
+		if ((temp = bb.get()) == 'F') {
 			userData |= User.GENDER_FEMALE.mask;
-			mbb.position(mbb.position() + 6);
+			bb.position(bb.position() + 6);
 		} else if (temp == 'M') {
 			userData |= User.GENDER_MALE.mask;
-			mbb.position(mbb.position() + 4);
+			bb.position(bb.position() + 4);
 		} else {
 			throw new InvalidUserException("invalid gender");
 		}
 
 		// age
-		temp = mbb.get();
+		temp = bb.get();
 		userData |= info_map[temp];
-		mbb.position(mbb.position() + skip_map[temp]);
+		bb.position(bb.position() + skip_map[temp]);
 		
 		// income
-		temp = mbb.get();
+		temp = bb.get();
 		userData |= info_map[temp];
-		mbb.position(mbb.position() + skip_map[temp]);
+		bb.position(bb.position() + skip_map[temp]);
 				
 		// context
-		temp = mbb.get();
+		temp = bb.get();
 		userData |= info_map[temp];
-		mbb.position(mbb.position() + skip_map[temp]);
+		bb.position(bb.position() + skip_map[temp]);
 		
-		if (mbb.get() != ',')
+		if (bb.get() != ',')
 			throw new InvalidUserException("invalid user: " + Integer.toBinaryString(userData));
-				
+		
 		return userData;
 	}
 	
