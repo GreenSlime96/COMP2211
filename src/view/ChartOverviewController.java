@@ -173,6 +173,7 @@ public class ChartOverviewController {
 		this.dataProcessor = dataProcessor;		
 		campaignsBox.setItems(campaigns);
 		
+		System.out.println("sdp");
 		refreshData();
 	}
 	
@@ -187,6 +188,7 @@ public class ChartOverviewController {
 			@Override
 			public void changed(ObservableValue<? extends Metric> observable, Metric oldValue, Metric newValue) {
 				dataProcessor.setMetric(newValue);		
+				System.out.println("mb");
 				refreshData();
 			}			
 		});
@@ -196,6 +198,7 @@ public class ChartOverviewController {
 			@Override
 			public void changed(ObservableValue<? extends Campaign> observable, Campaign oldValue, Campaign newValue) {
 				dataProcessor.setCampaign(newValue);
+				System.out.println("cb");
 				refreshData();
 			}
 		});
@@ -212,6 +215,7 @@ public class ChartOverviewController {
 		            }
 		            
 		            dataProcessor.setDataPoints(value);
+		            System.out.println("tg");
 		            refreshData();
 		        } else {
 		           	timeGranularity.setText(oldValue);
@@ -335,7 +339,7 @@ public class ChartOverviewController {
 		contextData.add(new PieChart.Data(User.CONTEXT_BLOG.toString(), users.get(User.CONTEXT_BLOG)));
 		contextData.add(new PieChart.Data(User.CONTEXT_HOBBIES.toString(), users.get(User.CONTEXT_HOBBIES)));
 		contextData.add(new PieChart.Data(User.CONTEXT_TRAVEL.toString(), users.get(User.CONTEXT_TRAVEL)));
-		}
+	}
 	
 	private void updateDates() {
 		startDate.setValue(dataProcessor.getDataStartDateTime().toLocalDate());

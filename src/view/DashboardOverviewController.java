@@ -13,6 +13,7 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -56,10 +57,22 @@ public class DashboardOverviewController {
 	private Stage mainStage;
 	private Model model;
 	
+	private BorderPane campaignOverview;
+	private ChartOverviewController chartController;
+	
 	
 	// ==== Constructor ====
 	
 	public DashboardOverviewController() {
+		// Load person overview.
+		try {
+			FXMLLoader loader = new FXMLLoader();
+			loader.setLocation(this.getClass().getResource("ChartOverview.fxml"));
+			campaignOverview = (BorderPane) loader.load();
+			chartController = loader.getController();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@FXML
@@ -79,6 +92,28 @@ public class DashboardOverviewController {
 					});
 			}			
 		});
+		
+		chartsTabPane.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				int index = newValue.intValue();
+				
+				System.out.println("changed to " + newValue.intValue());
+				
+				if (index == -1)
+					return;
+				
+				// return if clicked on nothing
+				if (index == chartsTabPane.getTabs().size() - 1) {
+					System.out.println("user clicked on selection tab");
+					chartsTabPane.getSelectionModel().clearAndSelect(index - 2);
+					index -= 2;
+				}
+				
+//				System.out.println("changed fired: " + index);
+				chartController.setDataProcessor(model.dataProcessors.get(0), model.campaigns);
+			}
+		});;
 		
 		progress.managedProperty().bind(progress.visibleProperty());
 		
@@ -112,42 +147,12 @@ public class DashboardOverviewController {
 				return;
 			}
 			
-			campaign.progress.addListener(new ChangeListener<Number>() {
-				@Override
-				public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-					progress.setProgress(newValue.doubleValue());
-				}					
-			});			
-
-			
 			Task<Void> task = new Task<Void>() {
 				@Override
-				protected Void call() {
+				protected Void call() throws InvalidCampaignException {
 					try {
-						long t1 = System.currentTimeMillis();
 						progress.setVisible(true);						
 						campaign.loadData();
-						System.out.println(System.currentTimeMillis() - t1);
-						Platform.runLater(new Runnable() {
-							@Override
-							public void run() {
-								model.campaigns.add(campaign);
-							}							
-						});
-					} catch (InvalidCampaignException e) {
-						Platform.runLater(new Runnable() {
-							@Override
-							public void run() {
-								final Alert alert = new Alert(AlertType.ERROR);
-								
-								alert.initOwner(mainStage);
-								alert.setTitle("Invalid Campaign");
-								alert.setHeaderText("Error Loading Campaign");
-								alert.setContentText(e.getMessage());
-								
-								alert.showAndWait();	
-							}
-						});
 					} finally {
 						progress.setVisible(false);
 					}
@@ -157,6 +162,27 @@ public class DashboardOverviewController {
 			};
 
 			new Thread(task).start();
+			
+			task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+				@Override
+				public void handle(WorkerStateEvent event) {
+					model.campaigns.add(campaign);					
+				}				
+			});
+			
+			task.setOnFailed(new EventHandler<WorkerStateEvent>() {
+				@Override
+				public void handle(WorkerStateEvent event) {
+					final Alert alert = new Alert(AlertType.ERROR);
+					
+					alert.initOwner(mainStage);
+					alert.setTitle("Invalid Campaign");
+					alert.setHeaderText("Error Loading Campaign");
+					alert.setContentText(task.getException().getMessage());
+					
+					alert.showAndWait();						
+				}				
+			});
 		}
 	}
 	
@@ -197,9 +223,12 @@ public class DashboardOverviewController {
 		
 		if (index == -1)
 			return;
-		
+		long t1 = System.currentTimeMillis();
 		final Campaign campaign = model.getCampaign(index);
 		model.addChart(campaign);
+		long t2 = System.currentTimeMillis();
+		
+		System.out.println(t2 - t1 + " in handler");
 	}
 	
 	public void setStageAndModel(Stage stage, Model model) {
@@ -243,80 +272,64 @@ public class DashboardOverviewController {
 				
 				while (c.next()) {
 					if (c.wasAdded()) {
-						// remove the last tab
-						tabsList.remove(addChartTab);
-						
 						for (DataProcessor dataProcessor : c.getAddedSubList()) {
-							try {
-								// Load person overview.
-								FXMLLoader loader = new FXMLLoader();
-								loader.setLocation(this.getClass().getResource("ChartOverview.fxml"));
-								BorderPane campaignOverview = (BorderPane) loader.load();
+//							chartController.setDataProcessor(dataProcessor, model.campaigns);
 
-								ChartOverviewController controller = loader.getController();
+							TextField textField = new TextField("Chart");
+							Label label = new Label("Chart");
+							Tab tab = new Tab();
 
-								controller.setDataProcessor(dataProcessor, model.campaigns);
+							// textField.setMaxSize(label.getPrefWidth(),
+							// label.getPrefHeight());
 
-								TextField textField = new TextField("Chart");
-								Label label = new Label("Chart");
-								Tab tab = new Tab();
-								
-//								textField.setMaxSize(label.getPrefWidth(), label.getPrefHeight());
-								
-								tab.setGraphic(label);
-								tab.setContent(campaignOverview);
-								
-								label.setOnMouseClicked(new EventHandler<MouseEvent>() {
-									@Override
-									public void handle(MouseEvent event) {
-										if (event.getClickCount() == 2) {
-											textField.setText(label.getText());
-											tab.setGraphic(textField);
-											textField.selectAll();
-											textField.requestFocus();
-										}
+							tab.setGraphic(label);
+							tab.setContent(campaignOverview);
+
+							label.setOnMouseClicked(new EventHandler<MouseEvent>() {
+								@Override
+								public void handle(MouseEvent event) {
+									if (event.getClickCount() == 2) {
+										textField.setText(label.getText());
+										tab.setGraphic(textField);
+										textField.selectAll();
+										textField.requestFocus();
 									}
-								});
-								
-								textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
-									@Override
-									public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-										if (!newValue) {
-											if (!textField.getText().isEmpty())
-												label.setText(textField.getText());
-											
-											tab.setGraphic(label);
-										}
-									}
-								});
-								
-								textField.setOnAction(new EventHandler<ActionEvent>() {
-									@Override
-									public void handle(ActionEvent event) {
+								}
+							});
+
+							textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
+								@Override
+								public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue,
+										Boolean newValue) {
+									if (!newValue) {
 										if (!textField.getText().isEmpty())
 											label.setText(textField.getText());
-										
+
 										tab.setGraphic(label);
 									}
-								});
+								}
+							});
 
-								tab.setOnCloseRequest(new EventHandler<Event>() {
-									@Override
-									public void handle(Event event) {
-										final int index = chartsTabPane.getTabs().indexOf(event.getSource());
-										model.dataProcessors.remove(index);
-									}
-								});
+							textField.setOnAction(new EventHandler<ActionEvent>() {
+								@Override
+								public void handle(ActionEvent event) {
+									if (!textField.getText().isEmpty())
+										label.setText(textField.getText());
 
-								tabsList.add(tab);
-							} catch (IOException e) {
-								e.printStackTrace();
-							}
+									tab.setGraphic(label);
+								}
+							});
 
-							chartsTabPane.getSelectionModel().select(tabsList.size() - 1);
+							tab.setOnCloseRequest(new EventHandler<Event>() {
+								@Override
+								public void handle(Event event) {
+									final int index = chartsTabPane.getTabs().indexOf(event.getSource());
+									model.dataProcessors.remove(index);
+								}
+							});
+
+							tabsList.add(tabsList.size() - 1, tab);
 						}
-						
-						tabsList.add(addChartTab);
 					}
 
 				}

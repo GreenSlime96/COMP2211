@@ -8,6 +8,8 @@ public class Main2 {
 		final Campaign c = new Campaign(new File("/Users/khengboonpek/Downloads/2_month_campaign"));
 		c.loadData();
 		
+		System.out.println(c.getImpressions().indexOfDate(Integer.MAX_VALUE));
+		
 		while (true) {
 			try {
 				Thread.sleep(1000);
