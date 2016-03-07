@@ -8,7 +8,9 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 
+import animation.PieChartScaleAnimation;
 import core.campaigns.Campaign;
+import core.data.DataFilter;
 import core.data.DataProcessor;
 import core.data.Metric;
 import core.users.User;
@@ -16,15 +18,21 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.Event;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 
 public class ChartOverviewController {
 	
@@ -51,9 +59,19 @@ public class ChartOverviewController {
 	private DatePicker endDate;
 	
 	@FXML
-	private TextField timeGranularity;
+	private ChoiceBox<String> timeGranularity;
 	
 	// ==== Begin Filter Stuff ====
+	
+	@FXML
+	
+    private ListView<DataFilter> filterList;
+	
+	@FXML
+	private Button addFilterBTN;
+	
+	@FXML
+	private Button removeFilterBTN;
 	
 	@FXML
 	private CheckBox filterMale;
@@ -173,12 +191,16 @@ public class ChartOverviewController {
 		this.dataProcessor = dataProcessor;		
 		campaignsBox.setItems(campaigns);
 		
+		//Setup filter list
+		filterList.setItems(dataProcessor.getAllDataFilters());
+		filterList.getSelectionModel().clearAndSelect(0);
+		
 		refreshData();
 	}
 	
 	@FXML
 	private void initialize() {	
-		
+				
 		// update Metrics box with current metrics
 		metricsBox.setItems(METRICS);
 		
@@ -201,23 +223,26 @@ public class ChartOverviewController {
 		});
 		
 		// locks to integers only
-		timeGranularity.textProperty().addListener(new ChangeListener<String>() {
-		    @Override public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-		        if (!newValue.isEmpty() && newValue.matches("\\d*")) {
-		            int value = Integer.parseInt(newValue);
-		            
-		            if (value > 2000) {
-			           	timeGranularity.setText(oldValue);
-			           	return;
-		            }
-		            
-		            dataProcessor.setDataPoints(value);
-		            refreshData();
-		        } else {
-		           	timeGranularity.setText(oldValue);
-		        }
-		    }
-		});	
+		timeGranularity.setItems(FXCollections.observableArrayList("Weeks", "Days", "Hours"));
+		timeGranularity.getSelectionModel().clearAndSelect(1);
+
+		
+		timeGranularity.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>()
+				{
+					@Override
+					public void changed(ObservableValue<? extends String> observable, String oldValue,
+							String newValue) {
+						
+						int i = timeGranularity.getSelectionModel().getSelectedIndex();
+						if (i == 0)
+							dataProcessor.setTimeGranularityInSeconds(60*60*24*7);
+						else if(i == 1)
+							dataProcessor.setTimeGranularityInSeconds(60*60*24);
+						else if(i == 2)
+							dataProcessor.setTimeGranularityInSeconds(60*60);	
+						refreshData();
+					}
+				});
 		
 		// locks to integers only
 		bounceViews.textProperty().addListener(new ChangeListener<String>() {
@@ -256,9 +281,19 @@ public class ChartOverviewController {
 		        }
 		    }
 		});	
+		
+		//filter change
+		filterList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<DataFilter>()
+				{
+					@Override
+					public void changed(ObservableValue<? extends DataFilter> arg0, DataFilter arg1, DataFilter arg2) {
+						refreshData();
+					}			
+				});
+		
 	}
 	
-	private void refreshData() {
+	private void refreshData() {	
 		drawChart();
 		drawUsers();
 		
@@ -280,6 +315,8 @@ public class ChartOverviewController {
 	}
 	
 	private void updateStats() {
+		dataProcessor.computeTotals(filterList.getSelectionModel().getSelectedIndex());
+		
 		final NumberFormat numberFormatter = NumberFormat.getInstance();
 		final NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();
 		final NumberFormat percentFormatter = NumberFormat.getPercentInstance();
@@ -302,7 +339,7 @@ public class ChartOverviewController {
 	}
 	
 	private void drawUsers() {
-		final EnumMap<User, Integer> users = dataProcessor.getContextData();
+		final EnumMap<User, Integer> users = dataProcessor.getContextData(filterList.getSelectionModel().getSelectedIndex());
 		
 		if (users == null)
 			System.exit(0);
@@ -315,6 +352,7 @@ public class ChartOverviewController {
 		genderData.clear();
 		genderData.add(new PieChart.Data(User.GENDER_MALE.toString(), users.get(User.GENDER_MALE)));
 		genderData.add(new PieChart.Data(User.GENDER_FEMALE.toString(), users.get(User.GENDER_FEMALE)));
+		addPieChartAnimation(genderChart);
 		
 		ageData.clear();
 		ageData.add(new PieChart.Data(User.AGE_BELOW_25.toString(), users.get(User.AGE_BELOW_25)));
@@ -322,11 +360,13 @@ public class ChartOverviewController {
 		ageData.add(new PieChart.Data(User.AGE_35_TO_44.toString(), users.get(User.AGE_35_TO_44)));
 		ageData.add(new PieChart.Data(User.AGE_45_TO_54.toString(), users.get(User.AGE_45_TO_54)));
 		ageData.add(new PieChart.Data(User.AGE_ABOVE_54.toString(), users.get(User.AGE_ABOVE_54)));
+		addPieChartAnimation(ageChart);
 		
 		incomeData.clear();
 		incomeData.add(new PieChart.Data(User.INCOME_LOW.toString(), users.get(User.INCOME_LOW)));
 		incomeData.add(new PieChart.Data(User.INCOME_MEDIUM.toString(), users.get(User.INCOME_MEDIUM)));
 		incomeData.add(new PieChart.Data(User.INCOME_HIGH.toString(), users.get(User.INCOME_HIGH)));
+		addPieChartAnimation(incomeChart);
 		
 		contextData.clear();
 		contextData.add(new PieChart.Data(User.CONTEXT_NEWS.toString(), users.get(User.CONTEXT_NEWS)));
@@ -335,7 +375,53 @@ public class ChartOverviewController {
 		contextData.add(new PieChart.Data(User.CONTEXT_BLOG.toString(), users.get(User.CONTEXT_BLOG)));
 		contextData.add(new PieChart.Data(User.CONTEXT_HOBBIES.toString(), users.get(User.CONTEXT_HOBBIES)));
 		contextData.add(new PieChart.Data(User.CONTEXT_TRAVEL.toString(), users.get(User.CONTEXT_TRAVEL)));
+		addPieChartAnimation(contextChart);
+	}
+	
+	private void addPieChartAnimation(PieChart chart)
+	{
+		for (final PieChart.Data d : chart.getData())
+		{
+			d.getNode().setOnMouseEntered(new PieChartScaleAnimation(chart, d, true));
+			d.getNode().setOnMouseExited(new PieChartScaleAnimation(chart, d, false));
+			
+			Tooltip.install(d.getNode(), new Tooltip(d.getName() + ": " + d.getPieValue()));
 		}
+	}
+	
+	private void addAreaChartTooltips(AreaChart<Number, Number> chart)
+	{
+		for(XYChart.Series<Number, Number> s : chart.getData())
+		{
+			for(XYChart.Data<Number, Number> d : s.getData())
+			{
+				//Tooltips
+				Tooltip.install(d.getNode(), new Tooltip(
+						d.getXValue() + "\n" + 
+		        chart.getYAxis().getLabel() + ": " + d.getYValue()));
+			
+				//Adding class on hover
+				d.getNode().setOnMouseEntered(new EventHandler<Event>() {
+					
+		            @Override
+		            public void handle(Event event) {
+		                d.getNode().getStyleClass().add("onHover");                     
+		            }
+		        });
+		
+		        //Removing class on exit
+		        d.getNode().setOnMouseExited(new EventHandler<Event>() {
+		
+		            @Override
+		            public void handle(Event event) {
+		                d.getNode().getStyleClass().remove("onHover");      
+		            }
+		        });
+		        
+		        
+			}
+		}
+	}
 	
 	private void updateDates() {
 		startDate.setValue(dataProcessor.getDataStartDateTime().toLocalDate());
@@ -346,53 +432,73 @@ public class ChartOverviewController {
 		metricsBox.getSelectionModel().select(dataProcessor.getMetric());
 	}
 	
-	private void updateFilter() {
-
-		filterMale.setSelected(dataProcessor.getFilterValue(User.GENDER_MALE));
-		filterFemale.setSelected(dataProcessor.getFilterValue(User.GENDER_FEMALE));
+	private void updateFilter() {		
+		int dataFilterIndex = filterList.getSelectionModel().getSelectedIndex();
 		
-		filterBelow25.setSelected(dataProcessor.getFilterValue(User.AGE_BELOW_25));
-		filter25to34.setSelected(dataProcessor.getFilterValue(User.AGE_25_TO_34));
-		filter35to44.setSelected(dataProcessor.getFilterValue(User.AGE_35_TO_44));
-		filter45to54.setSelected(dataProcessor.getFilterValue(User.AGE_45_TO_54));
-		filterAbove54.setSelected(dataProcessor.getFilterValue(User.AGE_ABOVE_54));
+		filterMale.setSelected(dataProcessor.getFilterValue(User.GENDER_MALE, dataFilterIndex));
+		filterFemale.setSelected(dataProcessor.getFilterValue(User.GENDER_FEMALE, dataFilterIndex));
 		
-		filterLow.setSelected(dataProcessor.getFilterValue(User.INCOME_LOW));
-		filterMedium.setSelected(dataProcessor.getFilterValue(User.INCOME_MEDIUM));
-		filterHigh.setSelected(dataProcessor.getFilterValue(User.INCOME_HIGH));
+		filterBelow25.setSelected(dataProcessor.getFilterValue(User.AGE_BELOW_25, dataFilterIndex));
+		filter25to34.setSelected(dataProcessor.getFilterValue(User.AGE_25_TO_34, dataFilterIndex));
+		filter35to44.setSelected(dataProcessor.getFilterValue(User.AGE_35_TO_44, dataFilterIndex));
+		filter45to54.setSelected(dataProcessor.getFilterValue(User.AGE_45_TO_54, dataFilterIndex));
+		filterAbove54.setSelected(dataProcessor.getFilterValue(User.AGE_ABOVE_54, dataFilterIndex));
 		
-		filterNews.setSelected(dataProcessor.getFilterValue(User.CONTEXT_NEWS));
-		filterShopping.setSelected(dataProcessor.getFilterValue(User.CONTEXT_SHOPPING));
-		filterSocialMedia.setSelected(dataProcessor.getFilterValue(User.CONTEXT_SOCIAL_MEDIA));
-		filterBlog.setSelected(dataProcessor.getFilterValue(User.CONTEXT_BLOG));
-		filterHobbies.setSelected(dataProcessor.getFilterValue(User.CONTEXT_HOBBIES));
-		filterTravel.setSelected(dataProcessor.getFilterValue(User.CONTEXT_TRAVEL));
+		filterLow.setSelected(dataProcessor.getFilterValue(User.INCOME_LOW, dataFilterIndex));
+		filterMedium.setSelected(dataProcessor.getFilterValue(User.INCOME_MEDIUM, dataFilterIndex));
+		filterHigh.setSelected(dataProcessor.getFilterValue(User.INCOME_HIGH, dataFilterIndex));
+		
+		filterNews.setSelected(dataProcessor.getFilterValue(User.CONTEXT_NEWS, dataFilterIndex));
+		filterShopping.setSelected(dataProcessor.getFilterValue(User.CONTEXT_SHOPPING, dataFilterIndex));
+		filterSocialMedia.setSelected(dataProcessor.getFilterValue(User.CONTEXT_SHOPPING, dataFilterIndex));
+		filterBlog.setSelected(dataProcessor.getFilterValue(User.CONTEXT_BLOG, dataFilterIndex));
+		filterHobbies.setSelected(dataProcessor.getFilterValue(User.CONTEXT_HOBBIES, dataFilterIndex));
+		filterTravel.setSelected(dataProcessor.getFilterValue(User.CONTEXT_TRAVEL, dataFilterIndex));
+		
+		//Refreshes the list view string of selected element
+		//TODO Can this be done a better way?
+		dataProcessor.getAllDataFilters().add(dataFilterIndex, dataProcessor.getDataFilter(dataFilterIndex));
+		dataProcessor.getAllDataFilters().remove(dataFilterIndex);
+	}
+	
+	@FXML
+	private void handleAddFilter()
+	{
+		dataProcessor.addDataFilter(new DataFilter());
+		filterList.getSelectionModel().clearAndSelect(dataProcessor.getAllDataFilters().size()-1);
+	}
+	
+	@FXML
+	private void handleRemoveFilter()
+	{
+		if(dataProcessor.getAllDataFilters().size() > 0)
+			dataProcessor.getAllDataFilters().remove(filterList.getSelectionModel().getSelectedIndex());
 	}
 	
 	@FXML
 	private void handleFilter() {
-		//if all filters in agroup are deselected, select them all
 		fixDeselectedFilters();
-
-		dataProcessor.setFilterValue(User.GENDER_MALE, filterMale.isSelected());
-		dataProcessor.setFilterValue(User.GENDER_FEMALE, filterFemale.isSelected());
+		int dataFilterIndex = filterList.getSelectionModel().getSelectedIndex();
 		
-		dataProcessor.setFilterValue(User.AGE_BELOW_25, filterBelow25.isSelected());
-		dataProcessor.setFilterValue(User.AGE_25_TO_34, filter25to34.isSelected());
-		dataProcessor.setFilterValue(User.AGE_35_TO_44, filter35to44.isSelected());
-		dataProcessor.setFilterValue(User.AGE_45_TO_54, filter45to54.isSelected());
-		dataProcessor.setFilterValue(User.AGE_ABOVE_54, filterAbove54.isSelected());
+		dataProcessor.setFilterValue(User.GENDER_MALE, filterMale.isSelected(), dataFilterIndex);
+		dataProcessor.setFilterValue(User.GENDER_FEMALE, filterFemale.isSelected(), dataFilterIndex);
 		
-		dataProcessor.setFilterValue(User.INCOME_LOW, filterLow.isSelected());
-		dataProcessor.setFilterValue(User.INCOME_MEDIUM, filterMedium.isSelected());
-		dataProcessor.setFilterValue(User.INCOME_HIGH, filterHigh.isSelected());
+		dataProcessor.setFilterValue(User.AGE_BELOW_25, filterBelow25.isSelected(), dataFilterIndex);
+		dataProcessor.setFilterValue(User.AGE_25_TO_34, filter25to34.isSelected(), dataFilterIndex);
+		dataProcessor.setFilterValue(User.AGE_35_TO_44, filter35to44.isSelected(), dataFilterIndex);
+		dataProcessor.setFilterValue(User.AGE_45_TO_54, filter45to54.isSelected(), dataFilterIndex);
+		dataProcessor.setFilterValue(User.AGE_ABOVE_54, filterAbove54.isSelected(), dataFilterIndex);
+		
+		dataProcessor.setFilterValue(User.INCOME_LOW, filterLow.isSelected(), dataFilterIndex);
+		dataProcessor.setFilterValue(User.INCOME_MEDIUM, filterMedium.isSelected(), dataFilterIndex);
+		dataProcessor.setFilterValue(User.INCOME_HIGH, filterHigh.isSelected(), dataFilterIndex);
 
-		dataProcessor.setFilterValue(User.CONTEXT_NEWS, filterNews.isSelected());
-		dataProcessor.setFilterValue(User.CONTEXT_SHOPPING, filterShopping.isSelected());
-		dataProcessor.setFilterValue(User.CONTEXT_SOCIAL_MEDIA, filterSocialMedia.isSelected());
-		dataProcessor.setFilterValue(User.CONTEXT_BLOG, filterBlog.isSelected());
-		dataProcessor.setFilterValue(User.CONTEXT_HOBBIES, filterHobbies.isSelected());
-		dataProcessor.setFilterValue(User.CONTEXT_TRAVEL, filterTravel.isSelected());
+		dataProcessor.setFilterValue(User.CONTEXT_NEWS, filterNews.isSelected(), dataFilterIndex);
+		dataProcessor.setFilterValue(User.CONTEXT_SHOPPING, filterShopping.isSelected(), dataFilterIndex);
+		dataProcessor.setFilterValue(User.CONTEXT_SOCIAL_MEDIA, filterSocialMedia.isSelected(), dataFilterIndex);
+		dataProcessor.setFilterValue(User.CONTEXT_BLOG, filterBlog.isSelected(), dataFilterIndex);
+		dataProcessor.setFilterValue(User.CONTEXT_HOBBIES, filterHobbies.isSelected(), dataFilterIndex);
+		dataProcessor.setFilterValue(User.CONTEXT_TRAVEL, filterTravel.isSelected(), dataFilterIndex);
 		
 		refreshData();
 	}
@@ -425,15 +531,21 @@ public class ChartOverviewController {
 	private void drawChart() {
 		areaChart.getData().clear();
 				
-		XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();
-		
-		List<? extends Number> list = dataProcessor.getData();
-		int counter = 0;
-		for (Number n : list) {
-			series.getData().add(new XYChart.Data<Number, Number>(counter++, n));
+		for(int dataFilterIndex=0; dataFilterIndex < dataProcessor.getAllDataFilters().size(); dataFilterIndex++)
+		{
+			XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();
+			series.setName(dataProcessor.getDataFilter(dataFilterIndex).toString());
+			
+			List<? extends Number> list = dataProcessor.getData(dataFilterIndex);
+			int counter = 0;
+			for (Number n : list) {
+				series.getData().add(new XYChart.Data<Number, Number>(counter++, n));
+			}
+			
+			areaChart.getData().add(series);
 		}
 		
-		areaChart.getData().add(series);
+		addAreaChartTooltips(areaChart);
 	}
 
 	//TODO code review

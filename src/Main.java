@@ -33,7 +33,9 @@ public class Main extends Application {
 		
 		Scene scene = new Scene(rootLayout);
 		primaryStage.setScene(scene);
+		scene.getStylesheets().add("style.css");
 		primaryStage.show();
+
 	}
 	
 	/**
