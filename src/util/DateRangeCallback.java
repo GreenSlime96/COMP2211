@@ -11,11 +11,14 @@ import java.time.LocalDate;
  */
 public class DateRangeCallback implements Callback<DatePicker, DateCell> {
 
-    LocalDate startDate, endDate;
+    boolean isStart;
+    LocalDate startDate, endDate, limitDate;
 
-    public DateRangeCallback(LocalDate startDate, LocalDate endDate){
+    public DateRangeCallback(boolean isStart, LocalDate startDate, LocalDate endDate, LocalDate limitDate){
+        this.isStart = isStart;
         this.startDate = startDate;
         this.endDate = endDate;
+        this.limitDate = limitDate;
     }
 
     @Override
@@ -33,6 +36,19 @@ public class DateRangeCallback implements Callback<DatePicker, DateCell> {
                 if (item.isAfter(endDate)) {
                     setDisable(true);
                     setStyle("-fx-background-color: #cccccc;");
+                }
+
+                if(isStart){
+                    if (item.isAfter(limitDate.minusDays(1)) && item.isBefore(endDate.plusDays(1))){
+                        setDisable(true);
+                        setStyle("-fx-background-color: #FFBBBB;");
+                    }
+                }else{
+                    System.out.println("FALSEYO");
+                    if (item.isBefore(limitDate.plusDays(1)) && item.isAfter(startDate.minusDays(1))){
+                        setDisable(true);
+                        setStyle("-fx-background-color: #FFBBBB;");
+                    }
                 }
             }
         };

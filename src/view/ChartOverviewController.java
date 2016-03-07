@@ -430,10 +430,10 @@ public class ChartOverviewController {
 		LocalDate startLocalDate = dataProcessor.getCampaign().getStartDateTime().toLocalDate();
 		LocalDate endLocalDate = dataProcessor.getCampaign().getEndDateTime().toLocalDate();
 
-		startDate.setDayCellFactory(new DateRangeCallback(startLocalDate, endLocalDate.minusDays(1)));
+		startDate.setDayCellFactory(new DateRangeCallback(true, startLocalDate, endLocalDate.minusDays(1), dataProcessor.getDataEndDateTime().toLocalDate()));
 		startDate.setValue(dataProcessor.getDataStartDateTime().toLocalDate());
 
-		endDate.setDayCellFactory(new DateRangeCallback(startLocalDate.plusDays(1),endLocalDate));
+		endDate.setDayCellFactory(new DateRangeCallback(false, startLocalDate.plusDays(1),endLocalDate, dataProcessor.getDataStartDateTime().toLocalDate()));
 		endDate.setValue(dataProcessor.getDataEndDateTime().toLocalDate());
 	}
 	
