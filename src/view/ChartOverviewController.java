@@ -33,6 +33,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
+import util.DateRangeCallback;
 
 public class ChartOverviewController {
 	
@@ -199,20 +201,20 @@ public class ChartOverviewController {
 	}
 	
 	@FXML
-	private void initialize() {	
-				
+	private void initialize() {
+
 		// update Metrics box with current metrics
 		metricsBox.setItems(METRICS);
-		
+
 		// listener to update DataProcessor metric
 		metricsBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Metric>() {
 			@Override
 			public void changed(ObservableValue<? extends Metric> observable, Metric oldValue, Metric newValue) {
-				dataProcessor.setMetric(newValue);		
+				dataProcessor.setMetric(newValue);
 				refreshData();
-			}			
+			}
 		});
-		
+
 		// campaign change listener
 		campaignsBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Campaign>() {
 			@Override
@@ -221,76 +223,77 @@ public class ChartOverviewController {
 				refreshData();
 			}
 		});
-		
+
 		// locks to integers only
 		timeGranularity.setItems(FXCollections.observableArrayList("Weeks", "Days", "Hours"));
 		timeGranularity.getSelectionModel().clearAndSelect(1);
 
-		
+
 		timeGranularity.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>()
 				{
 					@Override
 					public void changed(ObservableValue<? extends String> observable, String oldValue,
 							String newValue) {
-						
+
 						int i = timeGranularity.getSelectionModel().getSelectedIndex();
 						if (i == 0)
 							dataProcessor.setTimeGranularityInSeconds(60*60*24*7);
 						else if(i == 1)
 							dataProcessor.setTimeGranularityInSeconds(60*60*24);
 						else if(i == 2)
-							dataProcessor.setTimeGranularityInSeconds(60*60);	
+							dataProcessor.setTimeGranularityInSeconds(60*60);
 						refreshData();
 					}
 				});
-		
+
 		// locks to integers only
 		bounceViews.textProperty().addListener(new ChangeListener<String>() {
 		    @Override public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 		        if (!newValue.isEmpty() && newValue.matches("\\d*")) {
 		            int value = Integer.parseInt(newValue);
-		            
+
 		            if (value > 2000) {
 		            	bounceViews.setText(oldValue);
 			           	return;
 		            }
-		            
+
 		            dataProcessor.setBounceMinimumPagesViewed(value);
 		            refreshData();
 //		        } else {
 //		        	bounceViews.setText(oldValue);
 		        }
 		    }
-		});	
-		
+		});
+
 		// locks to integers only
 		bounceTime.textProperty().addListener(new ChangeListener<String>() {
 		    @Override public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 		        if (!newValue.isEmpty() && newValue.matches("\\d*")) {
 		            int value = Integer.parseInt(newValue);
-		            
+
 		            if (value > 2000) {
 		            	bounceTime.setText(oldValue);
 			           	return;
 		            }
-		            
+
 		            dataProcessor.setBounceMinimumSecondsOnPage(value);
 		            refreshData();
 //		        } else {
 //		        	bounceTime.setText(oldValue);
 		        }
 		    }
-		});	
-		
+
+		});
+
 		//filter change
 		filterList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<DataFilter>()
 				{
 					@Override
 					public void changed(ObservableValue<? extends DataFilter> arg0, DataFilter arg1, DataFilter arg2) {
 						refreshData();
-					}			
+					}
 				});
-		
+
 	}
 	
 	private void refreshData() {	
@@ -424,7 +427,13 @@ public class ChartOverviewController {
 	}
 	
 	private void updateDates() {
+		LocalDate startLocalDate = dataProcessor.getCampaign().getStartDateTime().toLocalDate();
+		LocalDate endLocalDate = dataProcessor.getCampaign().getEndDateTime().toLocalDate();
+
+		startDate.setDayCellFactory(new DateRangeCallback(startLocalDate, endLocalDate.minusDays(1)));
 		startDate.setValue(dataProcessor.getDataStartDateTime().toLocalDate());
+
+		endDate.setDayCellFactory(new DateRangeCallback(startLocalDate.plusDays(1),endLocalDate));
 		endDate.setValue(dataProcessor.getDataEndDateTime().toLocalDate());
 	}
 	
@@ -507,9 +516,9 @@ public class ChartOverviewController {
 	private void handleStartDate() {
 		final LocalDate date = startDate.getValue();
 		final LocalTime time = LocalTime.of(0, 0);
-		
+
 		dataProcessor.setDataStartDateTime(LocalDateTime.of(date, time));
-		
+
 		refreshData();
 	}
 	
@@ -518,7 +527,7 @@ public class ChartOverviewController {
 		final LocalDate date = endDate.getValue();
 		final LocalTime time = LocalTime.of(0, 0);
 		
-		dataProcessor.setDataStartDateTime(LocalDateTime.of(date, time));
+		dataProcessor.setDataEndDateTime(LocalDateTime.of(date, time));
 		
 		refreshData();
 	}
