@@ -339,10 +339,10 @@ public class ChartOverviewController {
 		LocalDate endLocalDate = dataProcessor.getCampaign().getEndDateTime().toLocalDate();
 
 		startDate.setDayCellFactory(new DateRangeCallback(startLocalDate, endLocalDate.minusDays(1)));
-		startDate.setValue(startLocalDate);
+		startDate.setValue(dataProcessor.getDataStartDateTime().toLocalDate());
 
 		endDate.setDayCellFactory(new DateRangeCallback(startLocalDate.plusDays(1),endLocalDate));
-		endDate.setValue(endLocalDate);
+		endDate.setValue(dataProcessor.getDataEndDateTime().toLocalDate());
 	}
 	
 	private void updateMetric() {
