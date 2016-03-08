@@ -154,10 +154,17 @@ public class DataProcessor {
 		this.metric = Objects.requireNonNull(metric);
 	}
 	
+	/**
+	 * Computes a list of the frequency of each click cost delimited
+	 * by one pence each. 
+	 * @param dataFilterIndex DataFilter to apply for this data set
+	 * @return List of click cost frequencies for the given data filter index
+	 */
 	public final List<Integer> getClickCostFrequency(int dataFilterIndex)
 	{
 		final DataFilter dataFilter = dataFilters.get(dataFilterIndex);
 		
+		//Assume max cost per click is 16 (based off of data set provided)
 		int max_cost = 16;
 		int[] freqs = new int[max_cost];
 		int val;
@@ -173,21 +180,26 @@ public class DataProcessor {
 			if (dateTime > dataEndDate)
 				break;
 			
+			//Test filter against datum
 			if (!dataFilter.test(clickTable.getUserData(i)))
 				continue;
 			
+			//Round value up to nearest pence as so to bucket the costs for histogram
 			val = (int) Math.ceil(clickTable.getCost(i));
+			//Ignore zero values
 			if(val == 0) continue;
 			if(val >=  max_cost)
 			{
+				//If click cost is above the max cost, array is not big enough and must be resized
 				freqs = resizeIntArray(freqs);
 				max_cost = freqs.length;	
 			}
+			//Increase frequency of relevant bucket
 			freqs[val]++;
 		}
 		
+		//Return array in List format, trimmed to size
 		ArrayList<Integer> clickFrequency = new ArrayList<Integer>();
-		
 		for(int i=0; i<freqs.length; i++)
 		{
 			if(i > max_cost / 2 && freqs[i] == 0)
@@ -199,6 +211,12 @@ public class DataProcessor {
 		return clickFrequency;
 	}
 	
+	/**
+	 * Resizes an integer array by doubling its length and copying
+	 * elements over
+	 * @param arr Original array
+	 * @return New array with double length
+	 */
 	private final int[] resizeIntArray(int[] arr)
 	{
 		int[] new_arr = new int[arr.length * 2];

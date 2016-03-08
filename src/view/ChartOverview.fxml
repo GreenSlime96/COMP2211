@@ -212,10 +212,10 @@
                                     <Font name="System Bold" size="16.0" />
                                  </font>
                               </Label>
-                              <ListView fx:id="filterList" />
-                              <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0" VBox.vgrow="ALWAYS">
+                              <ListView fx:id="filterList" VBox.vgrow="ALWAYS" />
+                              <HBox alignment="CENTER" prefHeight="60.0" prefWidth="0.0" spacing="10.0">
                                  <children>
-                                    <MenuButton focusTraversable="false" mnemonicParsing="false" text="Filters">
+                                    <MenuButton focusTraversable="false" maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefWidth="110.0" text="Filters">
                                        <items>
                                           <CustomMenuItem hideOnClick="false" mnemonicParsing="false" text="Unspecified Action">
                                              <content>
@@ -292,7 +292,7 @@
                                        </items>
                                     </MenuButton>
                                     <Button fx:id="removeFilterBTN" alignment="CENTER" mnemonicParsing="false" onAction="#handleRemoveFilter" prefHeight="28.0" prefWidth="28.0" text="-" />
-                                  <Button fx:id="addFilterBTN" alignment="CENTER" mnemonicParsing="false" onAction="#handleAddFilter" prefHeight="28.0" prefWidth="28.0" text="+" />
+                                  <Button fx:id="addFilterBTN" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleAddFilter" prefHeight="28.0" prefWidth="28.0" text="+" />
                                  </children>
                               </HBox>
                            </children>
