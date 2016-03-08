@@ -26,7 +26,7 @@
                      <top>
                         <HBox alignment="CENTER" maxWidth="300.0" minWidth="300.0" spacing="10.0" BorderPane.alignment="CENTER">
                            <children>
-                              <ProgressBar fx:id="progress" prefHeight="20.0" prefWidth="250.0" progress="0.0" HBox.hgrow="ALWAYS">
+                              <ProgressBar fx:id="progress" prefHeight="20.0" prefWidth="250.0" HBox.hgrow="ALWAYS">
                                  <HBox.margin>
                                     <Insets />
                                  </HBox.margin>

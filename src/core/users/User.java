@@ -5,8 +5,10 @@ import java.nio.MappedByteBuffer;
 
 import gnu.trove.map.TByteShortMap;
 import gnu.trove.map.TShortByteMap;
+import gnu.trove.map.TShortShortMap;
 import gnu.trove.map.hash.TByteShortHashMap;
 import gnu.trove.map.hash.TShortByteHashMap;
+import gnu.trove.map.hash.TShortShortHashMap;
 
 public enum User {
 	GENDER_MALE("Male"), 
@@ -32,7 +34,8 @@ public enum User {
 	// ==== Constants ====
 	
 	private static final TShortByteMap byteCache = new TShortByteHashMap();
-	private static final short[] shortCache = new short[256];
+	private static final TShortShortMap shortMap = new TShortShortHashMap();
+	private static final short[] shortCache = new short[180];
 	
 	static {
 		
@@ -118,6 +121,56 @@ public enum User {
 	// ==== Static Helper Methods ====
 
 	public static byte compressUser(short userData) {
+		byte encoded = byteCache.get(userData);
+		
+		if (encoded == 0) {	
+			encoded = Byte.MIN_VALUE;
+			
+			encoded += ((userData & 0x3) - 1) * 90;
+			
+			switch ((userData >> 2) & 0x1F) {
+			case 16:
+				encoded += 4 * 18;
+				break;
+			case 8:
+				encoded += 3 * 18;
+				break;
+			case 4:
+				encoded += 2 * 18;
+				break;
+			case 2:
+				encoded += 18;
+				break;
+			}
+			
+			encoded += ((userData >> 8) & 0x3) * 6;
+			
+			switch ((userData >> 10) & 0x3F) {
+			case 32:
+				encoded += 5;
+				break;
+			case 16:
+				encoded += 4;
+				break;
+			case 8:
+				encoded += 3;
+				break;
+			case 4:
+				encoded += 2;
+				break;
+			case 2:
+				encoded++;
+				break;
+			}			
+			
+//			byteCache.put(userData, encoded);
+			shortCache[encoded - Byte.MIN_VALUE] = userData;
+		}
+		
+		return encoded;
+	}
+	
+	public static int compress(short userData) {
 		byte encoded = byteCache.get(userData);
 		
 		if (encoded == byteCache.getNoEntryValue()) {	

@@ -297,8 +297,8 @@ public class DataProcessor {
 		
 		final long newDateTime = DateProcessor.toEpochSeconds(dateTime);
 		
-		if (newDateTime < campaignStartDate)
-			return;
+//		if (newDateTime < campaignStartDate)
+//			return;
 
 		if (newDateTime >= campaignEndDate)
 			return;
@@ -321,8 +321,8 @@ public class DataProcessor {
 		
 		final long newDateTime = DateProcessor.toEpochSeconds(dateTime);
 		
-		if (newDateTime > campaignEndDate)
-			return;
+//		if (newDateTime > campaignEndDate)
+//			return;
 		
 		if (newDateTime <= campaignStartDate)
 			return;
@@ -703,8 +703,14 @@ public class DataProcessor {
 		
 		final ArrayList<Double> costPerAcquisition = new ArrayList<Double>(conversionList.size());
 		
-		for (int i = 0; i < conversionList.size(); i++)
-			costPerAcquisition.add(costList.get(i) / conversionList.get(i));
+		for (int i = 0; i < conversionList.size(); i++) {
+			double metric = costList.get(i) / conversionList.get(i);
+			
+			if (metric == Double.POSITIVE_INFINITY)
+				metric = 0;
+			
+			costPerAcquisition.add(metric);
+		}
 		
 		return costPerAcquisition;
 	}
@@ -714,12 +720,16 @@ public class DataProcessor {
 		final List<Integer> clickList = numberOfClicks(dataFilterIndex);
 		final List<Double> costList = totalCost(dataFilterIndex);
 				
-		final ArrayList<Double> costPerAcquisition = new ArrayList<Double>(clickList.size());
+		final ArrayList<Double> costPerClick = new ArrayList<Double>(clickList.size());
 		
-		for (int i = 0; i < clickList.size(); i++)
-			costPerAcquisition.add(costList.get(i) / clickList.get(i));
+		for (int i = 0; i < clickList.size(); i++) {
+			if (clickList.get(i) == 0)
+				costPerClick.add(0d);
+			else
+				costPerClick.add(costList.get(i) / clickList.get(i));
+		}
 		
-		return costPerAcquisition;
+		return costPerClick;
 	}
 	
 	// The average amount of money spent on an advertising campaign for every one thousand impressions.
@@ -742,8 +752,12 @@ public class DataProcessor {
 		
 		final ArrayList<Double> bounceRates = new ArrayList<Double>(bouncesList.size());
 		
-		for (int i = 0; i < bouncesList.size(); i++)
-			bounceRates.add((double) bouncesList.get(i) / (double) clicksList.get(i));
+		for (int i = 0; i < bouncesList.size(); i++) {
+			if (clicksList.get(i) == 0)
+				bounceRates.add(0d);
+			else
+				bounceRates.add((double) bouncesList.get(i) / clicksList.get(i));
+		}
 		
 		return bounceRates;
 	}

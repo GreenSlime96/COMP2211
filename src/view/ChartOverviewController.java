@@ -181,23 +181,24 @@ public class ChartOverviewController {
 //	private ObservableList<PieChart.Data> contextData;
 	private DataProcessor dataProcessor;
 	
-	public ChartOverviewController() {
-//		genderData = FXCollections.observableArrayList();
-//		ageData = FXCollections.observableArrayList();
-//		incomeData = FXCollections.observableArrayList();
-//		contextData = FXCollections.observableArrayList();
-	}
+	private boolean isReady;
 	
-	public void setDataProcessor(DataProcessor dataProcessor, ObservableList<Campaign> campaigns) {
-		this.dataProcessor = dataProcessor;		
+	public void setCampaigns(ObservableList<Campaign> campaigns) {
 		campaignsBox.setItems(campaigns);
+
 		campaignsBox.setTooltip(new Tooltip("Select a campaign"));
 		
 		//Setup filter list
 		filterList.setItems(dataProcessor.getAllDataFilters());
 		filterList.getSelectionModel().clearAndSelect(0);
-		
-		refreshData();
+
+	}
+	
+	public void setDataProcessor(DataProcessor dataProcessor) {
+		this.dataProcessor = dataProcessor;
+
+		if (dataProcessor != null)
+			refreshData();
 	}
 	
 	@FXML
@@ -211,6 +212,10 @@ public class ChartOverviewController {
 		metricsBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Metric>() {
 			@Override
 			public void changed(ObservableValue<? extends Metric> observable, Metric oldValue, Metric newValue) {
+
+		    	if (!isReady)
+		    		return;
+		    	
 				dataProcessor.setMetric(newValue);
 				refreshData();
 			}
@@ -220,6 +225,12 @@ public class ChartOverviewController {
 		campaignsBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Campaign>() {
 			@Override
 			public void changed(ObservableValue<? extends Campaign> observable, Campaign oldValue, Campaign newValue) {
+		    	if (!isReady)
+		    		return;
+				
+		    	if (newValue == null)
+		    		return;
+		    	
 				dataProcessor.setCampaign(newValue);
 				refreshData();
 			}
@@ -251,6 +262,9 @@ public class ChartOverviewController {
 		// locks to integers only
 		bounceViews.textProperty().addListener(new ChangeListener<String>() {
 		    @Override public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+		    	if (!isReady)
+		    		return;
+		    	
 		        if (!newValue.isEmpty() && newValue.matches("\\d*")) {
 		            int value = Integer.parseInt(newValue);
 
@@ -271,6 +285,10 @@ public class ChartOverviewController {
 		// locks to integers only
 		bounceTime.textProperty().addListener(new ChangeListener<String>() {
 		    @Override public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+		    	if (!isReady)
+		    		return;
+		    	
+		    	System.out.println("bounce changed");
 		        if (!newValue.isEmpty() && newValue.matches("\\d*")) {
 		            int value = Integer.parseInt(newValue);
 
@@ -315,7 +333,10 @@ public class ChartOverviewController {
 		bounceTime.setTooltip(new Tooltip("Number of seconds spent on page"));
 	}
 	
-	private void refreshData() {	
+
+	private void refreshData() {
+		isReady = false;
+
 		drawChart();
 		drawUsers();
 		updateCampaigns();
@@ -324,6 +345,8 @@ public class ChartOverviewController {
 		updateFilter();
 		updateMetric();
 		updateBounce();
+		
+		isReady = true;
 	}
 	
 	private void updateBounce() {
@@ -399,6 +422,7 @@ public class ChartOverviewController {
 		contextData.add(new PieChart.Data(User.CONTEXT_BLOG.toString(), users.get(User.CONTEXT_BLOG)));
 		contextData.add(new PieChart.Data(User.CONTEXT_HOBBIES.toString(), users.get(User.CONTEXT_HOBBIES)));
 		contextData.add(new PieChart.Data(User.CONTEXT_TRAVEL.toString(), users.get(User.CONTEXT_TRAVEL)));
+
 		addPieChartAnimation(contextChart);
 	}
 	
