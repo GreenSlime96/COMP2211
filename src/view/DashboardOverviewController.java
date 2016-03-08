@@ -28,6 +28,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.DirectoryChooser;
@@ -64,6 +65,10 @@ public class DashboardOverviewController {
 	
 	@FXML
 	private void initialize() {
+		addCampaignButton.setTooltip(new Tooltip("Add a new campaign"));
+		removeCampaignButton.setTooltip(new Tooltip("Remove curent campaign"));
+		addChartTab.setTooltip(new Tooltip("Add a new Tab for charts"));
+		
 		campaignAccordion.expandedPaneProperty().addListener(new ChangeListener<TitledPane>() {
 			@Override
 			public void changed(ObservableValue<? extends TitledPane> observable, TitledPane oldValue, TitledPane newValue) {
@@ -77,8 +82,10 @@ public class DashboardOverviewController {
 							newValue.setCollapsible(false);
 						}
 					});
-			}			
+			}					
+	
 		});
+
 		
 		progress.managedProperty().bind(progress.visibleProperty());
 		
@@ -89,6 +96,8 @@ public class DashboardOverviewController {
 		removeCampaignButton.visibleProperty().bind(progress.visibleProperty().not());
 		
 		progress.setVisible(false);
+		
+
 	}
 	
 	@FXML

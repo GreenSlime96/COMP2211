@@ -9,6 +9,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseEvent;
@@ -53,11 +54,13 @@ public class CampaignOverviewController {
 	@FXML
 	private Label bounceRate;
 	
+
+	
 	
 	// ==== Constructor ====
 	
 	public CampaignOverviewController() {
-		
+
 	}
 	
 	@FXML
@@ -69,6 +72,7 @@ public class CampaignOverviewController {
 					StringBuilder clipboardString = new StringBuilder();
 					
 					clipboardString.append("Number of Impressions:\t");
+				
 					clipboardString.append(numberOfImpressions.getText());
 					clipboardString.append(System.lineSeparator());
 					
@@ -164,5 +168,7 @@ public class CampaignOverviewController {
 		costPerClick.setText(cpc);
 		costPerThousandImpressions.setText(cpm);
 		bounceRate.setText(br);
+		
+		
 	}
 }
