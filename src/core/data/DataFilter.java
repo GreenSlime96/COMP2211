@@ -12,7 +12,6 @@ public class DataFilter implements Predicate<Short> {
 	// ==== Constants ====
 	
 	public static final short FLAGS_ALL = -1;
-	public static final short FLAGS_NONE = 0;
 	
 	
 	// ==== Properties ====
@@ -70,12 +69,19 @@ public class DataFilter implements Predicate<Short> {
 	// ==== UI Hooks ====
 	
 	public String toString() {
-		String out = "Filters applied: ";
-		for(int i=0; i<User.values().length;  i++)
-		{
-			if(getField(User.values()[i])) out += User.values()[i].toString() + (i < User.values().length - 1 ? ", " : "");
+		final StringBuilder sb = new StringBuilder();
+		
+		if (flags == FLAGS_ALL) {
+			sb.append("None");
+		} else {
+			for (User u : User.values()) {
+				if (getField(u)) {
+					sb.append(u.title);
+					sb.append('\n');
+				}
+			}
 		}
-		if(flags == FLAGS_NONE) out += "None";
-		return out;
+		
+		return sb.toString();
 	}
 }

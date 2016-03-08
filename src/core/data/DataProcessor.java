@@ -162,7 +162,6 @@ public class DataProcessor {
 	 */
 	public final List<? extends Number> getData(int dataFilterIndex) {
 		List<? extends Number> returnList;
-		DataFilter dataFilter = dataFilters.get(dataFilterIndex);
 		
 		final long time = System.currentTimeMillis();
 		

@@ -194,8 +194,8 @@
                                     <Font name="System Bold" size="16.0" />
                                  </font>
                               </Label>
-                              <ListView fx:id="filterList" />
-                              <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="10.0" VBox.vgrow="ALWAYS">
+                              <ListView fx:id="filterList" VBox.vgrow="ALWAYS" />
+                              <HBox alignment="CENTER" fillHeight="false" spacing="10.0" VBox.vgrow="NEVER">
                                  <children>
                                     <MenuButton focusTraversable="false" mnemonicParsing="false" text="Filters">
                                        <items>
@@ -276,6 +276,9 @@
                                     <Button fx:id="removeFilterBTN" alignment="CENTER" mnemonicParsing="false" onAction="#handleRemoveFilter" prefHeight="28.0" prefWidth="28.0" text="-" />
                                   <Button fx:id="addFilterBTN" alignment="CENTER" mnemonicParsing="false" onAction="#handleAddFilter" prefHeight="28.0" prefWidth="28.0" text="+" />
                                  </children>
+                                 <padding>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                 </padding>
                               </HBox>
                            </children>
                         </VBox>
