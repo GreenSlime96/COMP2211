@@ -162,24 +162,21 @@ public class ChartOverviewController {
 //	private ObservableList<PieChart.Data> contextData;
 	private DataProcessor dataProcessor;
 	
-	public ChartOverviewController() {
-//		genderData = FXCollections.observableArrayList();
-//		ageData = FXCollections.observableArrayList();
-//		incomeData = FXCollections.observableArrayList();
-//		contextData = FXCollections.observableArrayList();
+	private boolean isReady;
+	
+	public void setCampaigns(ObservableList<Campaign> campaigns) {
+		campaignsBox.setItems(campaigns);
 	}
 	
-	public void setDataProcessor(DataProcessor dataProcessor, ObservableList<Campaign> campaigns) {
-		this.dataProcessor = dataProcessor;		
-		campaignsBox.setItems(campaigns);
+	public void setDataProcessor(DataProcessor dataProcessor) {
+		this.dataProcessor = dataProcessor;
 		
-		System.out.println("sdp");
-		refreshData();
+		if (dataProcessor != null)
+			refreshData();
 	}
 	
 	@FXML
-	private void initialize() {	
-		
+	private void initialize() {			
 		// update Metrics box with current metrics
 		metricsBox.setItems(METRICS);
 		
@@ -187,8 +184,10 @@ public class ChartOverviewController {
 		metricsBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Metric>() {
 			@Override
 			public void changed(ObservableValue<? extends Metric> observable, Metric oldValue, Metric newValue) {
+		    	if (!isReady)
+		    		return;
+		    	
 				dataProcessor.setMetric(newValue);		
-				System.out.println("mb");
 				refreshData();
 			}			
 		});
@@ -197,8 +196,13 @@ public class ChartOverviewController {
 		campaignsBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Campaign>() {
 			@Override
 			public void changed(ObservableValue<? extends Campaign> observable, Campaign oldValue, Campaign newValue) {
+		    	if (!isReady)
+		    		return;
+				
+		    	if (newValue == null)
+		    		return;
+		    	
 				dataProcessor.setCampaign(newValue);
-				System.out.println("cb");
 				refreshData();
 			}
 		});
@@ -206,6 +210,9 @@ public class ChartOverviewController {
 		// locks to integers only
 		timeGranularity.textProperty().addListener(new ChangeListener<String>() {
 		    @Override public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+		    	if (!isReady)
+		    		return;
+		    	
 		        if (!newValue.isEmpty() && newValue.matches("\\d*")) {
 		            int value = Integer.parseInt(newValue);
 		            
@@ -215,7 +222,6 @@ public class ChartOverviewController {
 		            }
 		            
 		            dataProcessor.setDataPoints(value);
-		            System.out.println("tg");
 		            refreshData();
 		        } else {
 		           	timeGranularity.setText(oldValue);
@@ -226,6 +232,9 @@ public class ChartOverviewController {
 		// locks to integers only
 		bounceViews.textProperty().addListener(new ChangeListener<String>() {
 		    @Override public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+		    	if (!isReady)
+		    		return;
+		    	
 		        if (!newValue.isEmpty() && newValue.matches("\\d*")) {
 		            int value = Integer.parseInt(newValue);
 		            
@@ -245,6 +254,10 @@ public class ChartOverviewController {
 		// locks to integers only
 		bounceTime.textProperty().addListener(new ChangeListener<String>() {
 		    @Override public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+		    	if (!isReady)
+		    		return;
+		    	
+		    	System.out.println("bounce changed");
 		        if (!newValue.isEmpty() && newValue.matches("\\d*")) {
 		            int value = Integer.parseInt(newValue);
 		            
@@ -263,6 +276,8 @@ public class ChartOverviewController {
 	}
 	
 	private void refreshData() {
+		isReady = false;
+		
 		drawChart();
 		drawUsers();
 		
@@ -272,6 +287,8 @@ public class ChartOverviewController {
 		updateFilter();
 		updateMetric();
 		updateBounce();
+		
+		isReady = true;
 	}
 	
 	private void updateBounce() {
@@ -401,7 +418,7 @@ public class ChartOverviewController {
 	private void handleStartDate() {
 		final LocalDate date = startDate.getValue();
 		final LocalTime time = LocalTime.of(0, 0);
-		
+		System.out.println("hsd fired");
 		dataProcessor.setDataStartDateTime(LocalDateTime.of(date, time));
 		
 		refreshData();
@@ -412,7 +429,7 @@ public class ChartOverviewController {
 		final LocalDate date = endDate.getValue();
 		final LocalTime time = LocalTime.of(0, 0);
 		
-		dataProcessor.setDataStartDateTime(LocalDateTime.of(date, time));
+		dataProcessor.setDataEndDateTime(LocalDateTime.of(date, time));
 		
 		refreshData();
 	}

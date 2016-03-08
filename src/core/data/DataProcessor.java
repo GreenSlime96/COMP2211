@@ -291,8 +291,8 @@ public class DataProcessor {
 		
 		final long newDateTime = DateProcessor.toEpochSeconds(dateTime);
 		
-		if (newDateTime < campaignStartDate)
-			return;
+//		if (newDateTime < campaignStartDate)
+//			return;
 
 		if (newDateTime >= campaignEndDate)
 			return;
@@ -315,8 +315,8 @@ public class DataProcessor {
 		
 		final long newDateTime = DateProcessor.toEpochSeconds(dateTime);
 		
-		if (newDateTime > campaignEndDate)
-			return;
+//		if (newDateTime > campaignEndDate)
+//			return;
 		
 		if (newDateTime <= campaignStartDate)
 			return;

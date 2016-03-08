@@ -6,22 +6,16 @@ import java.util.List;
 
 import core.Model;
 import core.campaigns.Campaign;
-import core.campaigns.InvalidCampaignException;
 import core.data.DataProcessor;
-import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
-import javafx.concurrent.Task;
-import javafx.concurrent.WorkerStateEvent;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Accordion;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -57,22 +51,22 @@ public class DashboardOverviewController {
 	private Stage mainStage;
 	private Model model;
 	
-	private BorderPane campaignOverview;
-	private ChartOverviewController chartController;
+	BorderPane campaignOverview;
+	ChartOverviewController chartController;
 	
 	
 	// ==== Constructor ====
 	
 	public DashboardOverviewController() {
-		// Load person overview.
+		FXMLLoader loader = new FXMLLoader();
+		loader.setLocation(this.getClass().getResource("ChartOverview.fxml"));
 		try {
-			FXMLLoader loader = new FXMLLoader();
-			loader.setLocation(this.getClass().getResource("ChartOverview.fxml"));
 			campaignOverview = (BorderPane) loader.load();
-			chartController = loader.getController();
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		chartController = loader.getController();
 	}
 	
 	@FXML
@@ -83,37 +77,16 @@ public class DashboardOverviewController {
 		        if (oldValue != null) 
 		        	oldValue.setCollapsible(true);
 		        
-				if (newValue != null)
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() {
-							newValue.setCollapsible(false);
-						}
-					});
+				if (newValue != null) {
+					final int index = campaignAccordion.getPanes().indexOf(newValue);
+					model.currentCampaign.set(model.campaigns.get(index));
+					
+					newValue.setCollapsible(false);
+				} else {
+					model.currentCampaign.set(null);
+				}
 			}			
 		});
-		
-		chartsTabPane.getSelectionModel().selectedIndexProperty().addListener(new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				int index = newValue.intValue();
-				
-				System.out.println("changed to " + newValue.intValue());
-				
-				if (index == -1)
-					return;
-				
-				// return if clicked on nothing
-				if (index == chartsTabPane.getTabs().size() - 1) {
-					System.out.println("user clicked on selection tab");
-					chartsTabPane.getSelectionModel().clearAndSelect(index - 2);
-					index -= 2;
-				}
-				
-//				System.out.println("changed fired: " + index);
-				chartController.setDataProcessor(model.dataProcessors.get(0), model.campaigns);
-			}
-		});;
 		
 		progress.managedProperty().bind(progress.visibleProperty());
 		
@@ -123,7 +96,33 @@ public class DashboardOverviewController {
 		removeCampaignButton.managedProperty().bind(progress.visibleProperty().not());
 		removeCampaignButton.visibleProperty().bind(progress.visibleProperty().not());
 		
-		progress.setVisible(false);
+		progress.setVisible(false);		
+		
+		chartsTabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {			
+			@Override
+			public void changed(ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue) {
+				// make addChartTab unselectable
+				if (newValue == addChartTab) {
+					// select old value if one exists
+					if (chartsTabPane.getTabs().size() != 1) {
+						chartsTabPane.getSelectionModel().select(oldValue);
+						model.addChart();
+					}
+					
+					return;
+				}
+				
+				oldValue.setContent(null);				
+				newValue.setContent(campaignOverview);
+				
+				final int index = chartsTabPane.getTabs().indexOf(newValue);
+				
+				if (index != -1)
+					model.currentProcessor.set(model.dataProcessors.get(index));
+				else
+					model.currentProcessor.set(null);
+			}		
+		});
 	}
 	
 	@FXML
@@ -131,110 +130,38 @@ public class DashboardOverviewController {
 		DirectoryChooser dc = new DirectoryChooser();
 		File campaignDirectory = dc.showDialog(mainStage);
 		
-		if (campaignDirectory != null) {
-			final Campaign campaign = new Campaign(campaignDirectory);
-			
-			if (model.campaigns.contains(campaign)) {
-				final Alert alert = new Alert(AlertType.WARNING);
-				
-				alert.initOwner(mainStage);
-				alert.setTitle("Campaign Already Loaded");
-				alert.setHeaderText("Campaign Already Loaded");
-				alert.setContentText("Your selected Campaign has already been loaded. Please check the sidebar");
-				
-				alert.showAndWait();	
-				
-				return;
-			}
-			
-			Task<Void> task = new Task<Void>() {
-				@Override
-				protected Void call() throws InvalidCampaignException {
-					try {
-						progress.setVisible(true);						
-						campaign.loadData();
-					} finally {
-						progress.setVisible(false);
-					}
-					
-					return null;
-				}					
-			};
-
-			new Thread(task).start();
-			
-			task.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-				@Override
-				public void handle(WorkerStateEvent event) {
-					model.campaigns.add(campaign);					
-				}				
-			});
-			
-			task.setOnFailed(new EventHandler<WorkerStateEvent>() {
-				@Override
-				public void handle(WorkerStateEvent event) {
-					final Alert alert = new Alert(AlertType.ERROR);
-					
-					alert.initOwner(mainStage);
-					alert.setTitle("Invalid Campaign");
-					alert.setHeaderText("Error Loading Campaign");
-					alert.setContentText(task.getException().getMessage());
-					
-					alert.showAndWait();						
-				}				
-			});
-		}
+		if (campaignDirectory != null)
+			model.addCampaign(campaignDirectory);
 	}
 	
 	@FXML
-	private void handleRemoveCampaign() {
-		int index = campaignAccordion.getPanes().indexOf(campaignAccordion.getExpandedPane());
-		
-		if (index == -1) {
-			final Alert alert = new Alert(AlertType.ERROR);
-			
-			alert.initOwner(mainStage);
-			alert.setTitle("No Campaign Selected");
-			alert.setHeaderText("No Campaign Selected");
-			alert.setContentText("You must select a campaign in order to remove it.");
-			
-			alert.showAndWait();
-			
-			return;
-		}
-			
-		try {
-			model.removeCampaign(index);
-		} catch (Exception e) {
-			final Alert alert = new Alert(AlertType.WARNING);
-			
-			alert.initOwner(mainStage);
-			alert.setTitle("Campaign in Use");
-			alert.setHeaderText("Campaign in Use");
-			alert.setContentText("The selected campaign cannot be removed as it is currently in use. Close charts and try again.");
-			
-			alert.showAndWait();
-		}
+	private void handleRemoveCampaign() {	
+		model.removeCampaign();
 	}
 	
 	@FXML
 	private void handleAddChart() {
-		int index = campaignAccordion.getPanes().indexOf(campaignAccordion.getExpandedPane());
-		
-		if (index == -1)
-			return;
-		long t1 = System.currentTimeMillis();
-		final Campaign campaign = model.getCampaign(index);
-		model.addChart(campaign);
-		long t2 = System.currentTimeMillis();
-		
-		System.out.println(t2 - t1 + " in handler");
+		model.addChart();
 	}
 	
 	public void setStageAndModel(Stage stage, Model model) {
 		this.mainStage = stage;
 		this.model = model;
 		
+		model.busy.addListener(new ChangeListener<Boolean>() {
+			@Override
+			public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+				progress.setVisible(newValue);
+			}			
+		});
+		
+		model.currentProcessor.addListener(new ChangeListener<DataProcessor>() {
+			@Override
+			public void changed(ObservableValue<? extends DataProcessor> observable, DataProcessor oldValue, DataProcessor newValue) {
+				chartController.setDataProcessor(newValue);				
+			}			
+		});
+
 		model.campaigns.addListener(new ListChangeListener<Campaign>() {
 			@Override
 			public void onChanged(Change<? extends Campaign> c) {
@@ -273,17 +200,11 @@ public class DashboardOverviewController {
 				while (c.next()) {
 					if (c.wasAdded()) {
 						for (DataProcessor dataProcessor : c.getAddedSubList()) {
-//							chartController.setDataProcessor(dataProcessor, model.campaigns);
-
-							TextField textField = new TextField("Chart");
+							TextField textField = new TextField();
 							Label label = new Label("Chart");
 							Tab tab = new Tab();
 
-							// textField.setMaxSize(label.getPrefWidth(),
-							// label.getPrefHeight());
-
 							tab.setGraphic(label);
-							tab.setContent(campaignOverview);
 
 							label.setOnMouseClicked(new EventHandler<MouseEvent>() {
 								@Override
@@ -299,8 +220,7 @@ public class DashboardOverviewController {
 
 							textField.focusedProperty().addListener(new ChangeListener<Boolean>() {
 								@Override
-								public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue,
-										Boolean newValue) {
+								public void changed(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
 									if (!newValue) {
 										if (!textField.getText().isEmpty())
 											label.setText(textField.getText());
@@ -324,17 +244,20 @@ public class DashboardOverviewController {
 								@Override
 								public void handle(Event event) {
 									final int index = chartsTabPane.getTabs().indexOf(event.getSource());
-									model.dataProcessors.remove(index);
+									model.removeChart(index);
 								}
 							});
 
 							tabsList.add(tabsList.size() - 1, tab);
 						}
+						
+						chartsTabPane.getSelectionModel().clearAndSelect(tabsList.size() - 2);
 					}
 
 				}
-			}
-			
+			}		
 		});
+		
+		chartController.setCampaigns(model.campaigns);
 	}
 }
