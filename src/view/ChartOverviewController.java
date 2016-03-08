@@ -66,7 +66,6 @@ public class ChartOverviewController {
 	// ==== Begin Filter Stuff ====
 	
 	@FXML
-	
     private ListView<DataFilter> filterList;
 	
 	@FXML
@@ -192,6 +191,7 @@ public class ChartOverviewController {
 	public void setDataProcessor(DataProcessor dataProcessor, ObservableList<Campaign> campaigns) {
 		this.dataProcessor = dataProcessor;		
 		campaignsBox.setItems(campaigns);
+		campaignsBox.setTooltip(new Tooltip("Select a campaign"));
 		
 		//Setup filter list
 		filterList.setItems(dataProcessor.getAllDataFilters());
@@ -205,6 +205,7 @@ public class ChartOverviewController {
 
 		// update Metrics box with current metrics
 		metricsBox.setItems(METRICS);
+		metricsBox.setTooltip(new Tooltip("Select a metric for your chart"));
 
 		// listener to update DataProcessor metric
 		metricsBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Metric>() {
@@ -227,6 +228,7 @@ public class ChartOverviewController {
 		// locks to integers only
 		timeGranularity.setItems(FXCollections.observableArrayList("Weeks", "Days", "Hours"));
 		timeGranularity.getSelectionModel().clearAndSelect(1);
+		timeGranularity.setTooltip(new Tooltip("Set the time granularity of the chart"));
 
 
 		timeGranularity.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>()
@@ -264,6 +266,7 @@ public class ChartOverviewController {
 		        }
 		    }
 		});
+		
 
 		// locks to integers only
 		bounceTime.textProperty().addListener(new ChangeListener<String>() {
@@ -284,6 +287,7 @@ public class ChartOverviewController {
 		    }
 
 		});
+		
 
 		//filter change
 		filterList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<DataFilter>()
@@ -293,13 +297,27 @@ public class ChartOverviewController {
 						refreshData();
 					}
 				});
+		
+		//Tooltips
+		addFilterBTN.setTooltip(new Tooltip("Add a new filter"));
+		removeFilterBTN.setTooltip(new Tooltip("Remove selected filter"));
+		filterList.setTooltip(new Tooltip("Filters currently applied to this chart"));
+		
+		impressionsLabel.setTooltip(new Tooltip("Total number of ads shown to users"));
+		clicksLabel.setTooltip(new Tooltip("Total number of ads clicked"));
+		uniquesLabel.setTooltip(new Tooltip("Total number of unique users that click on an ad"));
+		costLabel.setTooltip(new Tooltip("Total cost of the campaign"));
+		cpaLabel.setTooltip(new Tooltip("Cost-per-acquisition: Average cost of each acquisition"));
+		ctrLabel.setTooltip(new Tooltip("Click-through-rate: The average number of clicks per impression"));
+		bounceRateLabel.setTooltip(new Tooltip("The average percent of bounces per click"));
 
+		bounceViews.setTooltip(new Tooltip("Number of pages viewed"));
+		bounceTime.setTooltip(new Tooltip("Number of seconds spent on page"));
 	}
 	
 	private void refreshData() {	
 		drawChart();
 		drawUsers();
-		
 		updateCampaigns();
 		updateStats();
 		updateDates();
@@ -310,11 +328,12 @@ public class ChartOverviewController {
 	
 	private void updateBounce() {
 		bounceTime.setText(Integer.toString(dataProcessor.getBounceMinimumSecondsOnPage()));
-		bounceViews.setText(Integer.toString(dataProcessor.getBounceMinimumPagesViewed()));
+		bounceViews.setText(Integer.toString(dataProcessor.getBounceMinimumPagesViewed()));		
 	}
 	
 	private void updateCampaigns() {
 		campaignsBox.getSelectionModel().select(dataProcessor.getCampaign());
+		
 	}
 	
 	private void updateStats() {
@@ -339,6 +358,8 @@ public class ChartOverviewController {
 		cpaLabel.setText(cpa);
 		ctrLabel.setText(ctr);
 		bounceRateLabel.setText(bounceRate);
+
+
 	}
 	
 	private void drawUsers() {
@@ -432,9 +453,11 @@ public class ChartOverviewController {
 
 		startDate.setDayCellFactory(new DateRangeCallback(true, startLocalDate, endLocalDate.minusDays(1), dataProcessor.getDataEndDateTime().toLocalDate()));
 		startDate.setValue(dataProcessor.getDataStartDateTime().toLocalDate());
-
+		startDate.setTooltip(new Tooltip("Set the start date of your campaign"));
+		
 		endDate.setDayCellFactory(new DateRangeCallback(false, startLocalDate.plusDays(1),endLocalDate, dataProcessor.getDataStartDateTime().toLocalDate()));
 		endDate.setValue(dataProcessor.getDataEndDateTime().toLocalDate());
+		endDate.setTooltip(new Tooltip("Set the end date of your campaign"));
 	}
 	
 	private void updateMetric() {
