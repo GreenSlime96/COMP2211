@@ -154,6 +154,59 @@ public class DataProcessor {
 		this.metric = Objects.requireNonNull(metric);
 	}
 	
+	public final List<Integer> getClickCostFrequency(int dataFilterIndex)
+	{
+		final DataFilter dataFilter = dataFilters.get(dataFilterIndex);
+		
+		int max_cost = 16;
+		int[] freqs = new int[max_cost];
+		int val;
+		
+		for (int i = 0; i < clickTable.size(); i++)
+		{
+			final int dateTime = clickTable.getDateTime(i);
+			
+			//Ignore values before start date
+			if (dateTime < dataStartDate)
+				continue;
+			//Terminate once end date is reached
+			if (dateTime > dataEndDate)
+				break;
+			
+			if (!dataFilter.test(clickTable.getUserData(i)))
+				continue;
+			
+			val = (int) Math.ceil(clickTable.getCost(i));
+			if(val == 0) continue;
+			if(val >=  max_cost)
+			{
+				freqs = resizeIntArray(freqs);
+				max_cost = freqs.length;	
+			}
+			freqs[val]++;
+		}
+		
+		ArrayList<Integer> clickFrequency = new ArrayList<Integer>();
+		
+		for(int i=0; i<freqs.length; i++)
+		{
+			if(i > max_cost / 2 && freqs[i] == 0)
+				break;
+			clickFrequency.add(freqs[i]);
+		}
+		clickFrequency.trimToSize();
+		
+		return clickFrequency;
+	}
+	
+	private final int[] resizeIntArray(int[] arr)
+	{
+		int[] new_arr = new int[arr.length * 2];
+		for(int i=0; i<arr.length; i++)
+			new_arr[i] = arr[i];
+		return new_arr;
+	}
+	
 	/**
 	 * method to get DataProcessor's Data depending on
 	 * the metric selected
@@ -162,7 +215,6 @@ public class DataProcessor {
 	 */
 	public final List<? extends Number> getData(int dataFilterIndex) {
 		List<? extends Number> returnList;
-		DataFilter dataFilter = dataFilters.get(dataFilterIndex);
 		
 		final long time = System.currentTimeMillis();
 		
@@ -212,6 +264,7 @@ public class DataProcessor {
 		}		
 		return returnList;
 	}
+	
 	
 	public final void computeTotals(int dataFilterIndex)
 	{

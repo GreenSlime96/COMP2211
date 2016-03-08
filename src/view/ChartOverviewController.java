@@ -22,6 +22,7 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.chart.AreaChart;
+import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.CheckBox;
@@ -172,6 +173,9 @@ public class ChartOverviewController {
 	
 	@FXML
 	private TextField bounceTime;
+	
+	@FXML
+	private BarChart<String, Number> histogram;
 	
 	// ==== End Bounces ====
 	
@@ -338,6 +342,7 @@ public class ChartOverviewController {
 
 		drawChart();
 		drawUsers();
+		drawHistogram();
 		updateCampaigns();
 		updateStats();
 		updateDates();
@@ -383,7 +388,7 @@ public class ChartOverviewController {
 
 
 	}
-	
+		
 	private void drawUsers() {
 		final EnumMap<User, Integer> users = dataProcessor.getContextData(filterList.getSelectionModel().getSelectedIndex());
 		
@@ -464,8 +469,6 @@ public class ChartOverviewController {
 		                d.getNode().getStyleClass().remove("onHover");      
 		            }
 		        });
-		        
-		        
 			}
 		}
 	}
@@ -581,6 +584,24 @@ public class ChartOverviewController {
 	@FXML
 	private void handleMetrics() {
 		dataProcessor.setMetric(metricsBox.getValue());
+	}
+	
+	private void drawHistogram()
+	{
+		histogram.getData().clear();
+		
+		for(int dataFilterIndex=0; dataFilterIndex < dataProcessor.getAllDataFilters().size(); dataFilterIndex++)
+		{
+			XYChart.Series<String, Number> series = new XYChart.Series<String, Number>();
+			series.setName(dataProcessor.getDataFilter(dataFilterIndex).toString());
+			
+			List<Integer> list = dataProcessor.getClickCostFrequency(dataFilterIndex);
+			for(int cost=0; cost<list.size(); cost++)
+			{
+				series.getData().add(new XYChart.Data<String, Number>(""+(cost+1), list.get(cost)));
+			}
+			histogram.getData().add(series);
+		}
 	}
 	
 	private void drawChart() {
