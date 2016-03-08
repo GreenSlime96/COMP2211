@@ -1,10 +1,6 @@
 package core.tables;
 
-import java.io.Serializable;
-
-public class FastTable implements Serializable {
-	
-	private static final long serialVersionUID = 4460536860534037743L;
+public class FastTable {
 	
 	short[][] userData;
 	int[][] costData;

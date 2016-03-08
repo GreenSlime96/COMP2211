@@ -187,15 +187,14 @@ public class ChartOverviewController {
 		campaignsBox.setItems(campaigns);
 
 		campaignsBox.setTooltip(new Tooltip("Select a campaign"));
-		
-		//Setup filter list
-		filterList.setItems(dataProcessor.getAllDataFilters());
-		filterList.getSelectionModel().clearAndSelect(0);
-
 	}
 	
 	public void setDataProcessor(DataProcessor dataProcessor) {
 		this.dataProcessor = dataProcessor;
+		
+		//Setup filter list
+		filterList.setItems(dataProcessor.getAllDataFilters());
+		filterList.getSelectionModel().clearAndSelect(0);
 
 		if (dataProcessor != null)
 			refreshData();

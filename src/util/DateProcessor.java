@@ -151,6 +151,9 @@ public class DateProcessor {
 				total--;
 			}
 		}
+		
+//		System.out.println((total - 719528) * 86400 + hour * 3600 + minute * 60 + second);
+//		System.out.println((total - 719528) * 86400 + hour * 3600);
 
 		return (total - 719528) * 86400 + hour * 3600 + minute * 60 + second;	
 	}

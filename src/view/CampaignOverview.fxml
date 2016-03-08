@@ -30,30 +30,36 @@
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                </rowConstraints>
                <children>
-                  <Label text="Number of Impressions" />
-                  <Label text="Number of Clicks" GridPane.rowIndex="1" />
-                  <Label text="Number of Uniques" GridPane.rowIndex="2" />
-                  <Label text="Number of Bounces" GridPane.rowIndex="3" />
-                  <Label text="Number of Conversions" GridPane.rowIndex="4" />
-                  <Label text="Total Cost" GridPane.rowIndex="5" />
-                  <Label text="Click Through Rate" GridPane.rowIndex="6" />
-                  <Label text="Cost Per Acquisition" GridPane.rowIndex="7" />
-                  <Label text="Cost Per Click" GridPane.rowIndex="8" />
-                  <Label text="Cost Per 1k Impressions" GridPane.rowIndex="9" />
-                  <Label text="Bounce Rate" GridPane.rowIndex="10" />
-                  <Label fx:id="numberOfImpressions" text="Label" GridPane.columnIndex="1" />
-                  <Label fx:id="numberOfClicks" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <Label fx:id="numberOfUniques" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <Label fx:id="numberOfBounces" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                  <Label fx:id="numberOfConversions" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                  <Label fx:id="totalCost" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                  <Label fx:id="clickThroughRate" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-                  <Label fx:id="costPerAcquisition" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-                  <Label fx:id="costPerClick" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="8" />
-                  <Label fx:id="costPerThousandImpressions" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="9" />
-                  <Label fx:id="bounceRate" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="10" />
+                  <Label text="Number of Impressions" GridPane.rowIndex="2" />
+                  <Label text="Number of Clicks" GridPane.rowIndex="3" />
+                  <Label text="Number of Uniques" GridPane.rowIndex="4" />
+                  <Label text="Number of Bounces" GridPane.rowIndex="5" />
+                  <Label text="Number of Conversions" GridPane.rowIndex="6" />
+                  <Label text="Total Cost" GridPane.rowIndex="7" />
+                  <Label text="Click Through Rate" GridPane.rowIndex="8" />
+                  <Label text="Cost Per Acquisition" GridPane.rowIndex="9" />
+                  <Label text="Cost Per Click" GridPane.rowIndex="10" />
+                  <Label text="Cost Per 1k Impressions" GridPane.rowIndex="11" />
+                  <Label text="Bounce Rate" GridPane.rowIndex="12" />
+                  <Label fx:id="numberOfImpressions" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <Label fx:id="numberOfClicks" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                  <Label fx:id="numberOfUniques" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                  <Label fx:id="numberOfBounces" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                  <Label fx:id="numberOfConversions" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                  <Label fx:id="totalCost" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                  <Label fx:id="clickThroughRate" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                  <Label fx:id="costPerAcquisition" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+                  <Label fx:id="costPerClick" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="10" />
+                  <Label fx:id="costPerThousandImpressions" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="11" />
+                  <Label fx:id="bounceRate" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="12" />
+                  <Label text="Campaign Start Date" />
+                  <Label text="Campaign End Date" GridPane.rowIndex="1" />
+                  <Label fx:id="campaignStartDate" text="Label" GridPane.columnIndex="1" />
+                  <Label fx:id="campaignEndDate" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                </children>
             </GridPane>
          </children>

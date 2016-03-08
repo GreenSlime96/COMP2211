@@ -10,7 +10,6 @@ import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -159,7 +158,6 @@ public class Campaign {
 		
 		// hourly
 		int et = impressionsTable.getDateTime(0) + 3600;
-		long acc = 0;
 		
 		short[] count = new short[180];
 		int[] cost = new int[180];
@@ -435,9 +433,8 @@ public class Campaign {
 		final MappedByteBuffer byteBuffer = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
 		
 		final int threads = Runtime.getRuntime().availableProcessors();
-		final int expectedRecords = (int) fc.size() / 70;
 		
-		impressionsTable = new ImpressionsTable(expectedRecords);
+		impressionsTable = new ImpressionsTable();
 		
 		// close this stream
 		fis.close();

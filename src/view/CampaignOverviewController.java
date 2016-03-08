@@ -1,6 +1,7 @@
 package view;
 
 import java.text.NumberFormat;
+import java.time.format.DateTimeFormatter;
 
 import core.campaigns.Campaign;
 import javafx.event.EventHandler;
@@ -16,10 +17,18 @@ import javafx.scene.input.MouseEvent;
 
 public class CampaignOverviewController {
 	
+	private static final DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	
 	// ==== Controller ====
 	
 	@FXML
 	private TitledPane titledPane;
+	
+	@FXML
+	private Label campaignStartDate;
+	
+	@FXML
+	private Label campaignEndDate;
 	
 	@FXML
 	private Label numberOfImpressions;
@@ -71,8 +80,15 @@ public class CampaignOverviewController {
 				if (event.getClickCount() == 2) {
 					StringBuilder clipboardString = new StringBuilder();
 					
-					clipboardString.append("Number of Impressions:\t");
-				
+					clipboardString.append("Campaign Start Date:\t");					
+					clipboardString.append(campaignStartDate.getText());
+					clipboardString.append(System.lineSeparator());
+					
+					clipboardString.append("Campaign End Date:\t");					
+					clipboardString.append(campaignEndDate.getText());
+					clipboardString.append(System.lineSeparator());
+					
+					clipboardString.append("Number of Impressions:\t");				
 					clipboardString.append(numberOfImpressions.getText());
 					clipboardString.append(System.lineSeparator());
 					
@@ -145,6 +161,8 @@ public class CampaignOverviewController {
 		final NumberFormat currencyFormatter = NumberFormat.getCurrencyInstance();
 		final NumberFormat percentFormatter = NumberFormat.getPercentInstance();
 		
+		final String startDate = campaign.getStartDateTime().format(dateFormat);
+		final String endDate = campaign.getEndDateTime().format(dateFormat);
 		final String impressions = numberFormatter.format(campaign.getNumberOfImpressions());
 		final String clicks = numberFormatter.format(campaign.getNumberOfClicks());
 		final String uniques = numberFormatter.format(campaign.getNumberOfUniques());
@@ -157,6 +175,8 @@ public class CampaignOverviewController {
 		final String cpm = currencyFormatter.format(campaign.getTotalCostOfCampaign() * 10 / campaign.getNumberOfImpressions());
 		final String br = percentFormatter.format(campaign.getBounceRate());
 		
+		campaignStartDate.setText(startDate);
+		campaignEndDate.setText(endDate);
 		numberOfImpressions.setText(impressions);
 		numberOfClicks.setText(clicks);
 		numberOfUniques.setText(uniques);
