@@ -44,7 +44,6 @@ public class DateRangeCallback implements Callback<DatePicker, DateCell> {
                         setStyle("-fx-background-color: #FFBBBB;");
                     }
                 }else{
-                    System.out.println("FALSEYO");
                     if (item.isBefore(limitDate.plusDays(1)) && item.isAfter(startDate.minusDays(1))){
                         setDisable(true);
                         setStyle("-fx-background-color: #FFBBBB;");
