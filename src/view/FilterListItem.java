@@ -26,7 +26,7 @@ public class FilterListItem extends HBox {
 		this.getChildren().add(circle);
 		this.getChildren().add(label);	
 		
-		this.setMargin(circle, new Insets(10,10,10,10));
+		setMargin(circle, new Insets(10, 10, 10, 10));
 	}
 	
 	public final void setText(String text)

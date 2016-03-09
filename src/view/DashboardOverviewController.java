@@ -7,6 +7,7 @@ import java.util.List;
 import core.Model;
 import core.campaigns.Campaign;
 import core.data.DataProcessor;
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -81,7 +82,13 @@ public class DashboardOverviewController {
 					final int index = campaignAccordion.getPanes().indexOf(newValue);
 					model.currentCampaign.set(model.campaigns.get(index));
 					
-					newValue.setCollapsible(false);
+					// TODO: this is a hack! @csjames
+					Platform.runLater(new Runnable() {
+						@Override
+						public void run() {
+							newValue.setCollapsible(false);
+						}
+					});
 				} else {
 					model.currentCampaign.set(null);
 				}
@@ -164,7 +171,7 @@ public class DashboardOverviewController {
 
 		model.campaigns.addListener(new ListChangeListener<Campaign>() {
 			@Override
-			public void onChanged(Change<? extends Campaign> c) {
+			public void onChanged(Change<? extends Campaign> c) {				
 				while (c.next()) {
 					TitledPane campaignOverview = null;
 					
@@ -201,7 +208,7 @@ public class DashboardOverviewController {
 					if (c.wasAdded()) {
 						for (DataProcessor dataProcessor : c.getAddedSubList()) {
 							TextField textField = new TextField();
-							Label label = new Label("Chart");
+							Label label = new Label("Chart" + model.dataProcessors.size());
 							Tab tab = new Tab();
 
 							tab.setGraphic(label);

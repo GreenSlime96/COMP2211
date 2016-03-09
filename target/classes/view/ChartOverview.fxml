@@ -134,9 +134,9 @@
                   <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                </padding>
             </GridPane>
-            <SplitPane dividerPositions="0.75" prefHeight="160.0" prefWidth="800.0" VBox.vgrow="ALWAYS">
+            <SplitPane dividerPositions="0.75" VBox.vgrow="ALWAYS">
               <items>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                <AnchorPane SplitPane.resizableWithParent="false">
                      <children>
                         <TabPane prefWidth="529.0" side="LEFT" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                           <tabs>
@@ -203,19 +203,19 @@
                         </TabPane>
                      </children>
                   </AnchorPane>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                <AnchorPane maxWidth="-Infinity" SplitPane.resizableWithParent="false">
                      <children>
                         <VBox alignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
-                              <Label text="Filters">
+                              <Label text="Filters" VBox.vgrow="NEVER">
                                  <font>
                                     <Font name="System Bold" size="16.0" />
                                  </font>
                               </Label>
-                              <ListView fx:id="filterList" VBox.vgrow="ALWAYS" />
+                              <ListView fx:id="filterList" maxWidth="-Infinity" minWidth="-Infinity" VBox.vgrow="ALWAYS" />
                               <HBox alignment="CENTER" fillHeight="false" spacing="10.0" VBox.vgrow="NEVER">
                                  <children>
-                                    <MenuButton focusTraversable="false" maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefWidth="110.0" text="Filters">
+                                    <MenuButton focusTraversable="false" mnemonicParsing="false" text="Filters">
                                        <items>
                                           <CustomMenuItem hideOnClick="false" mnemonicParsing="false" text="Unspecified Action">
                                              <content>
@@ -291,8 +291,8 @@
                                           </CustomMenuItem>
                                        </items>
                                     </MenuButton>
-                                    <Button fx:id="removeFilterBTN" alignment="CENTER" mnemonicParsing="false" onAction="#handleRemoveFilter" prefHeight="28.0" prefWidth="28.0" text="-" />
-                                  <Button fx:id="addFilterBTN" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleAddFilter" prefHeight="28.0" prefWidth="28.0" text="+" />
+                                    <Button fx:id="removeFilterBTN" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleRemoveFilter" prefWidth="27.0" text="-" />
+                                  <Button fx:id="addFilterBTN" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleAddFilter" text="+" />
                                  </children>
                                  <padding>
                                     <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

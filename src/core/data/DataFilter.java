@@ -80,15 +80,25 @@ public class DataFilter implements Predicate<Short> {
 	
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
-		sb.append("Filters Applied:\n");
-		for(int i=0; i<User.values().length;  i++)
-		{
-			if(getField(User.values()[i]))
-			{
-				sb.append(User.values()[i].toString() + "  ");
-				if(i==1 || i==6 || i==9 || i==12) sb.append("\n");
+		
+		String lastPrefix = User.values()[0].prefix;
+		for (User u : User.values()) {
+			if (!lastPrefix.equals(u.prefix)) {
+				lastPrefix = u.prefix;
+				sb.append('\n');
+			}
+			
+			if (sb.length() - sb.lastIndexOf("\n") > 29) {
+				sb.append('\n');
+			}
+			
+			if (getField(u)) {
+				sb.append(u.title);
+				sb.append(' ');
+				sb.append(' ');
 			}
 		}
+		
 		return sb.toString();
 	}
 }

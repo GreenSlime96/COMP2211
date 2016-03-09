@@ -21,10 +21,10 @@
                <children>
                   <BorderPane maxWidth="-Infinity" minWidth="-Infinity" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                      <center>
-                        <Accordion fx:id="campaignAccordion" BorderPane.alignment="CENTER" />
+                        <Accordion fx:id="campaignAccordion" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="300.0" BorderPane.alignment="CENTER" />
                      </center>
                      <top>
-                        <HBox alignment="CENTER" maxWidth="300.0" minWidth="300.0" spacing="10.0" BorderPane.alignment="CENTER">
+                        <HBox alignment="CENTER" maxWidth="300.0" minWidth="300.0" prefWidth="300.0" spacing="10.0" BorderPane.alignment="CENTER">
                            <children>
                               <ProgressBar fx:id="progress" prefHeight="20.0" prefWidth="250.0" HBox.hgrow="ALWAYS">
                                  <HBox.margin>

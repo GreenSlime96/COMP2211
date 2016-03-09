@@ -131,7 +131,9 @@ public class Model extends Observable {
 			@Override
 			public void handle(WorkerStateEvent event) {
 				currentCampaign.set(campaign);
-				campaigns.add(campaign);					
+				campaigns.add(campaign);
+				
+				addChart();
 			}				
 		});
 		
