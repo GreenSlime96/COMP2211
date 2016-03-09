@@ -10,6 +10,8 @@ public class Main2 {
 		
 		System.out.println(c.getImpressions().indexOfDate(Integer.MAX_VALUE));
 		
+		
+		
 		while (true) {
 			try {
 				Thread.sleep(1000);

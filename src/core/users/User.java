@@ -2,13 +2,15 @@ package core.users;
 
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
 
-import gnu.trove.map.TByteShortMap;
+import gnu.trove.TCollections;
+import gnu.trove.list.TShortList;
+import gnu.trove.list.array.TShortArrayList;
 import gnu.trove.map.TShortByteMap;
-import gnu.trove.map.TShortShortMap;
-import gnu.trove.map.hash.TByteShortHashMap;
 import gnu.trove.map.hash.TShortByteHashMap;
-import gnu.trove.map.hash.TShortShortHashMap;
 
 public enum User {
 	GENDER_MALE("Male"), 
@@ -33,12 +35,93 @@ public enum User {
 
 	// ==== Constants ====
 	
-	private static final TShortByteMap byteCache = new TShortByteHashMap();
-	private static final TShortShortMap shortMap = new TShortShortHashMap();
-	private static final short[] shortCache = new short[180];
+	public static final TShortByteMap byteCache;
+	public static final short[] shortCache;
 	
 	static {
+		// internal class to represent a node
+		class Node {			
+			private List<Node> children;
+			final short mask;
+			
+			public Node(short mask, User value) {
+				this.mask = (short) (mask | value.mask);
+			}
+			
+			public Node() {
+				mask = 0;
+			}
+			
+			public Node addChild(User value) {
+				if (children == null)
+					children = new ArrayList<Node>();
+				
+				final Node node = new Node(mask, value);
+				children.add(node);
+				
+				return node;
+			}
+		}
 		
+		// create empty root node -- start of tree
+		final Node root = new Node();
+		
+		// smart way of caching enums, boolean set
+		boolean[] processed = new boolean[values().length];
+		
+		// processing fringe
+		List<Node> fringe = new ArrayList<Node>();
+		fringe.add(root);
+		
+		for (User u : values()) {
+			// if this has been processed before
+			if (processed[u.ordinal()])
+				continue;
+			
+			List<Node> newFringe = new ArrayList<Node>();
+
+			// process similar prefixes
+			for (User v : values()) {
+				
+				// if prefixes are same, mark as processed
+				if (v.prefix.equals(u.prefix)) {
+					processed[v.ordinal()] = true;
+					
+					// breadth-first generation
+					for (Node n : fringe)
+						newFringe.add(n.addChild(v));
+				}
+			}
+			
+			fringe = newFringe;
+		}
+		
+		// list that grows!
+		TShortByteHashMap tempMap = new TShortByteHashMap();
+		TShortList shorts = new TShortArrayList();
+		
+		// dfs to track nodes
+		Stack<Node> stack = new Stack<Node>();
+		stack.push(root);
+
+		while (!stack.isEmpty()) {
+			Node node = stack.pop();
+			
+			if (node.children == null) {				
+				tempMap.put(node.mask, (byte) (shorts.size() + Byte.MIN_VALUE));
+				shorts.add(node.mask);
+				System.out.println(node.mask);
+			} else {
+				for (Node n : node.children) {
+					stack.push(n);
+				}
+			}			
+		}
+		
+		tempMap.compact();
+		
+		byteCache = TCollections.unmodifiableMap(tempMap);
+		shortCache = shorts.toArray();
 	}
 	
 	private static final int[] info_map;
@@ -120,89 +203,12 @@ public enum User {
 
 	// ==== Static Helper Methods ====
 
-	public static byte compressUser(short userData) {
-		byte encoded = byteCache.get(userData);
-		
-		if (encoded == 0) {	
-			encoded = Byte.MIN_VALUE;
-			
-			encoded += ((userData & 0x3) - 1) * 90;
-			
-			switch ((userData >> 2) & 0x1F) {
-			case 16:
-				encoded += 4 * 18;
-				break;
-			case 8:
-				encoded += 3 * 18;
-				break;
-			case 4:
-				encoded += 2 * 18;
-				break;
-			case 2:
-				encoded += 18;
-				break;
-			}
-			
-			encoded += ((userData >> 8) & 0x3) * 6;
-			
-			switch ((userData >> 10) & 0x3F) {
-			case 32:
-				encoded += 5;
-				break;
-			case 16:
-				encoded += 4;
-				break;
-			case 8:
-				encoded += 3;
-				break;
-			case 4:
-				encoded += 2;
-				break;
-			case 2:
-				encoded++;
-				break;
-			}			
-			
-//			byteCache.put(userData, encoded);
-			shortCache[encoded - Byte.MIN_VALUE] = userData;
-		}
-		
-		return encoded;
+	public static byte compressUser(short userData) {		
+		return byteCache.get(userData);
 	}
 	
-	public static int compress(short userData) {
-		byte encoded = byteCache.get(userData);
-		
-		if (encoded == byteCache.getNoEntryValue()) {	
-			final User[] users = values();
-			
-			int combinations = 180;
-			encoded = Byte.MIN_VALUE;
-			
-			for (int i = 0; i < users.length; i++) {			
-				if (checkFlag(userData, users[i])) {
-					int cardinality = 0;
-					int index = 0;
-					
-					for (User u : values()) {
-						if (u.prefix == users[i].prefix)
-							cardinality++;
-						
-						if (u == users[i])
-							index = cardinality;
-					}
-					
-					encoded += (combinations / cardinality) * (index - 1);
-					
-					combinations /= cardinality;							
-				}
-			}
-			
-			byteCache.put(userData, encoded);
-			shortCache[encoded - Byte.MIN_VALUE] = userData;
-		}
-		
-		return encoded;
+	public static int compress(short userData) {		
+		return byteCache.get(userData) - Byte.MIN_VALUE;
 	}
 	
 	public static short unpackUser(byte userByte) {

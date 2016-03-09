@@ -124,7 +124,7 @@ public class Campaign {
 			System.out.println("Page Views:\t" + numberOfPagesViewed);
 			System.out.println("--------------------------------------");
 			
-			tests();
+//			tests();
 		} catch (InvalidUserException e) {
 			throw new InvalidCampaignException("Invalid User Data in impression_log.csv");
 		} catch (IOException e) {
@@ -499,6 +499,7 @@ public class Campaign {
 			} catch (InterruptedException e) {
 				throw new InvalidCampaignException("Loading Thread Interrupted!");
 			} catch (ExecutionException e) {
+				e.printStackTrace();
 				throw new InvalidUserException("Invalid Impressions File!");
 			}
 		}
@@ -511,10 +512,6 @@ public class Campaign {
 		
 		// convert to something we understand
 		costOfImpressions *= 10e-6;
-
-		// compute dates
-		campaignStartDate = DateProcessor.toLocalDateTime(impressionsTable.getDateTime(0));
-		campaignEndDate = DateProcessor.toLocalDateTime(impressionsTable.getDateTime(impressionsTable.size() - 1));
 		
 		System.out.println("loading:\t" + (System.currentTimeMillis() - time) + "ms");
 	}
@@ -527,11 +524,23 @@ public class Campaign {
 		int clicksProgress = 0;
 		
 		// preprocess
-		clicksProgress = clicksTable.indexOfDate(DateProcessor.toEpochSeconds(byteBuffer));
+		int dateTime = DateProcessor.toEpochSeconds(byteBuffer);
+		clicksProgress = clicksTable.indexOfDate(dateTime);
 		byteBuffer.rewind();
 		
-		while (byteBuffer.hasRemaining()) {
-			int dateTime = DateProcessor.toEpochSeconds(byteBuffer);
+		// store the hour
+		int hour = dateTime - (dateTime % 3600) + 3600;
+		int hours = 0;
+		
+		// get the earliest dateTime
+		int startDateTime = dateTime;
+		
+		// test arrays?
+		int[] count = new int[180 * 600];
+		int[] total = new int[180 * 600];
+		
+		while (byteBuffer.hasRemaining()) {			
+			dateTime = DateProcessor.toEpochSeconds(byteBuffer);			
 			long userID = ImpressionParser.parseUserID(byteBuffer);			
 			short userData = User.encodeUser(byteBuffer);
 			short cost = ImpressionParser.parseCost(byteBuffer);
@@ -539,15 +548,35 @@ public class Campaign {
 			if (clicksProgress < numberOfClicks && clicksTable.getUserID(clicksProgress) == userID)
 				clicksTable.setUserData(clicksProgress++, userData);
 
-			if (byteBuffer.get() != '\n')
+			if (byteBuffer.get() != '\n') 
 				throw new InvalidCampaignException("invalid entry: " + impressionsTable.size());
+			
+			if (dateTime > hour) {
+				hour += 3600;
+				hours += 180;
+			}
+			
+			int user = User.compress(userData);
+			
+			count[hours + user]++;
+			total[hours + user]+= cost;
 
 			// add to my table
 			impressionsTable.add(dateTime, userData, cost);
 			
 			// misc increment
 			localCost += cost;
-		}		
+		}
+		
+		// set start/end date time -- this WILL cause synchronisation issues :(
+		final LocalDateTime startDate = DateProcessor.toLocalDateTime(startDateTime);
+		final LocalDateTime endDate = DateProcessor.toLocalDateTime(dateTime);
+		
+		if (campaignStartDate == null || campaignStartDate.isAfter(startDate))
+			campaignStartDate = startDate;
+		
+		if (campaignEndDate == null || campaignEndDate.isBefore(endDate))
+			campaignEndDate = endDate;
 		
 		costOfImpressions += localCost;
 		

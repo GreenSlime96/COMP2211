@@ -3,6 +3,8 @@ package core.data;
 import java.util.function.Predicate;
 
 import core.users.User;
+import gnu.trove.list.TIntList;
+import gnu.trove.list.array.TIntArrayList;
 import javafx.beans.Observable;
 import javafx.beans.property.StringProperty;
 import javafx.util.Callback;
@@ -52,6 +54,17 @@ public class DataFilter implements Predicate<Short> {
 				}
 			}
 		}
+	}
+	
+	public int[] getByteFlags() {
+		final TIntList list = new TIntArrayList();
+		
+		for (short flag : User.shortCache) {
+			if (test(flag))
+				list.add(flag);
+		}
+		
+		return list.toArray();
 	}
 	
 	

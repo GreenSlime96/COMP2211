@@ -1,4 +1,4 @@
-package animation;
+package view.animation;
 
 import javafx.animation.Animation;
 import javafx.animation.Transition;

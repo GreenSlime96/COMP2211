@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 
-import animation.PieChartScaleAnimation;
 import core.campaigns.Campaign;
 import core.data.DataFilter;
 import core.data.DataProcessor;
@@ -35,6 +34,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.*;
 import util.DateRangeCallback;
+import view.animation.PieChartScaleAnimation;
 
 public class ChartOverviewController {
 	
