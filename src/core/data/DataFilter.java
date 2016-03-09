@@ -3,9 +3,6 @@ package core.data;
 import java.util.function.Predicate;
 
 import core.users.User;
-import javafx.beans.Observable;
-import javafx.beans.property.StringProperty;
-import javafx.util.Callback;
 
 public class DataFilter implements Predicate<Short> {
 	
@@ -70,12 +67,17 @@ public class DataFilter implements Predicate<Short> {
 	// ==== UI Hooks ====
 	
 	public String toString() {
-		String out = "Filters applied: ";
+		StringBuilder sb = new StringBuilder();
+		sb.append("Filters Applied:\n");
 		for(int i=0; i<User.values().length;  i++)
 		{
-			if(getField(User.values()[i])) out += User.values()[i].toString() + (i < User.values().length - 1 ? ", " : "");
+			if(getField(User.values()[i]))
+			{
+				sb.append(User.values()[i].toString() + "  ");
+				if(i==1 || i==6 || i==9 || i==12) sb.append("\n");
+			}
 		}
-		if(flags == FLAGS_NONE) out += "None";
-		return out;
+		if(flags == FLAGS_NONE) sb.append("None");
+		return sb.toString();
 	}
 }

@@ -38,7 +38,8 @@ public class DataProcessor {
 	private long dataEndDate;
 	
 	// the filter to filter the metrics by
-	private final ObservableList<DataFilter> dataFilters = FXCollections.observableArrayList();
+	//private final ObservableList<DataFilter> dataFilters = FXCollections.observableArrayList();
+	private final List<DataFilter> dataFilters = new ArrayList<DataFilter>();
 	
 	// the metric that the chart is handling
 	private Metric metric;
@@ -865,12 +866,12 @@ public class DataProcessor {
 		dataFilters.add(dataFilter);
 	}
 	
-	public final void addAllDataFilters(ObservableList<DataFilter> dataFilters)
+	public final void addAllDataFilters(List<DataFilter> dataFilters)
 	{
 		dataFilters.addAll(dataFilters);
 	}
 	
-	public final ObservableList<DataFilter> getAllDataFilters()
+	public final List<DataFilter> getAllDataFilters()
 	{
 		return dataFilters;
 	}
