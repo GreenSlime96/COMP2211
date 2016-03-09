@@ -14,8 +14,6 @@ import core.tables.LogTable;
 import core.users.User;
 import gnu.trove.set.TLongSet;
 import gnu.trove.set.hash.TLongHashSet;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import util.DateProcessor;
 
 // TODO should we rename this to DataProcessor instead?

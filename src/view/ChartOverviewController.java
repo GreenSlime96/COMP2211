@@ -508,7 +508,7 @@ public class ChartOverviewController {
 		
 		filterNews.setSelected(dataProcessor.getFilterValue(User.CONTEXT_NEWS, dataFilterIndex));
 		filterShopping.setSelected(dataProcessor.getFilterValue(User.CONTEXT_SHOPPING, dataFilterIndex));
-		filterSocialMedia.setSelected(dataProcessor.getFilterValue(User.CONTEXT_SHOPPING, dataFilterIndex));
+		filterSocialMedia.setSelected(dataProcessor.getFilterValue(User.CONTEXT_SOCIAL_MEDIA, dataFilterIndex));
 		filterBlog.setSelected(dataProcessor.getFilterValue(User.CONTEXT_BLOG, dataFilterIndex));
 		filterHobbies.setSelected(dataProcessor.getFilterValue(User.CONTEXT_HOBBIES, dataFilterIndex));
 		filterTravel.setSelected(dataProcessor.getFilterValue(User.CONTEXT_TRAVEL, dataFilterIndex));

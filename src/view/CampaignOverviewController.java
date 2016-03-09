@@ -10,7 +10,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Label;
 import javafx.scene.control.TitledPane;
-import javafx.scene.control.Tooltip;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseEvent;
@@ -187,8 +186,6 @@ public class CampaignOverviewController {
 		costPerAcquisition.setText(cpa);
 		costPerClick.setText(cpc);
 		costPerThousandImpressions.setText(cpm);
-		bounceRate.setText(br);
-		
-		
+		bounceRate.setText(br);		
 	}
 }
