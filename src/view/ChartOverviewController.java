@@ -21,18 +21,17 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.chart.AreaChart;
+import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.CheckBox;
 import javafx.scene.control.Button;
-import javafx.scene.control.CheckMenuItem;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
-import javafx.scene.control.*;
 import util.DateRangeCallback;
 import view.animation.PieChartScaleAnimation;
 
@@ -66,7 +65,9 @@ public class ChartOverviewController {
 	// ==== Begin Filter Stuff ====
 	
 	@FXML
-    private ListView<DataFilter> filterList;
+    private ListView<FilterListItem> filterList;
+	
+	private ObservableList<FilterListItem> filterListItems = FXCollections.observableArrayList();
 	
 	@FXML
 	private Button addFilterBTN;
@@ -173,12 +174,11 @@ public class ChartOverviewController {
 	@FXML
 	private TextField bounceTime;
 	
+	@FXML
+	private BarChart<String, Number> histogram;
+	
 	// ==== End Bounces ====
 	
-//	private ObservableList<PieChart.Data> genderData;
-//	private ObservableList<PieChart.Data> ageData;
-//	private ObservableList<PieChart.Data> incomeData;
-//	private ObservableList<PieChart.Data> contextData;
 	private DataProcessor dataProcessor;
 	
 	private boolean isReady;
@@ -192,12 +192,16 @@ public class ChartOverviewController {
 	public void setDataProcessor(DataProcessor dataProcessor) {
 		this.dataProcessor = dataProcessor;
 		
+		if(dataProcessor == null)
+			return;
 		//Setup filter list
-		filterList.setItems(dataProcessor.getAllDataFilters());
+		//filterList.setItems(dataProcessor.getAllDataFilters());
+		filterList.setItems(filterListItems);
+		filterListItems.add(new FilterListItem(dataProcessor.getDataFilter(0).toString(), 0));
+		
 		filterList.getSelectionModel().clearAndSelect(0);
 
-		if (dataProcessor != null)
-			refreshData();
+		refreshData();
 	}
 	
 	@FXML
@@ -307,14 +311,14 @@ public class ChartOverviewController {
 		
 
 		//filter change
-		filterList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<DataFilter>()
+		filterList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<FilterListItem>()
 				{
 					@Override
-					public void changed(ObservableValue<? extends DataFilter> arg0, DataFilter arg1, DataFilter arg2) {
+					public void changed(ObservableValue<? extends FilterListItem> i, FilterListItem arg1, FilterListItem arg2) {
 						refreshData();
 					}
 				});
-		
+
 		//Tooltips
 		addFilterBTN.setTooltip(new Tooltip("Add a new filter"));
 		removeFilterBTN.setTooltip(new Tooltip("Remove selected filter"));
@@ -338,6 +342,7 @@ public class ChartOverviewController {
 
 		drawChart();
 		drawUsers();
+		drawHistogram();
 		updateCampaigns();
 		updateStats();
 		updateDates();
@@ -383,7 +388,7 @@ public class ChartOverviewController {
 
 
 	}
-	
+		
 	private void drawUsers() {
 		final EnumMap<User, Integer> users = dataProcessor.getContextData(filterList.getSelectionModel().getSelectedIndex());
 		
@@ -464,8 +469,6 @@ public class ChartOverviewController {
 		                d.getNode().getStyleClass().remove("onHover");      
 		            }
 		        });
-		        
-		        
 			}
 		}
 	}
@@ -519,7 +522,9 @@ public class ChartOverviewController {
 	@FXML
 	private void handleAddFilter()
 	{
-		dataProcessor.addDataFilter(new DataFilter());
+		DataFilter dataFilter = new DataFilter();
+		dataProcessor.addDataFilter(dataFilter);
+		filterListItems.add(new FilterListItem(dataFilter.toString(), dataProcessor.getAllDataFilters().size()-1));
 		filterList.getSelectionModel().clearAndSelect(dataProcessor.getAllDataFilters().size()-1);
 	}
 	
@@ -527,7 +532,11 @@ public class ChartOverviewController {
 	private void handleRemoveFilter()
 	{
 		if(dataProcessor.getAllDataFilters().size() > 0)
-			dataProcessor.getAllDataFilters().remove(filterList.getSelectionModel().getSelectedIndex());
+		{
+			final int index = filterList.getSelectionModel().getSelectedIndex();
+			dataProcessor.getAllDataFilters().remove(index);
+			filterListItems.remove(index);
+		}
 	}
 	
 	@FXML
@@ -554,6 +563,8 @@ public class ChartOverviewController {
 		dataProcessor.setFilterValue(User.CONTEXT_BLOG, filterBlog.isSelected(), dataFilterIndex);
 		dataProcessor.setFilterValue(User.CONTEXT_HOBBIES, filterHobbies.isSelected(), dataFilterIndex);
 		dataProcessor.setFilterValue(User.CONTEXT_TRAVEL, filterTravel.isSelected(), dataFilterIndex);
+		
+		filterListItems.get(dataFilterIndex).setText(dataProcessor.getDataFilter(dataFilterIndex).toString());
 		
 		refreshData();
 	}
@@ -583,6 +594,24 @@ public class ChartOverviewController {
 		dataProcessor.setMetric(metricsBox.getValue());
 	}
 	
+	private void drawHistogram()
+	{
+		histogram.getData().clear();
+		
+		for(int dataFilterIndex=0; dataFilterIndex < dataProcessor.getAllDataFilters().size(); dataFilterIndex++)
+		{
+			XYChart.Series<String, Number> series = new XYChart.Series<String, Number>();
+			series.setName(dataProcessor.getDataFilter(dataFilterIndex).toString());
+			
+			List<Integer> list = dataProcessor.getClickCostFrequency(dataFilterIndex);
+			for(int cost=0; cost<list.size(); cost++)
+			{
+				series.getData().add(new XYChart.Data<String, Number>(""+(cost+1), list.get(cost)));
+			}
+			histogram.getData().add(series);
+		}
+	}
+	
 	private void drawChart() {
 		areaChart.getData().clear();
 				
@@ -590,7 +619,7 @@ public class ChartOverviewController {
 		{
 			XYChart.Series<Number, Number> series = new XYChart.Series<Number, Number>();
 			series.setName(dataProcessor.getDataFilter(dataFilterIndex).toString());
-			
+						
 			List<? extends Number> list = dataProcessor.getData(dataFilterIndex);
 			int counter = 0;
 			for (Number n : list) {

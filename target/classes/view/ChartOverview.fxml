@@ -2,6 +2,8 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.AreaChart?>
+<?import javafx.scene.chart.BarChart?>
+<?import javafx.scene.chart.CategoryAxis?>
 <?import javafx.scene.chart.NumberAxis?>
 <?import javafx.scene.chart.PieChart?>
 <?import javafx.scene.control.Button?>
@@ -142,7 +144,7 @@
                               <content>
                                 <AnchorPane>
                                        <children>
-                                          <AreaChart fx:id="areaChart" animated="false" legendSide="TOP" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                          <AreaChart fx:id="areaChart" animated="false" legendSide="TOP" legendVisible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                                             <xAxis>
                                               <NumberAxis label="Increment" side="BOTTOM" />
                                             </xAxis>
@@ -181,6 +183,22 @@
                                     </AnchorPane>
                               </content>
                             </Tab>
+                              <Tab text="Click Costs">
+                                <content>
+                                  <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                                       <children>
+                                          <BarChart fx:id="histogram" animated="false" barGap="0.0" categoryGap="1.0" legendSide="TOP" legendVisible="false" verticalGridLinesVisible="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                            <xAxis>
+                                              <CategoryAxis label="Cost (Pence)" side="BOTTOM" />
+                                            </xAxis>
+                                            <yAxis>
+                                              <NumberAxis label="Frequency" side="LEFT" />
+                                            </yAxis>
+                                          </BarChart>
+                                       </children>
+                                    </AnchorPane>
+                                </content>
+                              </Tab>
                           </tabs>
                         </TabPane>
                      </children>
@@ -197,7 +215,7 @@
                               <ListView fx:id="filterList" VBox.vgrow="ALWAYS" />
                               <HBox alignment="CENTER" fillHeight="false" spacing="10.0" VBox.vgrow="NEVER">
                                  <children>
-                                    <MenuButton focusTraversable="false" mnemonicParsing="false" text="Filters">
+                                    <MenuButton focusTraversable="false" maxWidth="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefWidth="110.0" text="Filters">
                                        <items>
                                           <CustomMenuItem hideOnClick="false" mnemonicParsing="false" text="Unspecified Action">
                                              <content>
@@ -274,7 +292,7 @@
                                        </items>
                                     </MenuButton>
                                     <Button fx:id="removeFilterBTN" alignment="CENTER" mnemonicParsing="false" onAction="#handleRemoveFilter" prefHeight="28.0" prefWidth="28.0" text="-" />
-                                  <Button fx:id="addFilterBTN" alignment="CENTER" mnemonicParsing="false" onAction="#handleAddFilter" prefHeight="28.0" prefWidth="28.0" text="+" />
+                                  <Button fx:id="addFilterBTN" alignment="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleAddFilter" prefHeight="28.0" prefWidth="28.0" text="+" />
                                  </children>
                                  <padding>
                                     <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

@@ -5,9 +5,6 @@ import java.util.function.Predicate;
 import core.users.User;
 import gnu.trove.list.TIntList;
 import gnu.trove.list.array.TIntArrayList;
-import javafx.beans.Observable;
-import javafx.beans.property.StringProperty;
-import javafx.util.Callback;
 
 public class DataFilter implements Predicate<Short> {
 	
@@ -83,18 +80,15 @@ public class DataFilter implements Predicate<Short> {
 	
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
-		
-		if (flags == FLAGS_ALL) {
-			sb.append("None");
-		} else {
-			for (User u : User.values()) {
-				if (getField(u)) {
-					sb.append(u.title);
-					sb.append('\n');
-				}
+		sb.append("Filters Applied:\n");
+		for(int i=0; i<User.values().length;  i++)
+		{
+			if(getField(User.values()[i]))
+			{
+				sb.append(User.values()[i].toString() + "  ");
+				if(i==1 || i==6 || i==9 || i==12) sb.append("\n");
 			}
 		}
-		
 		return sb.toString();
 	}
 }
