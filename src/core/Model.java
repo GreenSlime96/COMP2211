@@ -55,8 +55,17 @@ public class Model extends Observable {
 		final Campaign campaign = currentCampaign.get();
 		
 		// if doesn't exist, cannot duplicate
-		if (campaign == null)
-			System.out.println("cannot chart null campaign.");
+		if (campaign == null) {
+			final Alert alert = new Alert(AlertType.WARNING);
+			
+			alert.setTitle("No Campaign Selected");
+			alert.setHeaderText("No Campaign Selected");
+			alert.setContentText("You must have a Campaign Selected in order to add a Chart");
+			
+			alert.showAndWait();	
+			
+			return;
+		}
 		
 		// duplicate the current DataProcessor
 		final DataProcessor newProcessor = new DataProcessor(campaign);
@@ -167,6 +176,18 @@ public class Model extends Observable {
 	}
 	
 	public synchronized final void removeCampaign(Campaign campaign) {
+		
+		// error if null campaign
+		if (campaign == null) {
+			final Alert alert = new Alert(AlertType.WARNING);
+			
+			alert.setTitle("Invalid Campaign");
+			alert.setHeaderText("Error Removing Campaign");
+			alert.setContentText("You cannot remove a Campaign when one isn't selected");
+			
+			alert.showAndWait();	
+		}
+			
 		// iterate over DataProcessors to make sure there are no dependencies
 		for (DataProcessor dataProcessor : dataProcessors) {
 			if (dataProcessor.getCampaign().equals(campaign)) {
