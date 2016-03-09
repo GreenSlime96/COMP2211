@@ -9,7 +9,6 @@ public class DataFilter implements Predicate<Short> {
 	// ==== Constants ====
 	
 	public static final short FLAGS_ALL = -1;
-	public static final short FLAGS_NONE = 0;
 	
 	
 	// ==== Properties ====
@@ -67,7 +66,7 @@ public class DataFilter implements Predicate<Short> {
 	// ==== UI Hooks ====
 	
 	public String toString() {
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 		sb.append("Filters Applied:\n");
 		for(int i=0; i<User.values().length;  i++)
 		{
@@ -77,7 +76,6 @@ public class DataFilter implements Predicate<Short> {
 				if(i==1 || i==6 || i==9 || i==12) sb.append("\n");
 			}
 		}
-		if(flags == FLAGS_NONE) sb.append("None");
 		return sb.toString();
 	}
 }

@@ -56,8 +56,8 @@
                   <Label fx:id="costPerClick" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="10" />
                   <Label fx:id="costPerThousandImpressions" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="11" />
                   <Label fx:id="bounceRate" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="12" />
-                  <Label text="Campaign Start Date:" />
-                  <Label text="Campaign End Date:" GridPane.rowIndex="1" />
+                  <Label text="Campaign Start Date" />
+                  <Label text="Campaign End Date" GridPane.rowIndex="1" />
                   <Label fx:id="campaignStartDate" text="Label" GridPane.columnIndex="1" />
                   <Label fx:id="campaignEndDate" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                </children>
