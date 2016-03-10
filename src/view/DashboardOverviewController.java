@@ -16,6 +16,7 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -103,7 +104,16 @@ public class DashboardOverviewController {
 		removeCampaignButton.managedProperty().bind(progress.visibleProperty().not());
 		removeCampaignButton.visibleProperty().bind(progress.visibleProperty().not());
 		
-		progress.setVisible(false);		
+		progress.setVisible(false);
+		
+		// FOR DEBUGGING TAB CHANGING :/
+		campaignOverview.parentProperty().addListener(new ChangeListener<Parent>() {
+			@Override
+			public void changed(ObservableValue<? extends Parent> observable, Parent oldValue, Parent newValue) {
+				System.out.println("parent changed " + newValue);
+			}
+			
+		});
 		
 		chartsTabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {			
 			@Override
@@ -111,23 +121,41 @@ public class DashboardOverviewController {
 				// make addChartTab unselectable
 				if (newValue == addChartTab) {
 					// select old value if one exists
-					if (chartsTabPane.getTabs().size() != 1) {
-						chartsTabPane.getSelectionModel().select(oldValue);
+					if (chartsTabPane.getTabs().size() != 1)
 						model.addChart();
-					}
 					
 					return;
 				}
+													
+				// TODO: fix this mess
+				final int index = chartsTabPane.getTabs().indexOf(newValue);
+				final int oldex = chartsTabPane.getTabs().indexOf(oldValue);
 				
-				oldValue.setContent(null);				
+				// TODO: values do not update; this is the cause for our problems
+				// ISSUE: parent doesn't get reassigned!!!
+				// do some assignment, newvalue isn't invalidated
+				oldValue.setContent(null);
 				newValue.setContent(campaignOverview);
 				
-				final int index = chartsTabPane.getTabs().indexOf(newValue);
-				
-				if (index != -1)
+				// new tab isn't removed, so it exists
+				if (index != -1) {					
+					// update the model
 					model.currentProcessor.set(model.dataProcessors.get(index));
-				else
-					model.currentProcessor.set(null);
+				} else {
+					System.out.println("tab has been removed");
+					
+					// tab is removed, switch to the old one
+					if (oldex != -1) {						
+						Platform.runLater(new Runnable() {
+							@Override
+							public void run() {
+								chartsTabPane.getSelectionModel().select(oldValue);
+								System.out.println("revert");	
+							}							
+						});
+					} else
+						System.err.println("what on earth...");
+				}
 			}		
 		});
 	}
@@ -247,11 +275,12 @@ public class DashboardOverviewController {
 								}
 							});
 
+							// consume but don't close, defer closing to c.wasRemoved();
 							tab.setOnCloseRequest(new EventHandler<Event>() {
 								@Override
 								public void handle(Event event) {
-									final int index = chartsTabPane.getTabs().indexOf(event.getSource());
-									model.removeChart(index);
+									model.removeChart(tabsList.indexOf(tab));
+									event.consume();
 								}
 							});
 
@@ -259,6 +288,14 @@ public class DashboardOverviewController {
 						}
 						
 						chartsTabPane.getSelectionModel().clearAndSelect(tabsList.size() - 2);
+					} else if (c.wasRemoved()) {
+						final int from = c.getFrom();
+						final int to = c.getTo();
+						
+						for (int i = from; i <= to; i++) {
+							tabsList.get(i).setContent(null);
+							tabsList.remove(i);
+						}
 					}
 
 				}

@@ -99,6 +99,10 @@ public class Model extends Observable {
 		currentProcessor.set(newProcessor);
 	}
 	
+	public synchronized final void removeChart() {
+		dataProcessors.remove(currentProcessor.get());
+	}
+	
 	// TODO: remove chart
 	public synchronized final void removeChart(int index) {
 		dataProcessors.remove(index);
