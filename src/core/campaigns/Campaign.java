@@ -163,7 +163,7 @@ public class Campaign {
 		
 		System.gc();
 		long memNow =Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-		FastTable tb = new FastTable(1392);			
+		//FastTable tb = new FastTable(1392);
 		long s1 = System.currentTimeMillis();
 
 		long max = 0;
@@ -182,7 +182,7 @@ public class Campaign {
 		System.out.println(max + " MAX");
 		long s2 = System.currentTimeMillis();			
 		System.out.println(s2 - s1 + " compress and store");
-		System.out.println(tb.size());
+		//System.out.println(tb.size());
 		System.gc();
 		long memLater = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
 		System.out.println(memLater - memNow);

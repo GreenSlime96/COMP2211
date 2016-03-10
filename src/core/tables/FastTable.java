@@ -3,7 +3,8 @@ package core.tables;
 import core.users.User;
 
 public class FastTable {
-	
+
+	/*
 	// store the possibilities here
 	
 	static final int combinations = User.combinations;
@@ -42,6 +43,6 @@ public class FastTable {
 	
 	public int size() {
 		return size;
-	}
+	} */
 
 }
