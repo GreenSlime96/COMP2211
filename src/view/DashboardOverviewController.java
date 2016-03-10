@@ -16,6 +16,7 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -103,7 +104,16 @@ public class DashboardOverviewController {
 		removeCampaignButton.managedProperty().bind(progress.visibleProperty().not());
 		removeCampaignButton.visibleProperty().bind(progress.visibleProperty().not());
 		
-		progress.setVisible(false);		
+		progress.setVisible(false);
+		
+		// FOR DEBUGGING TAB CHANGING :/
+		campaignOverview.parentProperty().addListener(new ChangeListener<Parent>() {
+			@Override
+			public void changed(ObservableValue<? extends Parent> observable, Parent oldValue, Parent newValue) {
+				System.out.println("parent changed " + newValue);
+			}
+			
+		});
 		
 		chartsTabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {			
 			@Override
@@ -111,30 +121,40 @@ public class DashboardOverviewController {
 				// make addChartTab unselectable
 				if (newValue == addChartTab) {
 					// select old value if one exists
-					if (chartsTabPane.getTabs().size() != 1) {
-						chartsTabPane.getSelectionModel().select(oldValue);
+					if (chartsTabPane.getTabs().size() != 1)
 						model.addChart();
-					}
 					
 					return;
 				}
-									
+													
+				// TODO: fix this mess
 				final int index = chartsTabPane.getTabs().indexOf(newValue);
+				final int oldex = chartsTabPane.getTabs().indexOf(oldValue);
+				
+				// TODO: values do not update; this is the cause for our problems
+				// ISSUE: parent doesn't get reassigned!!!
+				// do some assignment, newvalue isn't invalidated
+				oldValue.setContent(null);
+				newValue.setContent(campaignOverview);
 				
 				// new tab isn't removed, so it exists
 				if (index != -1) {					
 					// update the model
 					model.currentProcessor.set(model.dataProcessors.get(index));
-					
-					// do some assignment jiggy
-					oldValue.setContent(null);	
-					newValue.setContent(campaignOverview);					
 				} else {
-					// index is -1, so old tab got deleted... what do?
-					model.currentProcessor.set(null);
+					System.out.println("tab has been removed");
 					
-					// select old value?
-					chartsTabPane.getSelectionModel().select(oldValue);
+					// tab is removed, switch to the old one
+					if (oldex != -1) {						
+						Platform.runLater(new Runnable() {
+							@Override
+							public void run() {
+								chartsTabPane.getSelectionModel().select(oldValue);
+								System.out.println("revert");	
+							}							
+						});
+					} else
+						System.err.println("what on earth...");
 				}
 			}		
 		});
