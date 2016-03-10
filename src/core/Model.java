@@ -161,8 +161,7 @@ public class Model extends Observable {
 	}
 	
 	public synchronized final void removeCampaign() {
-		final Campaign campaign = currentCampaign.get();		
-		removeCampaign(campaign);
+		removeCampaign(currentCampaign.get());
 	}
 
 	/**

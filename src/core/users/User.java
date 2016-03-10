@@ -3,6 +3,7 @@ package core.users;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
@@ -11,6 +12,8 @@ import gnu.trove.list.TShortList;
 import gnu.trove.list.array.TShortArrayList;
 import gnu.trove.map.TShortByteMap;
 import gnu.trove.map.hash.TShortByteHashMap;
+import gnu.trove.set.TShortSet;
+import gnu.trove.set.hash.TShortHashSet;
 
 public enum User {
 	GENDER_MALE("Male"), 
@@ -37,6 +40,8 @@ public enum User {
 	
 	public static final TShortByteMap byteCache;
 	public static final short[] shortCache;
+	
+	public static final int combinations;
 	
 	static {
 		// internal class to represent a node
@@ -74,6 +79,7 @@ public enum User {
 		fringe.add(root);
 		
 		for (User u : values()) {
+			
 			// if this has been processed before
 			if (processed[u.ordinal()])
 				continue;
@@ -107,10 +113,8 @@ public enum User {
 		while (!stack.isEmpty()) {
 			Node node = stack.pop();
 			
-			if (node.children == null) {				
-				tempMap.put(node.mask, (byte) (shorts.size() + Byte.MIN_VALUE));
+			if (node.children == null) {
 				shorts.add(node.mask);
-				System.out.println(node.mask);
 			} else {
 				for (Node n : node.children) {
 					stack.push(n);
@@ -118,10 +122,22 @@ public enum User {
 			}			
 		}
 		
-		tempMap.compact();
-		
+		// transfer references
 		byteCache = TCollections.unmodifiableMap(tempMap);
 		shortCache = shorts.toArray();
+		
+		// combinations
+		combinations = shortCache.length;
+		
+		// sort the array
+		Arrays.sort(shortCache);
+		
+		// map the shit out of this
+		for (int i = 0; i < shortCache.length; i++)
+			tempMap.put(shortCache[i], (byte) (i + Byte.MIN_VALUE));
+		
+		// compact to save memory
+		tempMap.compact();
 	}
 	
 	private static final int[] info_map;
@@ -207,7 +223,8 @@ public enum User {
 		return byteCache.get(userData);
 	}
 	
-	public static int compress(short userData) {		
+	public static int compress(short userData) {
+		// 3secs faster than binary search over 10000000 entries
 		return byteCache.get(userData) - Byte.MIN_VALUE;
 	}
 	
