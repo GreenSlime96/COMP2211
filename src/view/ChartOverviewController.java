@@ -195,9 +195,14 @@ public class ChartOverviewController {
 		if(dataProcessor == null)
 			return;
 		//Setup filter list
-		//filterList.setItems(dataProcessor.getAllDataFilters());
+		filterListItems.clear();
 		filterList.setItems(filterListItems);
-		filterListItems.add(new FilterListItem(dataProcessor.getDataFilter(0).toString(), 0));
+		int index = 0;
+		for(DataFilter f : dataProcessor.getAllDataFilters())
+		{
+			filterListItems.add(new FilterListItem(f.toString(), index));
+			index++;
+		}
 		
 		filterList.getSelectionModel().clearAndSelect(0);
 
