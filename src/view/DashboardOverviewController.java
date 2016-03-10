@@ -118,16 +118,24 @@ public class DashboardOverviewController {
 					
 					return;
 				}
-				
-				oldValue.setContent(null);				
-				newValue.setContent(campaignOverview);
-				
+									
 				final int index = chartsTabPane.getTabs().indexOf(newValue);
 				
-				if (index != -1)
+				// new tab isn't removed, so it exists
+				if (index != -1) {					
+					// update the model
 					model.currentProcessor.set(model.dataProcessors.get(index));
-				else
+					
+					// do some assignment jiggy
+					oldValue.setContent(null);	
+					newValue.setContent(campaignOverview);					
+				} else {
+					// index is -1, so old tab got deleted... what do?
 					model.currentProcessor.set(null);
+					
+					// select old value?
+					chartsTabPane.getSelectionModel().select(oldValue);
+				}
 			}		
 		});
 	}
@@ -247,11 +255,12 @@ public class DashboardOverviewController {
 								}
 							});
 
+							// consume but don't close, defer closing to c.wasRemoved();
 							tab.setOnCloseRequest(new EventHandler<Event>() {
 								@Override
 								public void handle(Event event) {
-									final int index = chartsTabPane.getTabs().indexOf(event.getSource());
-									model.removeChart(index);
+									model.removeChart(tabsList.indexOf(tab));
+									event.consume();
 								}
 							});
 
@@ -259,6 +268,14 @@ public class DashboardOverviewController {
 						}
 						
 						chartsTabPane.getSelectionModel().clearAndSelect(tabsList.size() - 2);
+					} else if (c.wasRemoved()) {
+						final int from = c.getFrom();
+						final int to = c.getTo();
+						
+						for (int i = from; i <= to; i++) {
+							tabsList.get(i).setContent(null);
+							tabsList.remove(i);
+						}
 					}
 
 				}

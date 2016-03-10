@@ -194,24 +194,25 @@ public class ChartOverviewController {
 		
 		if(dataProcessor == null)
 			return;
+		
+		// temporary hack
+		isReady = false;
+		
 		//Setup filter list
 		filterListItems.clear();
-		filterList.setItems(filterListItems);
-		int index = 0;
-		for(DataFilter f : dataProcessor.getAllDataFilters())
-		{
-			filterListItems.add(new FilterListItem(f.toString(), index));
-			index++;
-		}
 		
-		filterList.getSelectionModel().clearAndSelect(0);
+		for(DataFilter f : dataProcessor.getAllDataFilters()) {
+			final FilterListItem fli = new FilterListItem(f.toString(), filterListItems.size());
+			filterListItems.add(fli);
+		}	
+		
+		filterList.getSelectionModel().clearAndSelect(0);	
 
 		refreshData();
 	}
 	
 	@FXML
 	private void initialize() {
-
 		// update Metrics box with current metrics
 		metricsBox.setItems(METRICS);
 		metricsBox.setTooltip(new Tooltip("Select a metric for your chart"));
@@ -316,13 +317,18 @@ public class ChartOverviewController {
 		
 
 		//filter change
-		filterList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<FilterListItem>()
-				{
-					@Override
-					public void changed(ObservableValue<? extends FilterListItem> i, FilterListItem arg1, FilterListItem arg2) {
-						refreshData();
-					}
-				});
+		filterList.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<FilterListItem>() {
+			@Override
+			public void changed(ObservableValue<? extends FilterListItem> i, FilterListItem arg1, FilterListItem arg2) {
+				if (!isReady)
+					return;
+				
+				refreshData();
+			}
+		});
+		
+		// stuff?
+		filterList.setItems(filterListItems);
 
 		//Tooltips
 		addFilterBTN.setTooltip(new Tooltip("Add a new filter"));
@@ -390,8 +396,6 @@ public class ChartOverviewController {
 		cpaLabel.setText(cpa);
 		ctrLabel.setText(ctr);
 		bounceRateLabel.setText(bounceRate);
-
-
 	}
 		
 	private void drawUsers() {
@@ -529,6 +533,8 @@ public class ChartOverviewController {
 	{
 		DataFilter dataFilter = new DataFilter();
 		dataProcessor.addDataFilter(dataFilter);
+		
+		// refresh the list?
 		filterListItems.add(new FilterListItem(dataFilter.toString(), dataProcessor.getAllDataFilters().size()-1));
 		filterList.getSelectionModel().clearAndSelect(dataProcessor.getAllDataFilters().size()-1);
 	}
