@@ -8,6 +8,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import view.DashboardOverviewController;
+import view.RootLayoutController;
 
 public class Main extends Application {
 	
@@ -46,6 +47,10 @@ public class Main extends Application {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(Main.class.getResource("view/RootLayout.fxml"));
             rootLayout = (BorderPane) loader.load();
+
+			RootLayoutController controller1 = loader.getController();
+
+			controller1.setModelandStage(model, primaryStage);
             
             
         } catch (IOException e) {
@@ -64,7 +69,7 @@ public class Main extends Application {
             rootLayout.setCenter(dashboardOverview);
 
             DashboardOverviewController controller = loader.getController();
-            
+
             controller.setStageAndModel(primaryStage, model);
             
         } catch (IOException e) {
