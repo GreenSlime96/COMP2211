@@ -78,6 +78,29 @@ public class Model extends Observable {
 		
 	}
 	
+	public synchronized final void resetChart() {
+		final DataProcessor dataProcessor = currentProcessor.get();
+		
+		if (dataProcessor == null) {
+			final Alert alert = new Alert(AlertType.WARNING);
+			
+			alert.setTitle("No Chart Selected");
+			alert.setHeaderText("No Chart Selected");
+			alert.setContentText("You cannot reset an empty chart!");
+			
+			alert.showAndWait();	
+			
+			return;
+		}
+		
+		final Campaign campaign = dataProcessor.getCampaign();
+		final DataProcessor newProcessor = new DataProcessor(campaign);
+		final int index = dataProcessors.indexOf(dataProcessor);
+		
+		dataProcessors.set(index, newProcessor);
+		currentProcessor.set(newProcessor);
+	}
+	
 	/**
 	 * Duplicates the currently selected chart
 	 */
@@ -86,11 +109,20 @@ public class Model extends Observable {
 		final DataProcessor oldProcessor = currentProcessor.get();
 		
 		// if doesn't exist, cannot duplicate
-		if (oldProcessor == null)
-			System.out.println("cannot duplicate null chart.");
+		if (oldProcessor == null) {
+			final Alert alert = new Alert(AlertType.ERROR);
+			
+			alert.setTitle("No Chart Selected");
+			alert.setHeaderText("No Chart Selected");
+			alert.setContentText("Your must select a chart in order to duplicate it");
+			
+			alert.showAndWait();	
+			
+			return;
+		}
 		
 		// duplicate the current DataProcessor
-		final DataProcessor newProcessor = new DataProcessor(currentProcessor.get());
+		final DataProcessor newProcessor = new DataProcessor(oldProcessor);
 		
 		// add this to the list
 		dataProcessors.add(newProcessor);
@@ -100,7 +132,21 @@ public class Model extends Observable {
 	}
 	
 	public synchronized final void removeChart() {
-		dataProcessors.remove(currentProcessor.get());
+		final DataProcessor dataProcessor = currentProcessor.get();
+		
+		if (dataProcessor == null) {
+			final Alert alert = new Alert(AlertType.WARNING);
+			
+			alert.setTitle("No Chart Selected");
+			alert.setHeaderText("No Chart Selected");
+			alert.setContentText("Your must have an active chart to remove!");
+			
+			alert.showAndWait();	
+			
+			return;
+		}
+		
+		dataProcessors.remove(dataProcessor);
 	}
 	
 	// TODO: remove chart

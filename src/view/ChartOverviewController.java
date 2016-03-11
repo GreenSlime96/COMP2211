@@ -179,9 +179,26 @@ public class ChartOverviewController {
 	
 	// ==== End Bounces ====
 	
+	private CheckBox[][] filterGroups = new CheckBox[3][];
+		
 	private DataProcessor dataProcessor;
 	
 	private boolean isReady;
+	
+	
+	// ==== Constructor ====
+	
+	public ChartOverviewController() {
+		filterGroups = new CheckBox[][] {
+			{filterMale, filterFemale},
+			{filterBelow25, filter25to34, filter35to44, filter45to54, filterAbove54},
+			{filterLow, filterMedium, filterHigh},
+			{filterNews, filterShopping, filterSocialMedia, filterBlog, filterHobbies, filterTravel}};
+		
+	}
+	
+	
+	// ==== Accessors ====
 	
 	public void setCampaigns(ObservableList<Campaign> campaigns) {
 		campaignsBox.setItems(campaigns);
@@ -250,23 +267,21 @@ public class ChartOverviewController {
 		timeGranularity.getSelectionModel().clearAndSelect(1);
 		timeGranularity.setTooltip(new Tooltip("Set the time granularity of the chart"));
 
-
-		timeGranularity.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>()
-				{
-					@Override
-					public void changed(ObservableValue<? extends String> observable, String oldValue,
-							String newValue) {
-
-						int i = timeGranularity.getSelectionModel().getSelectedIndex();
-						if (i == 0)
-							dataProcessor.setTimeGranularityInSeconds(60*60*24*7);
-						else if(i == 1)
-							dataProcessor.setTimeGranularityInSeconds(60*60*24);
-						else if(i == 2)
-							dataProcessor.setTimeGranularityInSeconds(60*60);
-						refreshData();
-					}
-				});
+		timeGranularity.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<String>() {
+			@Override
+			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
+				final int i = timeGranularity.getSelectionModel().getSelectedIndex();
+				
+				if (i == 0)
+					dataProcessor.setTimeGranularityInSeconds(60 * 60 * 24 * 7);
+				else if (i == 1)
+					dataProcessor.setTimeGranularityInSeconds(60 * 60 * 24);
+				else if (i == 2)
+					dataProcessor.setTimeGranularityInSeconds(60 * 60);
+				
+				refreshData();
+			}
+		});
 
 		// locks to integers only
 		bounceViews.textProperty().addListener(new ChangeListener<String>() {
@@ -435,49 +450,42 @@ public class ChartOverviewController {
 		contextData.add(new PieChart.Data(User.CONTEXT_BLOG.toString(), users.get(User.CONTEXT_BLOG)));
 		contextData.add(new PieChart.Data(User.CONTEXT_HOBBIES.toString(), users.get(User.CONTEXT_HOBBIES)));
 		contextData.add(new PieChart.Data(User.CONTEXT_TRAVEL.toString(), users.get(User.CONTEXT_TRAVEL)));
-
 		addPieChartAnimation(contextChart);
 	}
 	
-	private void addPieChartAnimation(PieChart chart)
-	{
-		for (final PieChart.Data d : chart.getData())
-		{
+	private void addPieChartAnimation(PieChart chart) {
+		for (final PieChart.Data d : chart.getData()) {
 			d.getNode().setOnMouseEntered(new PieChartScaleAnimation(chart, d, true));
 			d.getNode().setOnMouseExited(new PieChartScaleAnimation(chart, d, false));
-			
+
 			Tooltip.install(d.getNode(), new Tooltip(d.getName() + ": " + d.getPieValue()));
 		}
 	}
 	
-	private void addAreaChartTooltips(AreaChart<Number, Number> chart)
-	{
-		for(XYChart.Series<Number, Number> s : chart.getData())
-		{
-			for(XYChart.Data<Number, Number> d : s.getData())
-			{
-				//Tooltips
-				Tooltip.install(d.getNode(), new Tooltip(
-						d.getXValue() + "\n" + 
-		        chart.getYAxis().getLabel() + ": " + d.getYValue()));
-			
-				//Adding class on hover
+	private void addAreaChartTooltips(AreaChart<Number, Number> chart) {
+		for (XYChart.Series<Number, Number> s : chart.getData()) {
+			for (XYChart.Data<Number, Number> d : s.getData()) {
+				// Tooltips
+				Tooltip.install(d.getNode(),
+						new Tooltip(d.getXValue() + "\n" + chart.getYAxis().getLabel() + ": " + d.getYValue()));
+
+				// Adding class on hover
 				d.getNode().setOnMouseEntered(new EventHandler<Event>() {
-					
-		            @Override
-		            public void handle(Event event) {
-		                d.getNode().getStyleClass().add("onHover");                     
-		            }
-		        });
-		
-		        //Removing class on exit
-		        d.getNode().setOnMouseExited(new EventHandler<Event>() {
-		
-		            @Override
-		            public void handle(Event event) {
-		                d.getNode().getStyleClass().remove("onHover");      
-		            }
-		        });
+
+					@Override
+					public void handle(Event event) {
+						d.getNode().getStyleClass().add("onHover");
+					}
+				});
+
+				// Removing class on exit
+				d.getNode().setOnMouseExited(new EventHandler<Event>() {
+
+					@Override
+					public void handle(Event event) {
+						d.getNode().getStyleClass().remove("onHover");
+					}
+				});
 			}
 		}
 	}
@@ -491,7 +499,7 @@ public class ChartOverviewController {
 		startDate.setTooltip(new Tooltip("Set the start date of your campaign"));
 		
 		endDate.setDayCellFactory(new DateRangeCallback(false, startLocalDate.plusDays(1),endLocalDate, dataProcessor.getDataStartDateTime().toLocalDate()));
-		endDate.setValue(dataProcessor.getDataEndDateTime().toLocalDate());
+		endDate.setValue(dataProcessor.getDataEndDateTime().toLocalDate().minusDays(1));
 		endDate.setTooltip(new Tooltip("Set the end date of your campaign"));
 	}
 	
@@ -529,21 +537,18 @@ public class ChartOverviewController {
 	}
 	
 	@FXML
-	private void handleAddFilter()
-	{
+	private void handleAddFilter() {
 		DataFilter dataFilter = new DataFilter();
 		dataProcessor.addDataFilter(dataFilter);
-		
+
 		// refresh the list?
-		filterListItems.add(new FilterListItem(dataFilter.toString(), dataProcessor.getAllDataFilters().size()-1));
-		filterList.getSelectionModel().clearAndSelect(dataProcessor.getAllDataFilters().size()-1);
+		filterListItems.add(new FilterListItem(dataFilter.toString(), dataProcessor.getAllDataFilters().size() - 1));
+		filterList.getSelectionModel().clearAndSelect(dataProcessor.getAllDataFilters().size() - 1);
 	}
 	
 	@FXML
-	private void handleRemoveFilter()
-	{
-		if(dataProcessor.getAllDataFilters().size() > 0)
-		{
+	private void handleRemoveFilter() {
+		if (dataProcessor.getAllDataFilters().size() > 0) {
 			final int index = filterList.getSelectionModel().getSelectedIndex();
 			dataProcessor.getAllDataFilters().remove(index);
 			filterListItems.remove(index);
@@ -552,7 +557,7 @@ public class ChartOverviewController {
 	
 	@FXML
 	private void handleFilter() {
-		fixDeselectedFilters();
+//		fixDeselectedFilters();
 		int dataFilterIndex = filterList.getSelectionModel().getSelectedIndex();
 		
 		dataProcessor.setFilterValue(User.GENDER_MALE, filterMale.isSelected(), dataFilterIndex);
@@ -586,13 +591,13 @@ public class ChartOverviewController {
 		final LocalTime time = LocalTime.of(0, 0);
 
 		dataProcessor.setDataStartDateTime(LocalDateTime.of(date, time));
-
+		
 		refreshData();
 	}
 	
 	@FXML
 	private void handleEndDate() {
-		final LocalDate date = endDate.getValue();
+		final LocalDate date = endDate.getValue().plusDays(1);
 		final LocalTime time = LocalTime.of(0, 0);
 		
 		dataProcessor.setDataEndDateTime(LocalDateTime.of(date, time));
@@ -644,36 +649,54 @@ public class ChartOverviewController {
 	}
 
 	//TODO code review
-	private void fixDeselectedFilters(){
-		if(!filterMale.isSelected() && !filterFemale.isSelected()){
-			filterMale.setSelected(true);
-			filterFemale.setSelected(true);
+	private void fixDeselectedFilters() {
+		
+		for (CheckBox[] group : filterGroups) {
+			boolean noneSelected = true;
+			
+			for (CheckBox checkbox : group) {
+				if (checkbox.isSelected()) {
+					noneSelected = false;
+					break;
+				}
+			}
+			
+			if (noneSelected) {
+				for (CheckBox checkbox : group) {
+					checkbox.setSelected(true);
+				}
+			}
 		}
-
-		if(!filterBelow25.isSelected() && !filter25to34.isSelected() && !filter35to44.isSelected() &&
-				!filter45to54.isSelected() && !filterAbove54.isSelected()){
-			filterBelow25.setSelected(true);
-			filter25to34.setSelected(true);
-			filter35to44.setSelected(true);
-			filter45to54.setSelected(true);
-			filterAbove54.setSelected(true);
-		}
-
-		if(!filterLow.isSelected() && !filterMedium.isSelected() && !filterHigh.isSelected()){
-			filterLow.setSelected(true);
-			filterMedium.setSelected(true);
-			filterHigh.setSelected(true);
-		}
-
-		if(!filterNews.isSelected() && !filterShopping.isSelected() && !filterSocialMedia.isSelected() &&
-				!filterBlog.isSelected() && !filterHobbies.isSelected() && !filterTravel.isSelected()){
-			filterNews.setSelected(true);
-			filterShopping.setSelected(true);
-			filterBlog.setSelected(true);
-			filterSocialMedia.setSelected(true);
-			filterHobbies.setSelected(true);
-			filterTravel.setSelected(true);
-		}
+		
+//		if(!filterMale.isSelected() && !filterFemale.isSelected()){
+//			filterMale.setSelected(true);
+//			filterFemale.setSelected(true);
+//		}
+//
+//		if(!filterBelow25.isSelected() && !filter25to34.isSelected() && !filter35to44.isSelected() &&
+//				!filter45to54.isSelected() && !filterAbove54.isSelected()){
+//			filterBelow25.setSelected(true);
+//			filter25to34.setSelected(true);
+//			filter35to44.setSelected(true);
+//			filter45to54.setSelected(true);
+//			filterAbove54.setSelected(true);
+//		}
+//
+//		if(!filterLow.isSelected() && !filterMedium.isSelected() && !filterHigh.isSelected()){
+//			filterLow.setSelected(true);
+//			filterMedium.setSelected(true);
+//			filterHigh.setSelected(true);
+//		}
+//
+//		if(!filterNews.isSelected() && !filterShopping.isSelected() && !filterSocialMedia.isSelected() &&
+//				!filterBlog.isSelected() && !filterHobbies.isSelected() && !filterTravel.isSelected()){
+//			filterNews.setSelected(true);
+//			filterShopping.setSelected(true);
+//			filterBlog.setSelected(true);
+//			filterSocialMedia.setSelected(true);
+//			filterHobbies.setSelected(true);
+//			filterTravel.setSelected(true);
+//		}
 	}
 
 }

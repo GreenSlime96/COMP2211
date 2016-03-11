@@ -389,6 +389,7 @@ public class DataProcessor {
 		final long campaignStartDate = DateProcessor.toEpochSeconds(campaign.getStartDateTime());
 		final long campaignEndDate = DateProcessor.toEpochSeconds(campaign.getEndDateTime());
 		
+		// increment date by one day		
 		final long newDateTime = DateProcessor.toEpochSeconds(dateTime);
 		
 //		if (newDateTime > campaignEndDate)

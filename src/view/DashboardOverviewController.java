@@ -16,7 +16,6 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -26,6 +25,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
@@ -50,6 +50,12 @@ public class DashboardOverviewController {
 	@FXML
 	private ProgressBar progress;
 	
+	@FXML
+	private AnchorPane displayPane;
+	
+	@FXML
+	private Label promptLabel;
+	
 	private Stage mainStage;
 	private Model model;
 	
@@ -62,12 +68,13 @@ public class DashboardOverviewController {
 	public DashboardOverviewController() {
 		FXMLLoader loader = new FXMLLoader();
 		loader.setLocation(this.getClass().getResource("ChartOverview.fxml"));
+		
 		try {
 			campaignOverview = (BorderPane) loader.load();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
 		chartController = loader.getController();
 	}
 	
@@ -96,6 +103,8 @@ public class DashboardOverviewController {
 			}			
 		});
 		
+		promptLabel.managedProperty().bind(campaignOverview.visibleProperty().not());
+		
 		progress.managedProperty().bind(progress.visibleProperty());
 		
 		addCampaignButton.managedProperty().bind(progress.visibleProperty().not());
@@ -106,58 +115,42 @@ public class DashboardOverviewController {
 		
 		progress.setVisible(false);
 		
-		// FOR DEBUGGING TAB CHANGING :/
-		campaignOverview.parentProperty().addListener(new ChangeListener<Parent>() {
-			@Override
-			public void changed(ObservableValue<? extends Parent> observable, Parent oldValue, Parent newValue) {
-				System.out.println("parent changed " + newValue);
-			}
-			
-		});
-		
 		chartsTabPane.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Tab>() {			
 			@Override
 			public void changed(ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue) {
 				// make addChartTab unselectable
 				if (newValue == addChartTab) {
-					// select old value if one exists
-					if (chartsTabPane.getTabs().size() != 1)
+					// select old value if one exists					
+					if (chartsTabPane.getTabs().size() != 1) {
+						chartsTabPane.getSelectionModel().select(oldValue);
 						model.addChart();
+					} else {
+						campaignOverview.setVisible(false);
+					}
 					
 					return;
 				}
-													
-				// TODO: fix this mess
-				final int index = chartsTabPane.getTabs().indexOf(newValue);
-				final int oldex = chartsTabPane.getTabs().indexOf(oldValue);
 				
-				// TODO: values do not update; this is the cause for our problems
-				// ISSUE: parent doesn't get reassigned!!!
-				// do some assignment, newvalue isn't invalidated
-				oldValue.setContent(null);
-				newValue.setContent(campaignOverview);
+				final int index = chartsTabPane.getTabs().indexOf(newValue);
 				
 				// new tab isn't removed, so it exists
 				if (index != -1) {					
-					// update the model
 					model.currentProcessor.set(model.dataProcessors.get(index));
 				} else {
-					System.out.println("tab has been removed");
-					
-					// tab is removed, switch to the old one
-					if (oldex != -1) {						
-						Platform.runLater(new Runnable() {
-							@Override
-							public void run() {
-								chartsTabPane.getSelectionModel().select(oldValue);
-								System.out.println("revert");	
-							}							
-						});
-					} else
-						System.err.println("what on earth...");
+					model.currentProcessor.set(null);
 				}
 			}		
 		});
+		
+		// hide to begin with
+		campaignOverview.setVisible(false);
+		
+		AnchorPane.setTopAnchor(campaignOverview, 0d);
+		AnchorPane.setBottomAnchor(campaignOverview, 0d);
+		AnchorPane.setLeftAnchor(campaignOverview, 0d);
+		AnchorPane.setRightAnchor(campaignOverview, 0d);
+		
+		displayPane.getChildren().add(campaignOverview);
 	}
 	
 	@FXML
@@ -193,6 +186,7 @@ public class DashboardOverviewController {
 		model.currentProcessor.addListener(new ChangeListener<DataProcessor>() {
 			@Override
 			public void changed(ObservableValue<? extends DataProcessor> observable, DataProcessor oldValue, DataProcessor newValue) {
+				System.out.println("changed");
 				chartController.setDataProcessor(newValue);				
 			}			
 		});
@@ -234,10 +228,14 @@ public class DashboardOverviewController {
 				
 				while (c.next()) {
 					if (c.wasAdded()) {
+						Tab latestTab = null;
+						
 						for (DataProcessor dataProcessor : c.getAddedSubList()) {
 							TextField textField = new TextField();
 							Label label = new Label("Chart" + model.dataProcessors.size());
 							Tab tab = new Tab();
+							
+							latestTab = tab;
 
 							tab.setGraphic(label);
 
@@ -287,15 +285,17 @@ public class DashboardOverviewController {
 							tabsList.add(tabsList.size() - 1, tab);
 						}
 						
-						chartsTabPane.getSelectionModel().clearAndSelect(tabsList.size() - 2);
+						// select the latest chart added
+						chartsTabPane.getSelectionModel().select(latestTab);
+						
+						// make this visible
+						campaignOverview.setVisible(true);
 					} else if (c.wasRemoved()) {
 						final int from = c.getFrom();
 						final int to = c.getTo();
 						
-						for (int i = from; i <= to; i++) {
-							tabsList.get(i).setContent(null);
+						for (int i = from; i <= to; i++)
 							tabsList.remove(i);
-						}
 					}
 
 				}

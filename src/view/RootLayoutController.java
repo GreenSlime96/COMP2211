@@ -4,6 +4,7 @@ import core.Model;
 import core.campaigns.Campaign;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.VBox;
@@ -29,16 +30,10 @@ public class RootLayoutController {
     }
 
     public void handleRemoveCampaign(){
-        System.out.println("Remove Current Campaign");
-        try {
-            model.removeCampaign();
-        }  catch (Exception e) {
-            e.printStackTrace();
-        }
+    	model.removeCampaign();
     }
 
     public void handleAddCampaign(){
-
         DirectoryChooser dc = new DirectoryChooser();
         File campaignDirectory = dc.showDialog(mainStage);
 
@@ -48,18 +43,27 @@ public class RootLayoutController {
     }
 
     public void close(){
-        System.out.println("Close");
         System.exit(0);
     }
 
     public void addChart(){
-        System.out.println("Add New Chart");
         model.addChart();
-
     }
 
     public void copy(){
        Campaign campaign = model.currentCampaign.get();
+       
+       if (campaign == null) {
+			final Alert alert = new Alert(AlertType.WARNING);
+			
+			alert.setTitle("No Campaign Selected");
+			alert.setHeaderText("No Campaign Selected");
+			alert.setContentText("You need an active campaign to copy it");
+			
+			alert.showAndWait();	
+			
+			return;
+       }
 
         StringBuilder clipboardString = new StringBuilder();
 
@@ -131,17 +135,17 @@ public class RootLayoutController {
 
     }
 
-    public void removeChart(){
+	public void removeChart() {
+		model.removeChart();
+	}
 
-    }
+	public void duplicateChart() {
+		model.duplicateCurrentChart();
+	}
 
-    public void duplicateChart(){
-        model.duplicateCurrentChart();
-    }
-
-    public void resetChart(){
-
-    }
+	public void resetChart() {
+		model.resetChart();
+	}
 
     public void about(){
         final Stage dialog = new Stage();

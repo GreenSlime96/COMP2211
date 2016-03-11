@@ -38,6 +38,9 @@ public class Campaign {
 
 	// ==== Constants ====
 
+	// threading
+	private static final int threads = Runtime.getRuntime().availableProcessors();
+	
 	// file name references
 	private static final String IMPRESSIONS_FILE = "impression_log.csv";
 	private static final String SERVERS_FILE = "server_log.csv";
@@ -439,8 +442,7 @@ public class Campaign {
 		final FileInputStream fis = new FileInputStream(new File(campaignDirectory, IMPRESSIONS_FILE));			
 		final FileChannel fc = fis.getChannel();
 		final MappedByteBuffer byteBuffer = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
-		
-		final int threads = Runtime.getRuntime().availableProcessors();
+		byteBuffer.load();
 		
 		impressionsTable = new ImpressionsTable();
 		
@@ -526,18 +528,18 @@ public class Campaign {
 		clicksProgress = clicksTable.indexOfDate(dateTime);
 		byteBuffer.rewind();
 		
-		// store the hour
-		int hour = dateTime - (dateTime % 3600) + 3600;
-		int hours = 0;
+//		// store the hour
+//		int hour = dateTime - (dateTime % 3600) + 3600;
+//		int hours = 0;
 		
 		// get the earliest dateTime
 		int startDateTime = dateTime;
 		
 		// test arrays?
-		int[] count = new int[180 * 600];
-		int[] total = new int[180 * 600];
+//		int[] count = new int[180 * 600];
+//		int[] total = new int[180 * 600];
 		
-		while (byteBuffer.hasRemaining()) {			
+		while (byteBuffer.hasRemaining()) {		
 			dateTime = DateProcessor.toEpochSeconds(byteBuffer);			
 			long userID = ImpressionParser.parseUserID(byteBuffer);			
 			short userData = User.encodeUser(byteBuffer);
@@ -545,19 +547,19 @@ public class Campaign {
 
 			if (clicksProgress < numberOfClicks && clicksTable.getUserID(clicksProgress) == userID)
 				clicksTable.setUserData(clicksProgress++, userData);
-
+			
 			if (byteBuffer.get() != '\n') 
 				throw new InvalidCampaignException("invalid entry: " + impressionsTable.size());
 			
-			if (dateTime > hour) {
-				hour += 3600;
-				hours += 180;
-			}
-			
-			int user = User.compress(userData);
-			
-			count[hours + user]++;
-			total[hours + user]+= cost;
+//			if (dateTime > hour) {
+//				hour += 3600;
+//				hours += 180;
+//			}
+//			
+//			int user = User.compress(userData);
+//			
+//			count[hours + user]++;
+//			total[hours + user]+= cost;
 
 			// add to my table
 			impressionsTable.add(dateTime, userData, cost);
