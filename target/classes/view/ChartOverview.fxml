@@ -31,8 +31,8 @@
    <top>
       <GridPane hgap="10.0" vgap="10.0" BorderPane.alignment="CENTER">
         <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="378.0" minWidth="10.0" prefWidth="187.0" />
+          <ColumnConstraints hgrow="SOMETIMES" maxWidth="659.0" minWidth="10.0" prefWidth="583.0" />
         </columnConstraints>
         <rowConstraints>
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -45,7 +45,9 @@
                </children></HBox>
             <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.columnIndex="1">
                <children>
+                  <Label prefHeight="17.0" prefWidth="110.0" text="Start Date" />
                   <DatePicker fx:id="startDate" onAction="#handleStartDate" promptText="Start Date" />
+                  <Label prefHeight="17.0" prefWidth="102.0" text="End Date" />
                   <DatePicker fx:id="endDate" onAction="#handleEndDate" promptText="End Date" />
                   <ChoiceBox fx:id="timeGranularity" prefWidth="150.0" />
                </children>
