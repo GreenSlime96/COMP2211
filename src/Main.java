@@ -20,7 +20,9 @@ public class Main extends Application {
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		this.primaryStage = primaryStage;
-		
+
+		primaryStage.setTitle("Ad Auction Dashboard");
+
 		// 720p
 		primaryStage.setMinWidth(1280);
 		primaryStage.setMinHeight(750);
