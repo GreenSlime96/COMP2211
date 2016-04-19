@@ -231,8 +231,8 @@ public class Model extends Observable {
 			final Alert alert = new Alert(AlertType.WARNING);
 			
 			alert.setTitle("Invalid Campaign");
-			alert.setHeaderText("Error Removing Campaign");
-			alert.setContentText("You cannot remove a Campaign when one isn't selected");
+			alert.setHeaderText("Error Unloading Campaign");
+			alert.setContentText("You cannot unload a Campaign when one isn't selected");
 			
 			alert.showAndWait();	
 		}
@@ -243,8 +243,8 @@ public class Model extends Observable {
 				final Alert alert = new Alert(AlertType.WARNING);
 				
 				alert.setTitle("Campaign In Use");
-				alert.setHeaderText("Error Removing Campaign");
-				alert.setContentText("Your Campaign cannot be removed as it is currently in use.");
+				alert.setHeaderText("Error Unloading Campaign");
+				alert.setContentText("Your Campaign cannot be unloading as it is currently in use.\nPlease close charts which have the Campaign loaded and try again.");
 				
 				alert.showAndWait();	
 				

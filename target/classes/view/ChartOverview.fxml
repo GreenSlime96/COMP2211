@@ -18,6 +18,7 @@
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -31,8 +32,8 @@
    <top>
       <GridPane hgap="10.0" vgap="10.0" BorderPane.alignment="CENTER">
         <columnConstraints>
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="378.0" minWidth="10.0" prefWidth="187.0" />
-          <ColumnConstraints hgrow="SOMETIMES" maxWidth="659.0" minWidth="10.0" prefWidth="583.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+          <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
         </columnConstraints>
         <rowConstraints>
           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
@@ -41,15 +42,16 @@
          <children>
             <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.rowIndex="1">
                <children>
+                  <Label text="Metric:" />
                   <ChoiceBox fx:id="metricsBox" />
                </children></HBox>
             <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.columnIndex="1">
                <children>
-                  <Label prefHeight="17.0" prefWidth="110.0" text="Start Date" />
-                  <DatePicker fx:id="startDate" onAction="#handleStartDate" promptText="Start Date" />
-                  <Label prefHeight="17.0" prefWidth="102.0" text="End Date" />
-                  <DatePicker fx:id="endDate" onAction="#handleEndDate" promptText="End Date" />
-                  <ChoiceBox fx:id="timeGranularity" prefWidth="150.0" />
+                  <Label maxWidth="-Infinity" minWidth="-Infinity" prefHeight="17.0" text="Start Date:" HBox.hgrow="NEVER" />
+                  <DatePicker fx:id="startDate" maxWidth="-Infinity" onAction="#handleStartDate" promptText="Start Date" HBox.hgrow="NEVER" />
+                  <Label maxWidth="-Infinity" minWidth="-Infinity" prefHeight="17.0" text="End Date:" HBox.hgrow="NEVER" />
+                  <DatePicker fx:id="endDate" maxWidth="-Infinity" onAction="#handleEndDate" promptText="End Date" HBox.hgrow="NEVER" />
+                  <ChoiceBox fx:id="timeGranularity" maxWidth="-Infinity" minWidth="-Infinity" HBox.hgrow="NEVER" />
                </children>
             </HBox>
             <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" spacing="10.0">
@@ -60,9 +62,17 @@
             </HBox>
             <HBox alignment="CENTER_RIGHT" prefHeight="100.0" prefWidth="200.0" spacing="10.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
                <children>
-                  <Label text="Bounce:" />
-                  <TextField fx:id="bounceViews" promptText="Page Views" />
-                  <TextField fx:id="bounceTime" promptText="Seconds on Page" />
+                  <Label maxWidth="-Infinity" minWidth="-Infinity" text="Bounce Pages Viewed:">
+                     <tooltip>
+                        <Tooltip text="The minimum number of Pages Viewed for a Visit to be considered a bounce. Must be an Integer &gt;0." />
+                     </tooltip></Label>
+                  <TextField fx:id="bounceViews" prefHeight="27.0" prefWidth="100.0" HBox.hgrow="NEVER" />
+                  <Label maxHeight="-Infinity" minWidth="-Infinity" text="Bounce Time:">
+                     <tooltip>
+                        <Tooltip text="The Minimum Time in Seconds a visitor is on a page before it is registered as a Bounce. Integer &gt;0." />
+                     </tooltip>
+                  </Label>
+                  <TextField fx:id="bounceTime" prefHeight="27.0" prefWidth="100.0" />
                </children>
             </HBox>
          </children>
@@ -205,7 +215,7 @@
                         </TabPane>
                      </children>
                   </AnchorPane>
-                <AnchorPane maxWidth="-Infinity" SplitPane.resizableWithParent="false">
+                <AnchorPane maxWidth="-Infinity" minWidth="-Infinity" prefWidth="255.0" SplitPane.resizableWithParent="false">
                      <children>
                         <VBox alignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                            <children>
@@ -214,7 +224,10 @@
                                     <Font name="System Bold" size="16.0" />
                                  </font>
                               </Label>
-                              <ListView fx:id="filterList" maxWidth="-Infinity" minWidth="-Infinity" VBox.vgrow="ALWAYS" />
+                              <ListView fx:id="filterList" VBox.vgrow="ALWAYS">
+                                 <VBox.margin>
+                                    <Insets />
+                                 </VBox.margin></ListView>
                               <HBox alignment="CENTER" fillHeight="false" spacing="10.0" VBox.vgrow="NEVER">
                                  <children>
                                     <MenuButton focusTraversable="false" mnemonicParsing="false" text="Filters">

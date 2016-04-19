@@ -292,15 +292,10 @@ public class ChartOverviewController {
 		        if (!newValue.isEmpty() && newValue.matches("\\d*")) {
 		            int value = Integer.parseInt(newValue);
 
-		            if (value > 2000) {
-		            	bounceViews.setText(oldValue);
-			           	return;
-		            }
-
 		            dataProcessor.setBounceMinimumPagesViewed(value);
 		            refreshData();
-//		        } else {
-//		        	bounceViews.setText(oldValue);
+		        } else {
+		        	bounceViews.setText(oldValue);
 		        }
 		    }
 		});
@@ -312,19 +307,13 @@ public class ChartOverviewController {
 		    	if (!isReady)
 		    		return;
 		    	
-		    	System.out.println("bounce changed");
 		        if (!newValue.isEmpty() && newValue.matches("\\d*")) {
 		            int value = Integer.parseInt(newValue);
 
-		            if (value > 2000) {
-		            	bounceTime.setText(oldValue);
-			           	return;
-		            }
-
 		            dataProcessor.setBounceMinimumSecondsOnPage(value);
 		            refreshData();
-//		        } else {
-//		        	bounceTime.setText(oldValue);
+		        } else {
+		        	bounceTime.setText(oldValue);
 		        }
 		    }
 

@@ -3,8 +3,8 @@
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.input.KeyCodeCombination?>
 <?import javafx.scene.layout.BorderPane?>
-<?import javafx.scene.input.*?>
 
 <BorderPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="720.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/8.0.65" xmlns:fx="http://javafx.com/fxml/1" fx:controller="view.RootLayoutController">
   <top>
@@ -12,17 +12,17 @@
       <menus>
         <Menu mnemonicParsing="false" text="File">
           <items>
-            <MenuItem mnemonicParsing="true" text="Add New Campaign" onAction="#handleAddCampaign" fx:id="add">
+            <MenuItem fx:id="add" mnemonicParsing="true" onAction="#handleAddCampaign" text="Add New Campaign">
               <accelerator>
                 <KeyCodeCombination alt="UP" code="N" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
               </accelerator>
             </MenuItem>
-            <MenuItem mnemonicParsing="true" text="Close Current Campaign" onAction="#handleRemoveCampaign" fx:id="remove">
+            <MenuItem fx:id="remove" mnemonicParsing="true" onAction="#handleRemoveCampaign" text="Unload Current Campaign">
               <accelerator>
                 <KeyCodeCombination alt="UP" code="D" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
               </accelerator>
             </MenuItem>
-            <MenuItem mnemonicParsing="false" text="Close" onAction="#close" fx:id="close">
+            <MenuItem fx:id="close" mnemonicParsing="false" onAction="#close" text="Close">
               <accelerator>
                 <KeyCodeCombination alt="UP" code="C" control="UP" meta="UP" shift="DOWN" shortcut="DOWN" />
               </accelerator>
@@ -31,7 +31,7 @@
         </Menu>
         <Menu mnemonicParsing="false" text="Edit">
           <items>
-            <MenuItem mnemonicParsing="false" text="Copy Campaign Metrics" onAction="#copy" >
+            <MenuItem mnemonicParsing="false" onAction="#copy" text="Copy Campaign Metrics">
               <accelerator>
                 <KeyCodeCombination alt="UP" code="C" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
               </accelerator>
@@ -40,22 +40,22 @@
         </Menu>
         <Menu mnemonicParsing="false" text="Chart">
           <items>
-            <MenuItem mnemonicParsing="false" text="Add New Chart" onAction="#addChart" fx:id="chart">
+            <MenuItem fx:id="chart" mnemonicParsing="false" onAction="#addChart" text="Add New Chart">
               <accelerator>
                 <KeyCodeCombination alt="UP" code="N" control="UP" meta="UP" shift="DOWN" shortcut="DOWN" />
               </accelerator>
             </MenuItem>
-            <MenuItem mnemonicParsing="false" text="Remove Current Chart" onAction="#removeChart">
+            <MenuItem mnemonicParsing="false" onAction="#removeChart" text="Remove Current Chart">
               <accelerator>
                 <KeyCodeCombination alt="UP" code="R" control="UP" meta="UP" shift="DOWN" shortcut="DOWN" />
               </accelerator>
             </MenuItem>
-            <MenuItem mnemonicParsing="false" text="Duplicate Current Chart" onAction="#duplicateChart">
+            <MenuItem mnemonicParsing="false" onAction="#duplicateChart" text="Duplicate Current Chart">
               <accelerator>
                 <KeyCodeCombination alt="UP" code="D" control="UP" meta="UP" shift="DOWN" shortcut="DOWN" />
               </accelerator>
             </MenuItem>
-            <MenuItem mnemonicParsing="false" text="Reset Current Chart" onAction="#resetChart">
+            <MenuItem mnemonicParsing="false" onAction="#resetChart" text="Reset Current Chart">
               <accelerator>
                 <KeyCodeCombination alt="UP" code="S" control="UP" meta="UP" shift="DOWN" shortcut="DOWN" />
               </accelerator>
@@ -64,12 +64,12 @@
         </Menu>
         <Menu mnemonicParsing="false" text="Window">
           <items>
-            <MenuItem mnemonicParsing="false" text="Minimise" onAction="#minimise">
+            <MenuItem mnemonicParsing="false" onAction="#minimise" text="Minimise">
               <accelerator>
                 <KeyCodeCombination alt="UP" code="M" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
               </accelerator>
             </MenuItem>
-            <MenuItem mnemonicParsing="false" text="Full Screen" onAction="#fullScreen">
+            <MenuItem mnemonicParsing="false" onAction="#fullScreen" text="Full Screen">
               <accelerator>
                 <KeyCodeCombination alt="UP" code="F" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
               </accelerator>
@@ -78,7 +78,7 @@
         </Menu>
         <Menu mnemonicParsing="false" text="Help">
           <items>
-            <MenuItem mnemonicParsing="false" text="About" onAction="#about">
+            <MenuItem mnemonicParsing="false" onAction="#about" text="About">
               <accelerator>
                 <KeyCodeCombination alt="UP" code="A" control="UP" meta="UP" shift="UP" shortcut="DOWN" />
               </accelerator>

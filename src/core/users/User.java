@@ -40,6 +40,7 @@ public enum User {
 	
 	public static final TShortByteMap byteCache;
 	public static final short[] shortCache;
+	public static final int[] sparseCache = new int[1 << Short.SIZE];
 	
 	public static final int combinations;
 	
@@ -133,8 +134,10 @@ public enum User {
 		Arrays.sort(shortCache);
 		
 		// map the shit out of this
-		for (int i = 0; i < shortCache.length; i++)
+		for (int i = 0; i < shortCache.length; i++) {
 			tempMap.put(shortCache[i], (byte) (i + Byte.MIN_VALUE));
+			sparseCache[shortCache[i] - Short.MIN_VALUE] = i;
+		}
 		
 		// compact to save memory
 		tempMap.compact();
@@ -224,8 +227,10 @@ public enum User {
 	}
 	
 	public static int compress(short userData) {
+//		return Arrays.binarySearch(shortCache, userData);
 		// 3secs faster than binary search over 10000000 entries
-		return byteCache.get(userData) - Byte.MIN_VALUE;
+//		return byteCache.get(userData) - Byte.MIN_VALUE;
+		return sparseCache[userData - Short.MIN_VALUE];
 	}
 	
 	public static short unpackUser(byte userByte) {

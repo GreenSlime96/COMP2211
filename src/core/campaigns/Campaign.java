@@ -19,7 +19,6 @@ import java.util.concurrent.Future;
 
 import core.data.DataFilter;
 import core.tables.ClicksTable;
-import core.tables.FastTable;
 import core.tables.ImpressionsTable;
 import core.tables.LogTable;
 import core.users.InvalidUserException;
@@ -126,115 +125,11 @@ public class Campaign {
 			System.out.println("Bounces:\t" + numberOfBounces);
 			System.out.println("Page Views:\t" + numberOfPagesViewed);
 			System.out.println("--------------------------------------");
-			
-//			tests();
 		} catch (InvalidUserException e) {
 			throw new InvalidCampaignException("Invalid User Data in impression_log.csv");
 		} catch (IOException e) {
 			throw new InvalidCampaignException("Invalid Campaign Directory!");
 		}		
-	}
-	
-	private final void tests() {
-		final String username = System.getProperty("user.name");
-		
-		if (!username.equals("kbp2g14") && !username.equals("khengboonpek"))
-			return;
-		
-		int maxDiff = 0;
-		int nMaxDiff = 0;
-		for (int i = 0; i < serversTable.size(); i++) {
-			nMaxDiff = Math.max(nMaxDiff, serversTable.getDateTime(i) - clicksTable.getDateTime(i));
-			
-			if (serversTable.getExitDateTime(i) == DateProcessor.DATE_NULL)
-				continue;
-			
-			maxDiff = Math.max(maxDiff, serversTable.getExitDateTime(i) - serversTable.getDateTime(i));
-		}
-		
-		System.out.println("maxDiff: " + maxDiff);
-		System.out.println("nMaxDiff: " + nMaxDiff);
-		
-		DataFilter df = new DataFilter();
-		df.setField(User.GENDER_MALE, false);
-		df.setField(User.INCOME_HIGH, false);
-		
-		// hourly
-		int et = impressionsTable.getDateTime(0) + 3600;
-		
-		int[] ncount = new int[180 * 1392];
-		
-		System.gc();
-		long memNow =Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-		long s1 = System.currentTimeMillis();
-
-		long max = 0;
-		int hour = 0;
-		for (int i = 0; i < impressionsTable.size(); i++) {				
-			while (impressionsTable.getDateTime(i) > et) {
-				hour += 180;
-				et += 3600;
-			}
-			
-			final byte userData = User.compressUser(impressionsTable.getUserData(i));
-			final int offset = userData - Byte.MIN_VALUE;
-			
-			ncount[hour + offset]++;
-		}	
-		System.out.println(max + " MAX");
-		long s2 = System.currentTimeMillis();			
-		System.out.println(s2 - s1 + " compress and store");
-		System.gc();
-		long memLater = Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-		System.out.println(memLater - memNow);
-
-		TIntArrayList tial = new TIntArrayList();
-		
-		for (int i = 0; i < 180; i++) {
-			if (df.test(User.unpackUser(i))) {
-				tial.add(i);
-			}
-		}
-		
-		int[] match = tial.toArray();
-		long tc = 0;
-		s1 = System.currentTimeMillis();
-//		for (int p = 0; p < 100000; p++) {
-			tc = 0;
-//			// 0.07196ms per op
-//			// no CPU cache optimisation
-//			for (int j : match) {
-//				for (int i = 0; i < ncount.length; i+= 180) {
-//					tc += ncount[i + j];
-//				}
-//			}
-			// 0.04917ms per op
-			for (int i = 0; i < 1392 * 180; i += 180) {
-				for (int j : match) {
-					tc += ncount[i + j];
-				}
-			}
-//		}
-		s2 = System.currentTimeMillis();			
-		System.out.println((s2 - s1) + " new iteration * 100");
-		
-		
-		System.out.println(tc);
-		
-		s1 = System.currentTimeMillis();
-//		for (int p = 0; p < 1000; p++) {
-			tc = 0;
-			for (int i = 0; i < impressionsTable.size(); i++) {
-				if (df.test(impressionsTable.getUserData(i)))
-					tc++;
-			}
-//		}
-		s2 = System.currentTimeMillis();			
-		System.out.println(s2 - s1 + " old iteration");
-		
-		System.out.println(tc);
-		
-//		System.exit(0);
 	}
 
 	// ==== Accessors ====
@@ -426,6 +321,10 @@ public class Campaign {
 		// Set variable
 		numberOfUniques = usersSet.size();
 	}
+	
+	private void processBytes(final byte barray[]) {
+		
+	}
 
 	/**
 	 * @throws InvalidCampaignException 
@@ -442,7 +341,6 @@ public class Campaign {
 		final FileInputStream fis = new FileInputStream(new File(campaignDirectory, IMPRESSIONS_FILE));			
 		final FileChannel fc = fis.getChannel();
 		final MappedByteBuffer byteBuffer = fc.map(FileChannel.MapMode.READ_ONLY, 0, fc.size());
-		byteBuffer.load();
 		
 		impressionsTable = new ImpressionsTable();
 		
@@ -493,6 +391,7 @@ public class Campaign {
 			}));
 		}
 		
+		// TODO: slow
 		for (Future<ImpressionsTable> future : list) {
 			try {
 				impressionsTable.append(future.get());
