@@ -163,6 +163,6 @@ public class RootLayoutController {
     }
 
     public void fullScreen(){
-        mainStage.setFullScreen(true);
+        mainStage.setFullScreen(!mainStage.isFullScreen());
     }
 }

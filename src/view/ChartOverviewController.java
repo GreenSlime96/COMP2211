@@ -456,7 +456,7 @@ public class ChartOverviewController {
 			d.getNode().setOnMouseEntered(new PieChartScaleAnimation(chart, d, true));
 			d.getNode().setOnMouseExited(new PieChartScaleAnimation(chart, d, false));
 
-			Tooltip.install(d.getNode(), new Tooltip(d.getName() + ": " + d.getPieValue()));
+			Tooltip.install(d.getNode(), new Tooltip(d.getName() + ": " + ((int)d.getPieValue())));
 		}
 	}
 	
