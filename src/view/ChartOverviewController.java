@@ -24,6 +24,8 @@ import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
 import javafx.scene.chart.XYChart;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ChoiceBox;
@@ -233,7 +235,7 @@ public class ChartOverviewController {
 		// update Metrics box with current metrics
 		metricsBox.setItems(METRICS);
 		metricsBox.setTooltip(new Tooltip("Select a metric for your chart"));
-
+		
 		// listener to update DataProcessor metric
 		metricsBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Metric>() {
 			@Override
@@ -243,10 +245,13 @@ public class ChartOverviewController {
 		    		return;
 		    	
 				dataProcessor.setMetric(newValue);
+				areaChart.getYAxis().setLabel(newValue.toString());
 				refreshData();
 			}
 		});
 
+		areaChart.getYAxis().setLabel(metricsBox.getItems().get(0).toString());
+		
 		// campaign change listener
 		campaignsBox.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Campaign>() {
 			@Override
@@ -279,10 +284,14 @@ public class ChartOverviewController {
 				else if (i == 2)
 					dataProcessor.setTimeGranularityInSeconds(60 * 60);
 				
+				areaChart.getXAxis().setLabel(newValue.toString());
+				
 				refreshData();
 			}
 		});
 
+		areaChart.getXAxis().setLabel(timeGranularity.getSelectionModel().getSelectedItem());
+		
 		// locks to integers only
 		bounceViews.textProperty().addListener(new ChangeListener<String>() {
 		    @Override public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
@@ -537,10 +546,17 @@ public class ChartOverviewController {
 	
 	@FXML
 	private void handleRemoveFilter() {
-		if (dataProcessor.getAllDataFilters().size() > 0) {
+		if (dataProcessor.getAllDataFilters().size() > 1) {
 			final int index = filterList.getSelectionModel().getSelectedIndex();
 			dataProcessor.getAllDataFilters().remove(index);
 			filterListItems.remove(index);
+		}else
+		{
+			Alert alert = new Alert(AlertType.WARNING);
+			alert.setTitle("Cannot remove last filter");
+			alert.setHeaderText("Error removing filter");
+			alert.setContentText("You cannot remove the last filter from a chart.");
+			alert.showAndWait();
 		}
 	}
 	
