@@ -203,6 +203,13 @@ public class RootLayoutController {
 			try 
 			{
 				ImageIO.write(SwingFXUtils.fromFXImage(chartIMG, null), "png", file);
+				
+				Alert alert = new Alert(AlertType.CONFIRMATION);
+				alert.setTitle("Image Saved Successfully");
+				alert.setHeaderText("Image Saved Successfully");
+				alert.setContentText("Chart image exported successfully.");
+				alert.showAndWait();
+				
 			} catch (IOException e)
 			{
 				e.printStackTrace();
