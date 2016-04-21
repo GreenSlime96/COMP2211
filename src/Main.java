@@ -17,6 +17,9 @@ public class Main extends Application {
 	
 	private Model model;
 
+	private RootLayoutController rootLayoutController;
+	private DashboardOverviewController dashboardOverviewController;
+	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		this.primaryStage = primaryStage;
@@ -50,9 +53,9 @@ public class Main extends Application {
             loader.setLocation(Main.class.getResource("view/RootLayout.fxml"));
             rootLayout = (BorderPane) loader.load();
 
-			RootLayoutController controller1 = loader.getController();
+			rootLayoutController = loader.getController();
 
-			controller1.setModelandStage(model, primaryStage);
+			rootLayoutController.setModelandStage(model, primaryStage);
             
             
         } catch (IOException e) {
@@ -70,9 +73,11 @@ public class Main extends Application {
             // Set person overview into the center of root layout.
             rootLayout.setCenter(dashboardOverview);
 
-            DashboardOverviewController controller = loader.getController();
+            dashboardOverviewController = loader.getController();
 
-            controller.setStageAndModel(primaryStage, model);
+            dashboardOverviewController.setStageAndModel(primaryStage, model);
+            
+            rootLayoutController.setDashboardOverviewController(dashboardOverviewController);
             
         } catch (IOException e) {
             e.printStackTrace();

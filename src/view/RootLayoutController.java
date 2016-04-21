@@ -1,10 +1,14 @@
 package view;
 
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
+
 import core.Model;
 import core.campaigns.Campaign;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Scene;
-import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.WritableImage;
@@ -17,11 +21,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.io.File;
-import java.io.IOException;
-
-import javax.imageio.ImageIO;
-
 /**
  * Created by RyanBeal on 07/03/2016.
  */
@@ -31,11 +30,18 @@ public class RootLayoutController {
     private Model model;
     private Stage mainStage;
 
+    private DashboardOverviewController dashboardOverviewController;
+    
     public void setModelandStage(Model model, Stage stage) {
         this.model = model;
         this.mainStage = stage;
     }
 
+    public void setDashboardOverviewController(DashboardOverviewController c)
+    {
+    	this.dashboardOverviewController = c;
+    }
+    
     public void handleRemoveCampaign(){
     	model.removeCampaign();
     }
@@ -174,8 +180,34 @@ public class RootLayoutController {
     }
     
     public void saveAsPng(){
-    	model.saveAsPng();
-    
+    	WritableImage chartIMG = dashboardOverviewController.getChartAsIMG();
+    	
+    	FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Save Image");
+		
+		// Set extension filter
+		FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
+		"PNG files (*.png)", "*.png");
+		fileChooser.getExtensionFilters().add(extFilter);
+		
+		// Show save file dialog
+		File file = fileChooser.showSaveDialog(mainStage);
+		
+		if (file != null) {
+		// Make sure it has the correct extension
+			if (!file.getPath().endsWith(".png")) 
+			{
+				file = new File(file.getPath() + ".png");
+			}
+			
+			try 
+			{
+				ImageIO.write(SwingFXUtils.fromFXImage(chartIMG, null), "png", file);
+			} catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
     }
     
     public void printChart(){

@@ -17,8 +17,6 @@ import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import view.ChartOverviewController;
-import view.RootLayoutController;
 
 public class Model extends Observable {
 

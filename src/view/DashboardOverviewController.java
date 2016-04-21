@@ -24,6 +24,7 @@ import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TitledPane;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -303,5 +304,10 @@ public class DashboardOverviewController {
 		});
 		
 		chartController.setCampaigns(model.campaigns);
+	}
+	
+	public WritableImage getChartAsIMG()
+	{
+		return chartController.getChartAsIMG();
 	}
 }

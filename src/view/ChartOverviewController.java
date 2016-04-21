@@ -12,9 +12,6 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
-import org.omg.Messaging.SyncScopeHelper;
-
-import core.Model;
 import core.campaigns.Campaign;
 import core.data.DataFilter;
 import core.data.DataProcessor;
@@ -723,6 +720,11 @@ public class ChartOverviewController {
 	public void start(Stage dialogStage) {
 		this.dialogStage = dialogStage;
 		
+	}
+	
+	public WritableImage getChartAsIMG()
+	{
+		return areaChart.snapshot(new SnapshotParameters(), null);
 	}
 	
 	//calling this method will export the areaChart as a .png file
