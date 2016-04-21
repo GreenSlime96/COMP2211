@@ -60,6 +60,16 @@
                 <KeyCodeCombination alt="UP" code="S" control="UP" meta="UP" shift="DOWN" shortcut="DOWN" />
               </accelerator>
             </MenuItem>
+            <MenuItem mnemonicParsing="false" onAction="#saveAsPng" text="Save Chart as PNG">
+              <accelerator>
+                <KeyCodeCombination alt="UP" code="V" control="UP" meta="UP" shift="DOWN" shortcut="DOWN" />
+              </accelerator>
+            </MenuItem>
+            <MenuItem mnemonicParsing="false" onAction="#printChart" text="Print Current Chart">
+              <accelerator>
+                <KeyCodeCombination alt="UP" code="P" control="UP" meta="UP" shift="DOWN" shortcut="DOWN" />
+              </accelerator>
+            </MenuItem>
           </items>
         </Menu>
         <Menu mnemonicParsing="false" text="Window">

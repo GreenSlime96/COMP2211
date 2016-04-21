@@ -2,18 +2,25 @@ package view;
 
 import core.Model;
 import core.campaigns.Campaign;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.Scene;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.image.WritableImage;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 /**
  * Created by RyanBeal on 07/03/2016.
@@ -41,7 +48,7 @@ public class RootLayoutController {
             model.addCampaign(campaignDirectory);
 
     }
-
+   
     public void close(){
         System.exit(0);
     }
@@ -164,5 +171,15 @@ public class RootLayoutController {
 
     public void fullScreen(){
         mainStage.setFullScreen(true);
+    }
+    
+    public void saveAsPng(){
+    	model.saveAsPng();
+    
+    }
+    
+    public void printChart(){
+//    	model.printChart();
+    	System.out.println("hello");
     }
 }

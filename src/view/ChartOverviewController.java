@@ -1,5 +1,7 @@
 package view;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,6 +10,11 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+
+import org.omg.Messaging.SyncScopeHelper;
+
+import core.Model;
 import core.campaigns.Campaign;
 import core.data.DataFilter;
 import core.data.DataProcessor;
@@ -17,9 +24,11 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.SnapshotParameters;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.PieChart;
@@ -34,6 +43,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.image.WritableImage;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 import util.DateRangeCallback;
 import view.animation.PieChartScaleAnimation;
 
@@ -196,7 +208,7 @@ public class ChartOverviewController {
 			{filterBelow25, filter25to34, filter35to44, filter45to54, filterAbove54},
 			{filterLow, filterMedium, filterHigh},
 			{filterNews, filterShopping, filterSocialMedia, filterBlog, filterHobbies, filterTravel}};
-		
+					
 	}
 	
 	
@@ -649,8 +661,9 @@ public class ChartOverviewController {
 			
 			areaChart.getData().add(series);
 		}
-		
+
 		addAreaChartTooltips(areaChart);
+//		saveAsPng();
 	}
 
 	//TODO code review
@@ -702,6 +715,49 @@ public class ChartOverviewController {
 //			filterHobbies.setSelected(true);
 //			filterTravel.setSelected(true);
 //		}
+		
 	}
-
+	
+	
+	private Stage dialogStage;
+	public void start(Stage dialogStage) {
+		this.dialogStage = dialogStage;
+		
+	}
+	
+	//calling this method will export the areaChart as a .png file
+	public void saveAsPng() {
+		Boolean update = true;
+		while (update){
+			this.refreshData();
+			update = false;
+	}
+		WritableImage image = areaChart.snapshot(new SnapshotParameters(), null);
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.setTitle("Save Image");
+		
+		// Set extension filter
+		FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter(
+		"PNG files (*.png)", "*.png");
+		fileChooser.getExtensionFilters().add(extFilter);
+		
+		// Show save file dialog
+		File file = fileChooser.showSaveDialog(this.dialogStage);
+		
+		if (file != null) {
+		// Make sure it has the correct extension
+		if (!file.getPath().endsWith(".png")) 
+		{
+			file = new File(file.getPath() + ".png");
+		}
+		
+		try 
+		{
+			ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
+			} catch (IOException e) {
+				// TODO: handle exception here
+			}
+		}
+	
+		}
 }
