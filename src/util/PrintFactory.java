@@ -12,27 +12,40 @@ import javafx.scene.transform.Scale;
 
 public class PrintFactory {
 
-	public static void printNode(final Node node) throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
-	    Printer printer = Printer.getDefaultPrinter();
+	public static void printNodes(PageOrientation pageOrientation, final Node... nodes) throws NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+		if(nodes.length == 0) return;
+
+		Printer printer = Printer.getDefaultPrinter();
 	    PageLayout pageLayout
-	        = printer.createPageLayout(Paper.A4, PageOrientation.LANDSCAPE, Printer.MarginType.HARDWARE_MINIMUM);
+	        = printer.createPageLayout(Paper.A4, pageOrientation, Printer.MarginType.HARDWARE_MINIMUM);
 	    PrinterJob job = PrinterJob.createPrinterJob();
-	    double scaleX
-	        = pageLayout.getPrintableWidth() / node.getBoundsInParent().getWidth();
-	    double scaleY
-	        = pageLayout.getPrintableHeight() / node.getBoundsInParent().getHeight();
+	    job.showPrintDialog(nodes[0].getScene().getWindow());
 	    
-	    Scale scale = (scaleX < scaleY ? new Scale(scaleX, scaleX) : new Scale(scaleY, scaleY));
-	    node.getTransforms().add(scale);
-
-	    if (job != null && job.showPrintDialog(node.getScene().getWindow())) {
-	      boolean success = job.printPage(pageLayout, node);
-	      if (success) {
-	        job.endJob();
-
-	      }
+	    boolean success = true;
+	    
+	    for(Node node : nodes)
+	    {
+		    double scaleX
+		        = pageLayout.getPrintableWidth() / node.getBoundsInParent().getWidth();
+		    double scaleY
+		        = pageLayout.getPrintableHeight() / node.getBoundsInParent().getHeight();
+		    
+		    Scale scale = (scaleX < scaleY ? new Scale(scaleX, scaleX) : new Scale(scaleY, scaleY));
+		    node.getTransforms().add(scale);
+	
+		    if (job != null) {
+		      if(!job.printPage(pageLayout, node))
+		      {
+		    	  success = false;
+		    	  break;
+		      }
+		    }
+		    node.getTransforms().remove(scale);
 	    }
-	    node.getTransforms().remove(scale);
+	    if (success)
+	    	job.endJob();
+
 	  }
+	
 	
 }

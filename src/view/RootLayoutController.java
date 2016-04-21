@@ -11,10 +11,13 @@ import core.Model;
 import core.campaigns.Campaign;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.print.PageLayout;
+import javafx.print.PageOrientation;
 import javafx.print.PrinterJob;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.TitledPane;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
@@ -225,22 +228,15 @@ public class RootLayoutController {
     //printing
     public void printChart() throws FileNotFoundException{
     	
-    	try {
-			PrintFactory.printNode(dashboardOverviewController.getChartPrintNode());
-		} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InvocationTargetException e) {
+ 
+		try {
+			PrintFactory.printNodes(PageOrientation.LANDSCAPE, dashboardOverviewController.getChartPrintNode());
+		} catch (NoSuchMethodException | InstantiationException | IllegalAccessException
+				| InvocationTargetException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	
+
     	/*
     	WritableImage image = dashboardOverviewController.getChartAsIMG();
     	File file = new File("chart.png");
