@@ -727,6 +727,11 @@ public class ChartOverviewController {
 		return areaChart.snapshot(new SnapshotParameters(), null);
 	}
 	
+	public AreaChart getAreaChart()
+	{
+		return areaChart;
+	}
+	
 	//calling this method will export the areaChart as a .png file
 	public void saveAsPng() {
 

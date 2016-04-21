@@ -16,6 +16,7 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.chart.Chart;
 import javafx.scene.control.Accordion;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -309,5 +310,10 @@ public class DashboardOverviewController {
 	public WritableImage getChartAsIMG()
 	{
 		return chartController.getChartAsIMG();
+	}
+	
+	public Chart getActiveChart()
+	{
+		return chartController.getAreaChart();
 	}
 }

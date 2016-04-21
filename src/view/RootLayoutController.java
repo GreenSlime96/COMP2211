@@ -21,6 +21,7 @@ import javax.print.attribute.standard.OrientationRequested;
 import core.Model;
 import core.campaigns.Campaign;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.print.PrinterJob;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
@@ -240,7 +241,19 @@ public class RootLayoutController {
 	    } catch (IOException e) {
 	        // TODO: handle exception here
 	    }
-    	
+	    
+	    
+	    PrinterJob job = PrinterJob.createPrinterJob();
+	    
+	    if (job != null && job.showPrintDialog(mainStage)){
+	        boolean success = job.printPage(dashboardOverviewController.getActiveChart());
+	        if (success) {
+	            job.endJob();
+	        }
+	    }
+	    
+	    /*
+	    
 	    PrintRequestAttributeSet pras = new HashPrintRequestAttributeSet();
 	    pras.add(OrientationRequested.LANDSCAPE);
 	    pras.add(new Copies(1));
@@ -250,9 +263,11 @@ public class RootLayoutController {
 	      throw new RuntimeException("No printer services available.");
 	    }
 	     
+	    
 	    PrintService ps = pss[0];
 	    System.out.println("Printing to " + ps);
 	    DocPrintJob job = ps.createPrintJob();
+	    
 	    FileInputStream fin = new FileInputStream("chart.png");
 	    Doc doc = new SimpleDoc(fin, DocFlavor.INPUT_STREAM.GIF, null);
 	    
@@ -267,6 +282,6 @@ public class RootLayoutController {
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
     }
 }
