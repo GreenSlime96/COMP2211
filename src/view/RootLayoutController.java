@@ -1,26 +1,16 @@
 package view;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.imageio.ImageIO;
-import javax.print.Doc;
-import javax.print.DocFlavor;
-import javax.print.DocPrintJob;
-import javax.print.PrintException;
-import javax.print.PrintService;
-import javax.print.PrintServiceLookup;
-import javax.print.SimpleDoc;
-import javax.print.attribute.HashPrintRequestAttributeSet;
-import javax.print.attribute.PrintRequestAttributeSet;
-import javax.print.attribute.standard.Copies;
-import javax.print.attribute.standard.OrientationRequested;
 
 import core.Model;
 import core.campaigns.Campaign;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.print.PageLayout;
 import javafx.print.PrinterJob;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -34,6 +24,7 @@ import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import util.PrintFactory;
 
 /**
  * Created by RyanBeal on 07/03/2016.
@@ -233,6 +224,24 @@ public class RootLayoutController {
     
     //printing
     public void printChart() throws FileNotFoundException{
+    	
+    	try {
+			PrintFactory.printNode(dashboardOverviewController.getChartPrintNode());
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
+    	/*
     	WritableImage image = dashboardOverviewController.getChartAsIMG();
     	File file = new File("chart.png");
 
@@ -246,7 +255,9 @@ public class RootLayoutController {
 	    PrinterJob job = PrinterJob.createPrinterJob();
 	    
 	    if (job != null && job.showPrintDialog(mainStage)){
-	        boolean success = job.printPage(dashboardOverviewController.getActiveChart());
+	    	//boolean success = job.printPage(dashboardOverviewController.getActiveChart());
+	        boolean success = job.printPage(job.getPrinter().getDefaultPageLayout(), dashboardOverviewController.getChartPrintNode());
+	        		
 	        if (success) {
 	            job.endJob();
 	        }
@@ -284,4 +295,6 @@ public class RootLayoutController {
 			e.printStackTrace();
 		}*/
     }
+    
+    
 }

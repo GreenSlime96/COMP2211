@@ -25,6 +25,7 @@ import javafx.embed.swing.SwingFXUtils;
 import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.chart.AreaChart;
 import javafx.scene.chart.BarChart;
@@ -38,6 +39,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.SplitPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.WritableImage;
@@ -54,6 +56,9 @@ public class ChartOverviewController {
 	
 	
 	// ==== FXML Properties ====
+	
+	@FXML
+	private SplitPane splitPane;
 	
 	@FXML
 	private AreaChart<Number, Number> areaChart;
@@ -727,9 +732,9 @@ public class ChartOverviewController {
 		return areaChart.snapshot(new SnapshotParameters(), null);
 	}
 	
-	public AreaChart getAreaChart()
+	public Node getPrintNode()
 	{
-		return areaChart;
+		return splitPane;
 	}
 	
 	//calling this method will export the areaChart as a .png file
