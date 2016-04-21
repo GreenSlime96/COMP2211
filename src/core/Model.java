@@ -257,10 +257,6 @@ public class Model extends Observable {
 		campaigns.remove(campaign);
 	}
 	
-	public void saveAsPng(){
-		System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-		System.out.println("This does not do anything yet.");
-		//do stuff here
-	}
+
 
 }

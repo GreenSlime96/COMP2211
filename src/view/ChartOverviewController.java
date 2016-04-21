@@ -729,11 +729,7 @@ public class ChartOverviewController {
 	
 	//calling this method will export the areaChart as a .png file
 	public void saveAsPng() {
-		Boolean update = true;
-		while (update){
-			this.refreshData();
-			update = false;
-	}
+
 		WritableImage image = areaChart.snapshot(new SnapshotParameters(), null);
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setTitle("Save Image");

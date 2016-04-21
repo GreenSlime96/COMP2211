@@ -1,9 +1,22 @@
 package view;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+import javax.print.Doc;
+import javax.print.DocFlavor;
+import javax.print.DocPrintJob;
+import javax.print.PrintException;
+import javax.print.PrintService;
+import javax.print.PrintServiceLookup;
+import javax.print.SimpleDoc;
+import javax.print.attribute.HashPrintRequestAttributeSet;
+import javax.print.attribute.PrintRequestAttributeSet;
+import javax.print.attribute.standard.Copies;
+import javax.print.attribute.standard.OrientationRequested;
 
 import core.Model;
 import core.campaigns.Campaign;
@@ -217,8 +230,43 @@ public class RootLayoutController {
 		}
     }
     
-    public void printChart(){
-//    	model.printChart();
-    	System.out.println("hello");
+    //printing
+    public void printChart() throws FileNotFoundException{
+    	WritableImage image = dashboardOverviewController.getChartAsIMG();
+    	File file = new File("chart.png");
+
+	    try {
+	        ImageIO.write(SwingFXUtils.fromFXImage(image, null), "png", file);
+	    } catch (IOException e) {
+	        // TODO: handle exception here
+	    }
+    	
+	    PrintRequestAttributeSet pras = new HashPrintRequestAttributeSet();
+	    pras.add(OrientationRequested.LANDSCAPE);
+	    pras.add(new Copies(1));
+	    PrintService pss[] = PrintServiceLookup.lookupPrintServices(DocFlavor.INPUT_STREAM.GIF, pras);
+	    
+	    if (pss.length == 0){
+	      throw new RuntimeException("No printer services available.");
+	    }
+	     
+	    PrintService ps = pss[0];
+	    System.out.println("Printing to " + ps);
+	    DocPrintJob job = ps.createPrintJob();
+	    FileInputStream fin = new FileInputStream("chart.png");
+	    Doc doc = new SimpleDoc(fin, DocFlavor.INPUT_STREAM.GIF, null);
+	    
+	    try {
+			job.print(doc, pras);
+		} catch (PrintException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	    try {
+			fin.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 }
